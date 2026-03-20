@@ -1,65 +1,79 @@
-import Image from "next/image";
+'use client';
+
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import SerpNav from '@/components/layout/SerpNav';
+import PageHeader from '@/components/layout/PageHeader';
+import ForecastTab from '@/components/forecast/ForecastTab';
+import MappingTab from '@/components/mapping/MappingTab';
+import ExecutionTab from '@/components/execution/ExecutionTab';
+import MonitorTab from '@/components/monitor/MonitorTab';
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="min-h-screen bg-[#F5F7FA] text-[13px]">
+      <SerpNav />
+      <PageHeader />
+
+      <Tabs defaultValue="forecast" className="w-full">
+        <div className="bg-white border-b-2 border-[#E2E8F0] px-5">
+          <TabsList className="h-auto p-0 bg-transparent gap-0 rounded-none">
+            <TabsTrigger
+              value="forecast"
+              className="px-5 py-2.5 text-[13px] text-[#718096] data-[state=active]:text-[#00A3E0] data-[state=active]:font-semibold data-[state=active]:border-b-2 data-[state=active]:border-[#00A3E0] rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none -mb-[2px] flex items-center gap-1.5"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+              <span className="w-1.5 h-1.5 bg-[#7C3AED] rounded-full" />
+              AI 수요예측 & 보충제안
+            </TabsTrigger>
+            <TabsTrigger
+              value="mapping"
+              className="px-5 py-2.5 text-[13px] text-[#718096] data-[state=active]:text-[#00A3E0] data-[state=active]:font-semibold data-[state=active]:border-b-2 data-[state=active]:border-[#00A3E0] rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none -mb-[2px] flex items-center gap-1.5"
             >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+              <span className="w-1.5 h-1.5 bg-[#7C3AED] rounded-full" />
+              스타일 맵핑
+            </TabsTrigger>
+            <TabsTrigger
+              value="execution"
+              className="px-5 py-2.5 text-[13px] text-[#718096] data-[state=active]:text-[#00A3E0] data-[state=active]:font-semibold data-[state=active]:border-b-2 data-[state=active]:border-[#00A3E0] rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none -mb-[2px]"
+            >
+              보충 실행 관리
+            </TabsTrigger>
+            <TabsTrigger
+              value="monitor"
+              className="px-5 py-2.5 text-[13px] text-[#718096] data-[state=active]:text-[#00A3E0] data-[state=active]:font-semibold data-[state=active]:border-b-2 data-[state=active]:border-[#00A3E0] rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none -mb-[2px]"
+            >
+              성과 모니터링
+            </TabsTrigger>
+          </TabsList>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+
+        <TabsContent value="forecast" className="m-0">
+          <ForecastTab />
+        </TabsContent>
+        <TabsContent value="mapping" className="m-0">
+          <MappingTab />
+        </TabsContent>
+        <TabsContent value="execution" className="m-0">
+          <ExecutionTab />
+        </TabsContent>
+        <TabsContent value="monitor" className="m-0">
+          <MonitorTab />
+        </TabsContent>
+      </Tabs>
+
+      {/* Footer */}
+      <div className="bg-white border-t border-[#E2E8F0] px-5 py-2.5 flex justify-between items-center sticky bottom-0">
+        <div className="text-[11px] text-[#718096]">
+          F&F S-ERP (유통ERP) | 배분보충-AIA v0.1 Draft | Menu: ALOC10004 | 2026-03-20
         </div>
-      </main>
+        <div className="flex gap-2">
+          <button className="px-3 py-1.5 text-[11px] border border-[#E2E8F0] rounded hover:bg-[#F5F7FA]">
+            💬 피드백
+          </button>
+          <button className="px-3 py-1.5 text-[11px] border border-[#E2E8F0] rounded hover:bg-[#F5F7FA]">
+            📖 사용 가이드
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

@@ -128,3 +128,20 @@
     @apply font-sans;
   }
 }
+
+/* S-ERP Custom Colors */
+:root {
+  --serp-primary: #1B3A5C;
+  --serp-primary-light: #2C5F8A;
+  --serp-accent: #00A3E0;
+  --serp-accent-light: #E6F7FF;
+  --serp-success: #28A745;
+  --serp-warning: #F5A623;
+  --serp-danger: #DC3545;
+  --serp-bg: #F5F7FA;
+  --serp-border: #E2E8F0;
+  --serp-text: #2D3748;
+  --serp-text-light: #718096;
+  --ai-purple: #7C3AED;
+  --ai-purple-light: #EDE9FE;
+}
