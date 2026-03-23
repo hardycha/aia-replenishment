@@ -1,17 +1,17 @@
 'use client';
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import SerpNav from '@/components/layout/SerpNav';
+// import SerpNav from '@/components/layout/SerpNav';
 import PageHeader from '@/components/layout/PageHeader';
 import ForecastTab from '@/components/forecast/ForecastTab';
 import MappingTab from '@/components/mapping/MappingTab';
-import ExecutionTab from '@/components/execution/ExecutionTab';
-import MonitorTab from '@/components/monitor/MonitorTab';
+// import ExecutionTab from '@/components/execution/ExecutionTab';
+// import MonitorTab from '@/components/monitor/MonitorTab';
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-[#F5F7FA] text-[13px]">
-      <SerpNav />
+      {/* SerpNav 제거됨 */}
       <PageHeader />
 
       <Tabs defaultValue="forecast" className="w-full">
@@ -31,18 +31,22 @@ export default function Home() {
               <span className="w-1.5 h-1.5 bg-[#7C3AED] rounded-full" />
               스타일 맵핑
             </TabsTrigger>
+            {/* 보충 실행 관리 탭 - 임시 비활성화
             <TabsTrigger
               value="execution"
               className="px-5 py-2.5 text-[13px] text-[#718096] data-[state=active]:text-[#00A3E0] data-[state=active]:font-semibold data-[state=active]:border-b-2 data-[state=active]:border-[#00A3E0] rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none -mb-[2px]"
             >
               보충 실행 관리
             </TabsTrigger>
+            */}
+            {/* 성과 모니터링 탭 - 임시 비활성화
             <TabsTrigger
               value="monitor"
               className="px-5 py-2.5 text-[13px] text-[#718096] data-[state=active]:text-[#00A3E0] data-[state=active]:font-semibold data-[state=active]:border-b-2 data-[state=active]:border-[#00A3E0] rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none -mb-[2px]"
             >
               성과 모니터링
             </TabsTrigger>
+            */}
           </TabsList>
         </div>
 
@@ -52,12 +56,16 @@ export default function Home() {
         <TabsContent value="mapping" className="m-0">
           <MappingTab />
         </TabsContent>
+        {/* 보충 실행 관리 탭 콘텐츠 - 임시 비활성화
         <TabsContent value="execution" className="m-0">
           <ExecutionTab />
         </TabsContent>
+        */}
+        {/* 성과 모니터링 탭 콘텐츠 - 임시 비활성화
         <TabsContent value="monitor" className="m-0">
           <MonitorTab />
         </TabsContent>
+        */}
       </Tabs>
 
       {/* Footer */}
