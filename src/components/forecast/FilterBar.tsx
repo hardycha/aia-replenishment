@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { brands, apOptions, seasons, categories } from '@/data/mockData';
+import { brands, apOptions, seasons } from '@/data/mockData';
 
 export default function FilterBar() {
   return (
@@ -26,6 +26,24 @@ export default function FilterBar() {
             {brands.map((brand) => (
               <SelectItem key={brand.code} value={brand.code} className="text-xs">
                 {brand.code}: {brand.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label className="text-[11px] text-[#718096] font-semibold">
+          <span className="text-[#DC3545]">*</span>시즌
+        </label>
+        <Select defaultValue="26S">
+          <SelectTrigger className="w-[100px] h-8 text-xs">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {seasons.map((season) => (
+              <SelectItem key={season} value={season} className="text-xs">
+                {season}
               </SelectItem>
             ))}
           </SelectContent>
@@ -52,67 +70,28 @@ export default function FilterBar() {
 
       <div className="flex flex-col gap-1">
         <label className="text-[11px] text-[#718096] font-semibold">
-          <span className="text-[#DC3545]">*</span>운영시즌
-        </label>
-        <Select defaultValue="26S">
-          <SelectTrigger className="w-[100px] h-8 text-xs">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {seasons.map((season) => (
-              <SelectItem key={season} value={season} className="text-xs">
-                {season}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="flex flex-col gap-1">
-        <label className="text-[11px] text-[#718096] font-semibold">중분류</label>
-        <Select defaultValue="전체">
-          <SelectTrigger className="w-[100px] h-8 text-xs">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {categories.map((cat) => (
-              <SelectItem key={cat} value={cat} className="text-xs">
-                {cat}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="flex flex-col gap-1">
-        <label className="text-[11px] text-[#718096] font-semibold">ITEM</label>
-        <Select defaultValue="전체">
-          <SelectTrigger className="w-[100px] h-8 text-xs">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="전체" className="text-xs">전체</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-
-      <div className="flex flex-col gap-1">
-        <label className="text-[11px] text-[#718096] font-semibold">
-          <span className="text-[#DC3545]">*</span>예측 기준일
+          <span className="text-[#DC3545]">*</span>스타일
         </label>
         <Input
-          type="date"
-          defaultValue="2026-03-20"
+          type="text"
+          placeholder="스타일코드 입력"
           className="w-[140px] h-8 text-xs"
         />
       </div>
 
-      <Button className="h-8 px-4 text-xs bg-[#00A3E0] hover:bg-[#0093CC]">
-        🔍 조회하기
-      </Button>
+      <div className="flex flex-col gap-1">
+        <label className="text-[11px] text-[#718096] font-semibold">
+          <span className="text-[#DC3545]">*</span>컬러
+        </label>
+        <Input
+          type="text"
+          placeholder="컬러코드 입력"
+          className="w-[100px] h-8 text-xs"
+        />
+      </div>
 
-      <Button className="h-8 px-4 text-xs bg-gradient-to-r from-[#7C3AED] to-[#9F7AEA] border-none hover:opacity-90">
-        ✦ AI 예측 실행
+      <Button className="h-8 px-5 text-xs bg-[#00A3E0] hover:bg-[#0093CC]">
+        조회
       </Button>
     </div>
   );
