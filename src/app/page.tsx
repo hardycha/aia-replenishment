@@ -1,9 +1,10 @@
 'use client';
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+// import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 // import SerpNav from '@/components/layout/SerpNav';
 import PageHeader from '@/components/layout/PageHeader';
-import ForecastTab from '@/components/forecast/ForecastTab';
+// import ForecastTab from '@/components/forecast/ForecastTab';
+import ReplenishmentTab from '@/components/replenishment/ReplenishmentTab';
 // import MappingTab from '@/components/mapping/MappingTab';
 // import ExecutionTab from '@/components/execution/ExecutionTab';
 // import MonitorTab from '@/components/monitor/MonitorTab';
@@ -14,63 +15,8 @@ export default function Home() {
       {/* SerpNav 제거됨 */}
       <PageHeader />
 
-      <Tabs defaultValue="forecast" className="w-full">
-        <div className="bg-white border-b-2 border-[#E2E8F0] px-5">
-          <TabsList className="h-auto p-0 bg-transparent gap-0 rounded-none">
-            <TabsTrigger
-              value="forecast"
-              className="px-5 py-2.5 text-[13px] text-[#718096] data-[state=active]:text-[#00A3E0] data-[state=active]:font-semibold data-[state=active]:border-b-2 data-[state=active]:border-[#00A3E0] rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none -mb-[2px] flex items-center gap-1.5"
-            >
-              <span className="w-1.5 h-1.5 bg-[#7C3AED] rounded-full" />
-              AI 수요예측 & 보충제안
-            </TabsTrigger>
-            {/* 스타일 맵핑 탭 - 임시 비활성화
-            <TabsTrigger
-              value="mapping"
-              className="px-5 py-2.5 text-[13px] text-[#718096] data-[state=active]:text-[#00A3E0] data-[state=active]:font-semibold data-[state=active]:border-b-2 data-[state=active]:border-[#00A3E0] rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none -mb-[2px] flex items-center gap-1.5"
-            >
-              <span className="w-1.5 h-1.5 bg-[#7C3AED] rounded-full" />
-              스타일 맵핑
-            </TabsTrigger>
-            */}
-            {/* 보충 실행 관리 탭 - 임시 비활성화
-            <TabsTrigger
-              value="execution"
-              className="px-5 py-2.5 text-[13px] text-[#718096] data-[state=active]:text-[#00A3E0] data-[state=active]:font-semibold data-[state=active]:border-b-2 data-[state=active]:border-[#00A3E0] rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none -mb-[2px]"
-            >
-              보충 실행 관리
-            </TabsTrigger>
-            */}
-            {/* 성과 모니터링 탭 - 임시 비활성화
-            <TabsTrigger
-              value="monitor"
-              className="px-5 py-2.5 text-[13px] text-[#718096] data-[state=active]:text-[#00A3E0] data-[state=active]:font-semibold data-[state=active]:border-b-2 data-[state=active]:border-[#00A3E0] rounded-none bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none -mb-[2px]"
-            >
-              성과 모니터링
-            </TabsTrigger>
-            */}
-          </TabsList>
-        </div>
-
-        <TabsContent value="forecast" className="m-0">
-          <ForecastTab />
-        </TabsContent>
-        {/* 스타일 맵핑 탭 콘텐츠 - 임시 비활성화
-        <TabsContent value="mapping" className="m-0">
-          <MappingTab />
-        </TabsContent>
-        */}
-        {/* 보충 실행 관리 탭 콘텐츠 - 임시 비활성화
-        <TabsContent value="execution" className="m-0">
-          <ExecutionTab />
-        </TabsContent>
-        */}
-        {/* 성과 모니터링 탭 콘텐츠 - 임시 비활성화
-        <TabsContent value="monitor" className="m-0">
-          <MonitorTab />
-        </TabsContent>
-        */}
-      </Tabs>
+      {/* v5: ReplenishmentTab - 목록/등록/상세 통합 뷰 */}
+      <ReplenishmentTab />
 
       {/* Footer */}
       <div className="bg-white border-t border-[#E2E8F0] px-5 py-2.5 flex justify-between items-center sticky bottom-0">
