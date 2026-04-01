@@ -21,7 +21,7 @@ export default function Home() {
       {/* Footer */}
       <div className="bg-white border-t border-[#E2E8F0] px-5 py-2.5 flex justify-between items-center sticky bottom-0">
         <div className="text-[11px] text-[#718096]">
-          F&F S-ERP (유통ERP) | 배분보충-AIA v0.1 Draft | Menu: ALOC10004 | 2026-03-20
+          F&F S-ERP (유통ERP) | 보충배분-AIA v0.1 Draft | Menu: ALOC10004 | 2026-03-20
         </div>
         <div className="flex gap-2">
           <button className="px-3 py-1.5 text-[11px] border border-[#E2E8F0] rounded hover:bg-[#F5F7FA]">
