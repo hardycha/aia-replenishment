@@ -38,6 +38,7 @@ git push origin --tags
 | v2.0 | 화면 간소화 (조회조건 + 재고요약 + 보충테이블) | 2026-03-25 |
 | v3.0 | HTML 프로토타입 (실시간 계산 아키텍처) | 2026-03-27 |
 | v4.0 | 실시간 계산 모드 적용 (Pipeline, KPI, SC요약, SCS상세) | 2026-03-27 |
+| v5.0 | AIA 목록/등록/상세 화면 통합 (ListView, RegisterView, DetailView) | 2026-03-30 |
 
 ## 버전 복구 방법
 ```bash
