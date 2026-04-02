@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -59,23 +59,508 @@ function generateInitialData() {
   return { data, apStock };
 }
 
+// 셀 키 생성 (row, col 기반)
+function getCellKey(row: number, col: number) {
+  return `cell_${row}_${col}`;
+}
+
 export default function ReplenishmentTab() {
   const [viewMode, setViewMode] = useState<ViewMode>('shop');
-  const [isQueried, setIsQueried] = useState(true);
   const [stockData, setStockData] = useState(() => generateInitialData().data);
   const [apStockMap] = useState(() => generateInitialData().apStock);
   const [toast, setToast] = useState<string | null>(null);
   const [isSimulating, setIsSimulating] = useState(false);
+
+  // 엑셀 스타일 셀 선택 상태
+  const [selectedCells, setSelectedCells] = useState<Set<string>>(new Set());
+  const [activeCell, setActiveCell] = useState<string | null>(null);
+  const [anchorCell, setAnchorCell] = useState<string | null>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editValue, setEditValue] = useState('');
+  const [isDragging, setIsDragging] = useState(false);
+  const [clipboard, setClipboard] = useState<{rows: number; cols: number; data: (number | null)[][]} | null>(null);
+  const [copiedCells, setCopiedCells] = useState<Set<string>>(new Set());
+
+  const editInputRef = useRef<HTMLInputElement>(null);
+  const tableRef = useRef<HTMLDivElement>(null);
+
+  // 셀 맵 (row, col -> dataKey)
+  const cellMap = useMemo(() => {
+    const map: Record<string, { row: number; col: number; dataKey: string }> = {};
+    let colIdx = 0;
+
+    if (viewMode === 'shop') {
+      STYLES.forEach(style => {
+        style.colors.forEach(color => {
+          SIZES.forEach(size => {
+            SHOPS.forEach((shop, rowIdx) => {
+              const cellKey = getCellKey(rowIdx, colIdx);
+              map[cellKey] = { row: rowIdx, col: colIdx, dataKey: `${shop.id}_${style.code}_${color}_${size}` };
+            });
+            colIdx++;
+          });
+        });
+      });
+    } else {
+      let rowIdx = 0;
+      STYLES.forEach(style => {
+        style.colors.forEach(color => {
+          colIdx = 0;
+          SHOPS.forEach(shop => {
+            SIZES.forEach(size => {
+              const cellKey = getCellKey(rowIdx, colIdx);
+              map[cellKey] = { row: rowIdx, col: colIdx, dataKey: `${shop.id}_${style.code}_${color}_${size}` };
+              colIdx++;
+            });
+          });
+          rowIdx++;
+        });
+      });
+    }
+
+    return map;
+  }, [viewMode]);
+
+  // 역방향 맵 (row_col -> cellKey)
+  const coordMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    Object.entries(cellMap).forEach(([cellKey, info]) => {
+      map[`${info.row}_${info.col}`] = cellKey;
+    });
+    return map;
+  }, [cellMap]);
+
+  // 최대 row, col 계산
+  const maxRow = useMemo(() => {
+    return viewMode === 'shop' ? SHOPS.length - 1 : STYLES.reduce((sum, s) => sum + s.colors.length, 0) - 1;
+  }, [viewMode]);
+
+  const maxCol = useMemo(() => {
+    if (viewMode === 'shop') {
+      return STYLES.reduce((sum, s) => sum + s.colors.length * SIZES.length, 0) - 1;
+    } else {
+      return SHOPS.length * SIZES.length - 1;
+    }
+  }, [viewMode]);
 
   const showToast = useCallback((msg: string) => {
     setToast(msg);
     setTimeout(() => setToast(null), 2500);
   }, []);
 
+  // 선택 초기화
+  const clearSelection = useCallback(() => {
+    setSelectedCells(new Set());
+    setActiveCell(null);
+    setAnchorCell(null);
+    setCopiedCells(new Set());
+  }, []);
+
+  // 범위 선택
+  const selectRange = useCallback((fromKey: string, toKey: string) => {
+    const from = cellMap[fromKey];
+    const to = cellMap[toKey];
+    if (!from || !to) return;
+
+    const r1 = Math.min(from.row, to.row);
+    const r2 = Math.max(from.row, to.row);
+    const c1 = Math.min(from.col, to.col);
+    const c2 = Math.max(from.col, to.col);
+
+    const newSelection = new Set<string>();
+    for (let r = r1; r <= r2; r++) {
+      for (let c = c1; c <= c2; c++) {
+        const key = coordMap[`${r}_${c}`];
+        if (key) newSelection.add(key);
+      }
+    }
+    setSelectedCells(newSelection);
+    setActiveCell(toKey);
+  }, [cellMap, coordMap]);
+
+  // 셀 클릭
+  const handleCellMouseDown = useCallback((cellKey: string, e: React.MouseEvent) => {
+    e.preventDefault();
+    if (isEditing) {
+      commitEdit();
+    }
+
+    if (e.shiftKey && anchorCell) {
+      selectRange(anchorCell, cellKey);
+    } else if (e.ctrlKey || e.metaKey) {
+      setSelectedCells(prev => {
+        const newSet = new Set(prev);
+        if (newSet.has(cellKey)) {
+          newSet.delete(cellKey);
+        } else {
+          newSet.add(cellKey);
+        }
+        return newSet;
+      });
+      setActiveCell(cellKey);
+    } else {
+      setSelectedCells(new Set([cellKey]));
+      setActiveCell(cellKey);
+      setAnchorCell(cellKey);
+      setIsDragging(true);
+    }
+  }, [anchorCell, isEditing, selectRange]);
+
+  // 드래그 선택
+  const handleCellMouseOver = useCallback((cellKey: string) => {
+    if (isDragging && anchorCell) {
+      selectRange(anchorCell, cellKey);
+    }
+  }, [isDragging, anchorCell, selectRange]);
+
+  // 마우스 업
+  useEffect(() => {
+    const handleMouseUp = () => setIsDragging(false);
+    document.addEventListener('mouseup', handleMouseUp);
+    return () => document.removeEventListener('mouseup', handleMouseUp);
+  }, []);
+
+  // 더블클릭 편집
+  const handleCellDoubleClick = useCallback((cellKey: string) => {
+    const info = cellMap[cellKey];
+    if (!info) return;
+    const value = stockData[info.dataKey]?.alloc ?? 0;
+    setEditValue(String(value));
+    setIsEditing(true);
+    setActiveCell(cellKey);
+    setTimeout(() => editInputRef.current?.select(), 0);
+  }, [cellMap, stockData]);
+
+  // 편집 커밋
+  const commitEdit = useCallback(() => {
+    if (!isEditing || !activeCell) return;
+    const info = cellMap[activeCell];
+    if (!info) return;
+
+    const numVal = editValue === '' ? 0 : parseInt(editValue) || 0;
+    setStockData(prev => ({
+      ...prev,
+      [info.dataKey]: { ...prev[info.dataKey], alloc: numVal }
+    }));
+    setIsEditing(false);
+    setEditValue('');
+  }, [isEditing, activeCell, cellMap, editValue]);
+
+  // 편집 취소
+  const cancelEdit = useCallback(() => {
+    setIsEditing(false);
+    setEditValue('');
+  }, []);
+
+  // 이웃 셀 찾기
+  const getNeighbor = useCallback((cellKey: string, dr: number, dc: number): string | null => {
+    const info = cellMap[cellKey];
+    if (!info) return null;
+    const newRow = info.row + dr;
+    const newCol = info.col + dc;
+    if (newRow < 0 || newRow > maxRow || newCol < 0 || newCol > maxCol) return null;
+    return coordMap[`${newRow}_${newCol}`] || null;
+  }, [cellMap, coordMap, maxRow, maxCol]);
+
+  // 이동
+  const moveTo = useCallback((fromKey: string, dr: number, dc: number) => {
+    const target = getNeighbor(fromKey, dr, dc);
+    if (!target) return;
+    setSelectedCells(new Set([target]));
+    setActiveCell(target);
+    setAnchorCell(target);
+  }, [getNeighbor]);
+
+  // 선택된 셀 범위 계산
+  const getSelectionBounds = useCallback(() => {
+    let minR = Infinity, maxR = -Infinity, minC = Infinity, maxC = -Infinity;
+    selectedCells.forEach(ck => {
+      const info = cellMap[ck];
+      if (info) {
+        minR = Math.min(minR, info.row);
+        maxR = Math.max(maxR, info.row);
+        minC = Math.min(minC, info.col);
+        maxC = Math.max(maxC, info.col);
+      }
+    });
+    return { minR, maxR, minC, maxC };
+  }, [selectedCells, cellMap]);
+
+  // 복사
+  const copySelection = useCallback(() => {
+    if (selectedCells.size === 0) return;
+    const { minR, maxR, minC, maxC } = getSelectionBounds();
+    const rows = maxR - minR + 1;
+    const cols = maxC - minC + 1;
+    const data: (number | null)[][] = [];
+
+    for (let r = 0; r < rows; r++) {
+      data[r] = [];
+      for (let c = 0; c < cols; c++) {
+        const ck = coordMap[`${minR + r}_${minC + c}`];
+        if (ck && cellMap[ck]) {
+          const d = stockData[cellMap[ck].dataKey];
+          data[r][c] = d ? d.alloc : null;
+        } else {
+          data[r][c] = null;
+        }
+      }
+    }
+
+    setClipboard({ rows, cols, data });
+    setCopiedCells(new Set(selectedCells));
+    showToast(`${selectedCells.size}개 셀 복사됨 (${rows}×${cols})`);
+  }, [selectedCells, getSelectionBounds, coordMap, cellMap, stockData, showToast]);
+
+  // 붙여넣기
+  const pasteClipboard = useCallback(() => {
+    if (!clipboard || !activeCell) return;
+    const base = cellMap[activeCell];
+    if (!base) return;
+
+    let pasted = 0;
+    const newData = { ...stockData };
+
+    for (let r = 0; r < clipboard.rows; r++) {
+      for (let c = 0; c < clipboard.cols; c++) {
+        const targetKey = coordMap[`${base.row + r}_${base.col + c}`];
+        if (targetKey && cellMap[targetKey]) {
+          const val = clipboard.data[r][c];
+          newData[cellMap[targetKey].dataKey] = {
+            ...newData[cellMap[targetKey].dataKey],
+            alloc: val ?? 0
+          };
+          pasted++;
+        }
+      }
+    }
+
+    setStockData(newData);
+    setCopiedCells(new Set());
+    showToast(`${pasted}개 셀에 붙여넣기 완료`);
+  }, [clipboard, activeCell, cellMap, coordMap, stockData, showToast]);
+
+  // Fill Down
+  const fillDown = useCallback(() => {
+    const { minR, maxR, minC, maxC } = getSelectionBounds();
+    if (minR === maxR) return;
+
+    let filled = 0;
+    const newData = { ...stockData };
+
+    for (let c = minC; c <= maxC; c++) {
+      const srcKey = coordMap[`${minR}_${c}`];
+      if (!srcKey) continue;
+      const srcInfo = cellMap[srcKey];
+      const srcVal = stockData[srcInfo.dataKey]?.alloc ?? 0;
+
+      for (let r = minR + 1; r <= maxR; r++) {
+        const tKey = coordMap[`${r}_${c}`];
+        if (tKey && cellMap[tKey]) {
+          newData[cellMap[tKey].dataKey] = {
+            ...newData[cellMap[tKey].dataKey],
+            alloc: srcVal
+          };
+          filled++;
+        }
+      }
+    }
+
+    setStockData(newData);
+    showToast(`아래로 채우기 완료 (${filled}개 셀)`);
+  }, [getSelectionBounds, coordMap, cellMap, stockData, showToast]);
+
+  // Fill Right
+  const fillRight = useCallback(() => {
+    const { minR, maxR, minC, maxC } = getSelectionBounds();
+    if (minC === maxC) return;
+
+    let filled = 0;
+    const newData = { ...stockData };
+
+    for (let r = minR; r <= maxR; r++) {
+      const srcKey = coordMap[`${r}_${minC}`];
+      if (!srcKey) continue;
+      const srcInfo = cellMap[srcKey];
+      const srcVal = stockData[srcInfo.dataKey]?.alloc ?? 0;
+
+      for (let c = minC + 1; c <= maxC; c++) {
+        const tKey = coordMap[`${r}_${c}`];
+        if (tKey && cellMap[tKey]) {
+          newData[cellMap[tKey].dataKey] = {
+            ...newData[cellMap[tKey].dataKey],
+            alloc: srcVal
+          };
+          filled++;
+        }
+      }
+    }
+
+    setStockData(newData);
+    showToast(`오른쪽으로 채우기 완료 (${filled}개 셀)`);
+  }, [getSelectionBounds, coordMap, cellMap, stockData, showToast]);
+
+  // 선택 셀 삭제
+  const deleteSelection = useCallback(() => {
+    if (selectedCells.size === 0) return;
+    const newData = { ...stockData };
+    selectedCells.forEach(ck => {
+      const info = cellMap[ck];
+      if (info) {
+        newData[info.dataKey] = { ...newData[info.dataKey], alloc: 0 };
+      }
+    });
+    setStockData(newData);
+    showToast(`${selectedCells.size}개 셀 삭제됨`);
+  }, [selectedCells, cellMap, stockData, showToast]);
+
+  // 전체 선택
+  const selectAll = useCallback(() => {
+    const allCells = new Set(Object.keys(cellMap));
+    setSelectedCells(allCells);
+    const firstKey = Object.keys(cellMap)[0];
+    if (firstKey) {
+      setActiveCell(firstKey);
+      setAnchorCell(firstKey);
+    }
+    showToast(`전체 배분 셀 선택됨 (${allCells.size}개)`);
+  }, [cellMap, showToast]);
+
+  // 키보드 이벤트
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // 편집 중일 때
+      if (isEditing) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          if (e.ctrlKey || e.metaKey) {
+            // Ctrl+Enter: 선택된 모든 셀에 값 입력
+            const numVal = editValue === '' ? 0 : parseInt(editValue) || 0;
+            const newData = { ...stockData };
+            selectedCells.forEach(ck => {
+              const info = cellMap[ck];
+              if (info) {
+                newData[info.dataKey] = { ...newData[info.dataKey], alloc: numVal };
+              }
+            });
+            setStockData(newData);
+            setIsEditing(false);
+            setEditValue('');
+            showToast(`${selectedCells.size}개 셀에 값 일괄 입력 완료`);
+          } else {
+            commitEdit();
+            if (activeCell) moveTo(activeCell, 1, 0);
+          }
+        } else if (e.key === 'Tab') {
+          e.preventDefault();
+          commitEdit();
+          if (activeCell) moveTo(activeCell, 0, e.shiftKey ? -1 : 1);
+        } else if (e.key === 'Escape') {
+          cancelEdit();
+        }
+        return;
+      }
+
+      // 화살표 키
+      if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) {
+        e.preventDefault();
+        if (!activeCell) return;
+        const dr = e.key === 'ArrowDown' ? 1 : e.key === 'ArrowUp' ? -1 : 0;
+        const dc = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0;
+
+        if (e.shiftKey) {
+          const target = getNeighbor(activeCell, dr, dc);
+          if (target && anchorCell) selectRange(anchorCell, target);
+        } else {
+          moveTo(activeCell, dr, dc);
+        }
+        return;
+      }
+
+      // Enter: 편집 시작
+      if (e.key === 'Enter' && activeCell) {
+        e.preventDefault();
+        handleCellDoubleClick(activeCell);
+        return;
+      }
+
+      // F2: 편집
+      if (e.key === 'F2' && activeCell) {
+        e.preventDefault();
+        handleCellDoubleClick(activeCell);
+        return;
+      }
+
+      // Delete/Backspace: 삭제
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedCells.size > 0) {
+        e.preventDefault();
+        deleteSelection();
+        return;
+      }
+
+      // Ctrl+C: 복사
+      if ((e.ctrlKey || e.metaKey) && e.key === 'c') {
+        e.preventDefault();
+        copySelection();
+        return;
+      }
+
+      // Ctrl+V: 붙여넣기
+      if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+        e.preventDefault();
+        pasteClipboard();
+        return;
+      }
+
+      // Ctrl+A: 전체 선택
+      if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+        e.preventDefault();
+        selectAll();
+        return;
+      }
+
+      // Ctrl+D: Fill Down
+      if ((e.ctrlKey || e.metaKey) && e.key === 'd' && selectedCells.size > 1) {
+        e.preventDefault();
+        fillDown();
+        return;
+      }
+
+      // Ctrl+R: Fill Right
+      if ((e.ctrlKey || e.metaKey) && e.key === 'r' && selectedCells.size > 1) {
+        e.preventDefault();
+        fillRight();
+        return;
+      }
+
+      // 숫자 입력: 편집 시작 (덮어쓰기)
+      if (/^[0-9\-]$/.test(e.key) && activeCell && !e.ctrlKey && !e.metaKey) {
+        setEditValue(e.key);
+        setIsEditing(true);
+        setTimeout(() => editInputRef.current?.focus(), 0);
+        return;
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isEditing, editValue, activeCell, anchorCell, selectedCells, commitEdit, cancelEdit, moveTo, getNeighbor, selectRange, handleCellDoubleClick, deleteSelection, copySelection, pasteClipboard, selectAll, fillDown, fillRight, stockData, cellMap, showToast]);
+
+  // 외부 클릭 시 선택 해제
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (tableRef.current && !tableRef.current.contains(e.target as Node)) {
+        if (!isEditing) clearSelection();
+      }
+    };
+    document.addEventListener('click', handleClick);
+    return () => document.removeEventListener('click', handleClick);
+  }, [clearSelection, isEditing]);
+
   const handleQuery = () => {
     const newData = generateInitialData();
     setStockData(newData.data);
-    setIsQueried(true);
+    clearSelection();
     showToast('조회 완료 - 데이터가 갱신되었습니다.');
   };
 
@@ -99,14 +584,6 @@ export default function ReplenishmentTab() {
 
   const handleDownload = () => {
     showToast('엑셀(CSV) 다운로드 완료');
-  };
-
-  const handleAllocChange = (key: string, value: string) => {
-    const numVal = value === '' ? 0 : parseInt(value) || 0;
-    setStockData(prev => ({
-      ...prev,
-      [key]: { ...prev[key], alloc: numVal }
-    }));
   };
 
   // SCS 요약 계산
@@ -142,6 +619,45 @@ export default function ReplenishmentTab() {
     }), { apStock: 0, alloc: 0 });
   }, [scsSummary]);
 
+  // 셀 렌더링 (배분 셀)
+  const renderAllocCell = (dataKey: string, row: number, col: number) => {
+    const cellKey = getCellKey(row, col);
+    const value = stockData[dataKey]?.alloc ?? 0;
+    const isSelected = selectedCells.has(cellKey);
+    const isActive = activeCell === cellKey;
+    const isCopied = copiedCells.has(cellKey);
+    const isEditingThis = isEditing && isActive;
+
+    return (
+      <td
+        key={cellKey}
+        className={`p-0 border border-[#D2D8E0] bg-[#F8F6FF] relative cursor-cell select-none
+          ${isSelected ? 'bg-[rgba(0,180,216,0.15)] outline outline-2 outline-[#00B4D8] -outline-offset-1 z-10' : ''}
+          ${isActive ? 'outline outline-2 outline-[#00B4D8] -outline-offset-1 z-10' : ''}
+          ${isCopied ? 'outline outline-2 outline-dashed outline-[#28A745] -outline-offset-1' : ''}
+        `}
+        onMouseDown={(e) => handleCellMouseDown(cellKey, e)}
+        onMouseOver={() => handleCellMouseOver(cellKey)}
+        onDoubleClick={() => handleCellDoubleClick(cellKey)}
+      >
+        {isEditingThis ? (
+          <input
+            ref={editInputRef}
+            type="text"
+            value={editValue}
+            onChange={(e) => setEditValue(e.target.value)}
+            className="absolute inset-0 w-full h-full p-1.5 text-right tabular-nums text-[#7C3AED] font-semibold bg-white border-2 border-[#00B4D8] outline-none text-xs z-20"
+            autoFocus
+          />
+        ) : (
+          <span className="block w-full h-full p-1.5 text-right tabular-nums text-[#7C3AED] font-medium text-xs leading-[22px]">
+            {value}
+          </span>
+        )}
+      </td>
+    );
+  };
+
   return (
     <div className="flex flex-col h-screen bg-[#F4F6F9]">
       {/* Toast */}
@@ -155,7 +671,7 @@ export default function ReplenishmentTab() {
       {isSimulating && (
         <div className="fixed inset-0 bg-black/35 z-50 flex items-center justify-center">
           <div className="bg-white rounded-xl p-8 text-center shadow-xl">
-            <div className="w-10 h-10 border-3 border-[#E2E8F0] border-t-[#7C3AED] rounded-full animate-spin mx-auto mb-4" />
+            <div className="w-10 h-10 border-[3px] border-[#E2E8F0] border-t-[#7C3AED] rounded-full animate-spin mx-auto mb-4" />
             <div className="text-sm font-semibold text-[#1B3A5C] mb-1">AI 배분 시뮬레이션 실행 중</div>
             <div className="text-xs text-[#A0AEC0]">LightGBM 수요예측 → ILP 최적 배분 계산 중...</div>
           </div>
@@ -178,7 +694,6 @@ export default function ReplenishmentTab() {
               <SelectContent>
                 <SelectItem value="X" className="text-xs">X: Discovery</SelectItem>
                 <SelectItem value="M" className="text-xs">M: MLB</SelectItem>
-                <SelectItem value="I" className="text-xs">I: MLB KIDS</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -238,19 +753,20 @@ export default function ReplenishmentTab() {
         <div className="flex border border-[#D2D8E0] rounded-md overflow-hidden">
           <button
             className={`px-4 py-1.5 text-xs font-medium transition-colors ${viewMode === 'shop' ? 'bg-[#00B4D8] text-white' : 'bg-white text-[#8492A6] hover:bg-[#F4F6F9]'}`}
-            onClick={() => setViewMode('shop')}
+            onClick={() => { setViewMode('shop'); clearSelection(); }}
           >
             매장별 보기
           </button>
           <button
             className={`px-4 py-1.5 text-xs font-medium transition-colors ${viewMode === 'style' ? 'bg-[#00B4D8] text-white' : 'bg-white text-[#8492A6] hover:bg-[#F4F6F9]'}`}
-            onClick={() => setViewMode('style')}
+            onClick={() => { setViewMode('style'); clearSelection(); }}
           >
             스타일별 보기
           </button>
         </div>
         <span className="text-[11px] text-[#A0AEC0]">
           셀: <b className="text-[#4A5568]">현 재고</b> · <b className="text-[#92400E]">판매 예측</b> · <b className="text-[#7C3AED]">배분</b>
+          <span className="ml-3 text-[10px]">(Ctrl+C 복사 / Ctrl+V 붙여넣기 / Ctrl+D 아래로채우기 / Ctrl+R 오른쪽채우기)</span>
         </span>
         <div className="flex-1" />
         <Button className="h-7 px-3 text-[11px] bg-gradient-to-r from-[#7C3AED] to-[#9F7AEA] border-none" onClick={handleSimulation}>
@@ -273,10 +789,10 @@ export default function ReplenishmentTab() {
             <table className="w-full text-xs border-collapse">
               <thead>
                 <tr className="bg-[#F0F2F6]">
-                  <th className="text-left p-1.5 border border-[#D2D8E0] font-semibold text-[#8492A6] min-w-[200px]">SCS (스타일-컬러-사이즈)</th>
-                  <th className="text-right p-1.5 border border-[#D2D8E0] font-semibold text-[#8492A6] min-w-[100px]">AP 가용재고</th>
-                  <th className="text-right p-1.5 border border-[#D2D8E0] font-semibold text-[#7C3AED] min-w-[100px]">배분 수량 합계</th>
-                  <th className="text-right p-1.5 border border-[#D2D8E0] font-semibold text-[#8492A6] min-w-[80px]">잔량</th>
+                  <th className="text-left p-1.5 border border-[#D2D8E0] font-semibold text-[#8492A6] min-w-[200px] sticky top-0 bg-[#F0F2F6]">SCS (스타일-컬러-사이즈)</th>
+                  <th className="text-right p-1.5 border border-[#D2D8E0] font-semibold text-[#8492A6] min-w-[100px] sticky top-0 bg-[#F0F2F6]">AP 가용재고</th>
+                  <th className="text-right p-1.5 border border-[#D2D8E0] font-semibold text-[#7C3AED] min-w-[100px] sticky top-0 bg-[#F0F2F6]">배분 수량 합계</th>
+                  <th className="text-right p-1.5 border border-[#D2D8E0] font-semibold text-[#8492A6] min-w-[80px] sticky top-0 bg-[#F0F2F6]">잔량</th>
                 </tr>
               </thead>
               <tbody>
@@ -314,17 +830,17 @@ export default function ReplenishmentTab() {
         </div>
 
         {/* Pivot Table */}
-        <div className="bg-white border border-[#D2D8E0] rounded-md overflow-hidden">
+        <div ref={tableRef} className="bg-white border border-[#D2D8E0] rounded-md overflow-hidden">
           <div className="overflow-auto max-h-[50vh]">
             {viewMode === 'shop' ? (
               <table className="text-xs border-collapse whitespace-nowrap">
                 <thead>
                   <tr className="bg-[#F0F2F6]">
-                    <th className="sticky left-0 z-20 bg-[#E4E8EE] p-2 border border-[#D2D8E0] text-left font-semibold text-[#8492A6] min-w-[150px]">매장</th>
+                    <th className="sticky left-0 top-0 z-30 bg-[#E4E8EE] p-2 border border-[#D2D8E0] text-left font-semibold text-[#8492A6] min-w-[150px]" rowSpan={2}>매장</th>
                     {STYLES.map(style =>
                       style.colors.map(color =>
                         SIZES.map(size => (
-                          <th key={`${style.code}-${color}-${size}`} colSpan={3} className="p-1.5 border border-[#D2D8E0] text-center font-semibold text-[#8492A6] text-[10px]">
+                          <th key={`h1-${style.code}-${color}-${size}`} colSpan={3} className="sticky top-0 z-20 p-1.5 border border-[#D2D8E0] text-center font-semibold text-[#8492A6] text-[10px] bg-[#F0F2F6]">
                             {style.code}<br/><span className="text-[9px] text-[#A0AEC0]">{color}-{size}</span>
                           </th>
                         ))
@@ -332,14 +848,13 @@ export default function ReplenishmentTab() {
                     )}
                   </tr>
                   <tr className="bg-[#F0F2F6]">
-                    <th className="sticky left-0 z-20 bg-[#E4E8EE] border border-[#D2D8E0]"></th>
                     {STYLES.map(style =>
                       style.colors.map(color =>
                         SIZES.map(size => (
-                          <React.Fragment key={`sub-${style.code}-${color}-${size}`}>
-                            <th className="p-1 border border-[#D2D8E0] text-center text-[10px] font-medium bg-[#E0E7EF] text-[#4A5568] w-[60px]">재고</th>
-                            <th className="p-1 border border-[#D2D8E0] text-center text-[10px] font-medium bg-[#FFF3CD] text-[#92400E] w-[60px]">예측</th>
-                            <th className="p-1 border border-[#D2D8E0] text-center text-[10px] font-medium bg-[#E0D6F9] text-[#7C3AED] w-[60px]">배분</th>
+                          <React.Fragment key={`h2-${style.code}-${color}-${size}`}>
+                            <th className="sticky top-[50px] z-20 p-1 border border-[#D2D8E0] text-center text-[10px] font-medium bg-[#E0E7EF] text-[#4A5568] w-[60px]">재고</th>
+                            <th className="sticky top-[50px] z-20 p-1 border border-[#D2D8E0] text-center text-[10px] font-medium bg-[#FFF3CD] text-[#92400E] w-[60px]">예측</th>
+                            <th className="sticky top-[50px] z-20 p-1 border border-[#D2D8E0] text-center text-[10px] font-medium bg-[#E0D6F9] text-[#7C3AED] w-[60px]">배분</th>
                           </React.Fragment>
                         ))
                       )
@@ -347,91 +862,88 @@ export default function ReplenishmentTab() {
                   </tr>
                 </thead>
                 <tbody>
-                  {SHOPS.map(shop => (
-                    <tr key={shop.id} className="hover:bg-[#F7F9FC]">
-                      <td className="sticky left-0 z-10 bg-[#F0F2F6] p-2 border border-[#D2D8E0] font-medium shadow-[4px_0_8px_rgba(0,0,0,0.08)]">
-                        {shop.name} <span className="text-[10px] text-[#A0AEC0]">({shop.grade})</span>
-                      </td>
-                      {STYLES.map(style =>
-                        style.colors.map(color =>
-                          SIZES.map(size => {
-                            const key = `${shop.id}_${style.code}_${color}_${size}`;
-                            const d = stockData[key] || { stock: 0, forecast: 0, alloc: 0 };
-                            return (
-                              <React.Fragment key={key}>
-                                <td className="p-1.5 border border-[#D2D8E0] text-right tabular-nums bg-[#EBF0F5] text-[#4A5568]">{d.stock}</td>
-                                <td className="p-1.5 border border-[#D2D8E0] text-right tabular-nums bg-[#FFF8E1] text-[#92400E]">{d.forecast}</td>
-                                <td className="p-0 border border-[#D2D8E0] bg-[#F8F6FF]">
-                                  <input
-                                    type="number"
-                                    value={d.alloc}
-                                    onChange={(e) => handleAllocChange(key, e.target.value)}
-                                    className="w-full h-full p-1.5 text-right tabular-nums text-[#7C3AED] font-medium bg-transparent border-0 outline-none focus:bg-white focus:ring-2 focus:ring-[#00B4D8] text-xs"
-                                  />
-                                </td>
-                              </React.Fragment>
-                            );
-                          })
-                        )
-                      )}
-                    </tr>
-                  ))}
+                  {SHOPS.map((shop, rowIdx) => {
+                    let colIdx = 0;
+                    return (
+                      <tr key={shop.id} className="hover:bg-[#F7F9FC]/50">
+                        <td className="sticky left-0 z-10 bg-[#F0F2F6] p-2 border border-[#D2D8E0] font-medium shadow-[4px_0_8px_rgba(0,0,0,0.08)]">
+                          {shop.name} <span className="text-[10px] text-[#A0AEC0]">({shop.grade})</span>
+                        </td>
+                        {STYLES.map(style =>
+                          style.colors.map(color =>
+                            SIZES.map(size => {
+                              const dataKey = `${shop.id}_${style.code}_${color}_${size}`;
+                              const d = stockData[dataKey] || { stock: 0, forecast: 0, alloc: 0 };
+                              const currentColIdx = colIdx++;
+                              return (
+                                <React.Fragment key={dataKey}>
+                                  <td className="p-1.5 border border-[#D2D8E0] text-right tabular-nums bg-[#EBF0F5] text-[#4A5568]">{d.stock}</td>
+                                  <td className="p-1.5 border border-[#D2D8E0] text-right tabular-nums bg-[#FFF8E1] text-[#92400E]">{d.forecast}</td>
+                                  {renderAllocCell(dataKey, rowIdx, currentColIdx)}
+                                </React.Fragment>
+                              );
+                            })
+                          )
+                        )}
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             ) : (
               <table className="text-xs border-collapse whitespace-nowrap">
                 <thead>
                   <tr className="bg-[#F0F2F6]">
-                    <th className="sticky left-0 z-20 bg-[#E4E8EE] p-2 border border-[#D2D8E0] text-left font-semibold text-[#8492A6] min-w-[180px]">스타일 / 컬러</th>
+                    <th className="sticky left-0 top-0 z-30 bg-[#E4E8EE] p-2 border border-[#D2D8E0] text-left font-semibold text-[#8492A6] min-w-[180px]" rowSpan={2}>스타일 / 컬러</th>
                     {SHOPS.map(shop => (
-                      <th key={shop.id} colSpan={SIZES.length * 3} className="p-1.5 border border-[#D2D8E0] text-center font-semibold text-[#8492A6] text-[11px]">
+                      <th key={shop.id} colSpan={SIZES.length * 3} className="sticky top-0 z-20 p-1.5 border border-[#D2D8E0] text-center font-semibold text-[#8492A6] text-[11px] bg-[#F0F2F6]">
                         {shop.name} <span className="text-[10px] font-normal">({shop.grade})</span>
                       </th>
                     ))}
                   </tr>
                   <tr className="bg-[#F0F2F6]">
-                    <th className="sticky left-0 z-20 bg-[#E4E8EE] border border-[#D2D8E0]"></th>
                     {SHOPS.map(shop =>
                       SIZES.map(size => (
                         <React.Fragment key={`${shop.id}-${size}`}>
-                          <th className="p-1 border border-[#D2D8E0] text-center text-[10px] font-medium bg-[#E0E7EF] text-[#4A5568] w-[50px]">{size}<br/>재고</th>
-                          <th className="p-1 border border-[#D2D8E0] text-center text-[10px] font-medium bg-[#FFF3CD] text-[#92400E] w-[50px]">{size}<br/>예측</th>
-                          <th className="p-1 border border-[#D2D8E0] text-center text-[10px] font-medium bg-[#E0D6F9] text-[#7C3AED] w-[50px]">{size}<br/>배분</th>
+                          <th className="sticky top-[40px] z-20 p-1 border border-[#D2D8E0] text-center text-[10px] font-medium bg-[#E0E7EF] text-[#4A5568] w-[50px]">{size}<br/>재고</th>
+                          <th className="sticky top-[40px] z-20 p-1 border border-[#D2D8E0] text-center text-[10px] font-medium bg-[#FFF3CD] text-[#92400E] w-[50px]">{size}<br/>예측</th>
+                          <th className="sticky top-[40px] z-20 p-1 border border-[#D2D8E0] text-center text-[10px] font-medium bg-[#E0D6F9] text-[#7C3AED] w-[50px]">{size}<br/>배분</th>
                         </React.Fragment>
                       ))
                     )}
                   </tr>
                 </thead>
                 <tbody>
-                  {STYLES.map(style =>
-                    style.colors.map(color => (
-                      <tr key={`${style.code}-${color}`} className="hover:bg-[#F7F9FC]">
-                        <td className="sticky left-0 z-10 bg-[#F0F2F6] p-2 border border-[#D2D8E0] font-medium shadow-[4px_0_8px_rgba(0,0,0,0.08)]">
-                          {style.code} / {color}<br/><span className="text-[10px] text-[#A0AEC0]">{style.name}</span>
-                        </td>
-                        {SHOPS.map(shop =>
-                          SIZES.map(size => {
-                            const key = `${shop.id}_${style.code}_${color}_${size}`;
-                            const d = stockData[key] || { stock: 0, forecast: 0, alloc: 0 };
-                            return (
-                              <React.Fragment key={key}>
-                                <td className="p-1.5 border border-[#D2D8E0] text-right tabular-nums bg-[#EBF0F5] text-[#4A5568]">{d.stock}</td>
-                                <td className="p-1.5 border border-[#D2D8E0] text-right tabular-nums bg-[#FFF8E1] text-[#92400E]">{d.forecast}</td>
-                                <td className="p-0 border border-[#D2D8E0] bg-[#F8F6FF]">
-                                  <input
-                                    type="number"
-                                    value={d.alloc}
-                                    onChange={(e) => handleAllocChange(key, e.target.value)}
-                                    className="w-full h-full p-1.5 text-right tabular-nums text-[#7C3AED] font-medium bg-transparent border-0 outline-none focus:bg-white focus:ring-2 focus:ring-[#00B4D8] text-xs"
-                                  />
-                                </td>
-                              </React.Fragment>
-                            );
-                          })
-                        )}
-                      </tr>
-                    ))
-                  )}
+                  {(() => {
+                    let rowIdx = 0;
+                    return STYLES.map(style =>
+                      style.colors.map(color => {
+                        const currentRowIdx = rowIdx++;
+                        let colIdx = 0;
+                        return (
+                          <tr key={`${style.code}-${color}`} className="hover:bg-[#F7F9FC]/50">
+                            <td className="sticky left-0 z-10 bg-[#F0F2F6] p-2 border border-[#D2D8E0] font-medium shadow-[4px_0_8px_rgba(0,0,0,0.08)]">
+                              {style.code} / {color}<br/><span className="text-[10px] text-[#A0AEC0]">{style.name}</span>
+                            </td>
+                            {SHOPS.map(shop =>
+                              SIZES.map(size => {
+                                const dataKey = `${shop.id}_${style.code}_${color}_${size}`;
+                                const d = stockData[dataKey] || { stock: 0, forecast: 0, alloc: 0 };
+                                const currentColIdx = colIdx++;
+                                return (
+                                  <React.Fragment key={dataKey}>
+                                    <td className="p-1.5 border border-[#D2D8E0] text-right tabular-nums bg-[#EBF0F5] text-[#4A5568]">{d.stock}</td>
+                                    <td className="p-1.5 border border-[#D2D8E0] text-right tabular-nums bg-[#FFF8E1] text-[#92400E]">{d.forecast}</td>
+                                    {renderAllocCell(dataKey, currentRowIdx, currentColIdx)}
+                                  </React.Fragment>
+                                );
+                              })
+                            )}
+                          </tr>
+                        );
+                      })
+                    );
+                  })()}
                 </tbody>
               </table>
             )}
