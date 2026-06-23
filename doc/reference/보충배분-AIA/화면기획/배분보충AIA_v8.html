@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F&F S-ERP | 보충배분-AIA v9</title>
+<style>
+  :root {
+    --primary:#1B3A5C; --accent:#00B4D8; --accent-bg:#E8F8FD;
+    --success:#28A745; --warning:#F5A623; --danger:#DC3545;
+    --bg:#F4F6F9; --card:#FFF; --border:#D2D8E0; --border-light:#E8ECF0;
+    --text:#2D3748; --text-light:#8492A6; --text-muted:#A0AEC0;
+    --ai:#7C3AED; --ai-bg:#F3EFFE;
+    --header-bg:#F0F2F6;
+    --cell-stock:#EBF0F5; --cell-forecast:#FFF8E1; --cell-alloc:#EDE9FE;
+    --cell-alloc-edit:#F8F6FF;
+    --sel-blue:rgba(0,180,216,0.15); --sel-blue-border:#00B4D8;
+    --frozen-shadow:4px 0 8px rgba(0,0,0,.08);
+    --sub-w:72px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:13px;overflow:hidden;height:100vh;display:flex;flex-direction:column;}
+
+  /* ===== PAGE TITLE ===== */
+  .page-title-bar{background:white;padding:12px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0;}
+  .page-title-bar h1{font-size:16px;font-weight:700;color:var(--primary);}
+  .page-title-bar .ver{font-size:11px;color:var(--ai);background:var(--ai-bg);padding:2px 8px;border-radius:10px;font-weight:600;}
+
+  /* ===== FILTER ROWS ===== */
+  .filter-section{background:white;border-bottom:1px solid var(--border);flex-shrink:0;}
+  .filter-row{padding:8px 24px;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;}
+  .filter-row+.filter-row{padding-top:0;}
+  .fg{display:flex;flex-direction:column;gap:2px;}
+  .fg label{font-size:11px;color:var(--text-light);font-weight:600;}
+  .fg label .req{color:var(--danger);}
+  .fg select,.fg input[type="text"]{border:1px solid var(--border);border-radius:4px;padding:6px 10px;font-size:12px;min-width:130px;background:white;color:var(--text);}
+  .fg select:focus,.fg input:focus{border-color:var(--accent);outline:none;}
+  .filter-row .spacer{flex:1;}
+
+  /* ===== BUTTONS ===== */
+  .btn{padding:6px 14px;border-radius:4px;border:1px solid var(--border);font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-weight:500;transition:all .15s;background:white;color:var(--text);}
+  .btn:hover{background:var(--bg);}
+  .btn-ai{background:linear-gradient(135deg,var(--ai),#9F7AEA);color:white;border:none;font-weight:600;}
+  .btn-ai:hover{opacity:.9;}
+
+  /* ===== TOGGLE BAR ===== */
+  .toggle-bar{background:white;padding:8px 24px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);flex-shrink:0;}
+  .toggle-group{display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+  .toggle-btn{padding:6px 16px;font-size:12px;cursor:pointer;background:white;border:none;color:var(--text-light);font-weight:500;transition:all .15s;}
+  .toggle-btn.active{background:var(--accent);color:white;font-weight:600;}
+  .toggle-btn:hover:not(.active){background:var(--bg);}
+  .toggle-bar .info{font-size:11px;color:var(--text-muted);margin-left:4px;}
+  .toggle-bar .actions{margin-left:auto;display:flex;gap:8px;}
+
+  /* ===== GRID CONTAINER (fills remaining space) ===== */
+  .grid-container{flex:1;overflow:hidden;position:relative;background:white;}
+
+  /* Scroll wrapper: both axes */
+  .grid-scroll{
+    overflow:auto;width:100%;height:100%;
+    position:relative;
+  }
+
+  /* ===== PIVOT TABLE ===== */
+  .pivot{border-collapse:separate;border-spacing:0;font-size:12px;white-space:nowrap;}
+
+  /* ── Header cells ── */
+  .pivot thead th{
+    background:var(--header-bg);padding:0;text-align:center;font-weight:600;
+    color:var(--text-light);border:1px solid var(--border);
+    font-size:11px;position:sticky;top:0;z-index:10;
+  }
+  /* top row at top:0, 2nd row at ~34px, 3rd row at ~68px */
+  .pivot thead tr:nth-child(1) th{top:0;z-index:12;}
+  .pivot thead tr:nth-child(2) th{top:33px;z-index:11;}
+  .pivot thead tr:nth-child(3) th{top:60px;z-index:11;}
+
+  .pivot thead th.corner{
+    background:#E4E8EE;z-index:25;
+    position:sticky;left:0;
+    box-shadow:var(--frozen-shadow);
+  }
+  .pivot thead .th-group{padding:6px 8px;border-bottom:1px solid var(--border);}
+  .pivot thead .th-sub{padding:4px 2px;font-size:10px;font-weight:500;width:var(--sub-w);min-width:var(--sub-w);max-width:var(--sub-w);}
+  .pivot thead .th-sub.stock{background:#E0E7EF;color:#4A5568;}
+  .pivot thead .th-sub.forecast{background:#FFF3CD;color:#92400E;}
+  .pivot thead .th-sub.alloc{background:#E0D6F9;color:var(--ai);}
+
+  /* ── Body cells ── */
+  .pivot tbody td{
+    padding:0;border:1px solid var(--border);font-variant-numeric:tabular-nums;
+    text-align:right;height:30px;vertical-align:middle;
+  }
+
+  /* Frozen row-header column */
+  .pivot tbody td.row-header,
+  .pivot tbody td.row-header-sub{
+    position:sticky;left:0;z-index:8;
+    background:var(--header-bg);text-align:left;padding:5px 12px;
+    font-weight:500;white-space:nowrap;
+    box-shadow:var(--frozen-shadow);
+    border-right:2px solid var(--border);
+  }
+  .pivot tbody td.row-header-sub{background:#F5F6F8;color:var(--text-light);font-size:11px;}
+
+  /* Sub-cell sizing */
+  .pivot tbody td.c-stock,
+  .pivot tbody td.c-forecast,
+  .pivot tbody td.c-alloc{
+    width:var(--sub-w);min-width:var(--sub-w);max-width:var(--sub-w);
+  }
+  .pivot tbody td.c-stock{background:var(--cell-stock);padding:4px 10px;color:#4A5568;font-size:12px;}
+  .pivot tbody td.c-forecast{background:var(--cell-forecast);padding:4px 10px;color:#92400E;font-size:12px;}
+  .pivot tbody td.c-alloc{
+    background:var(--cell-alloc-edit);padding:0;cursor:cell;position:relative;
+  }
+  .pivot tbody td.c-alloc .cell-val{
+    display:block;width:100%;height:100%;padding:4px 10px;
+    text-align:right;color:var(--ai);font-weight:500;line-height:22px;font-size:12px;
+  }
+  .pivot tbody td.c-alloc input.cell-edit{
+    position:absolute;inset:0;width:100%;height:100%;border:2px solid var(--accent);
+    background:white;padding:4px 10px;font-size:12px;text-align:right;
+    font-variant-numeric:tabular-nums;outline:none;z-index:20;color:var(--ai);font-weight:600;
+  }
+
+  /* Selection */
+  .pivot tbody td.c-alloc.selected{
+    background:var(--sel-blue);outline:2px solid var(--sel-blue-border);outline-offset:-1px;z-index:9;
+  }
+  .pivot tbody td.c-alloc.sel-active{
+    outline:2px solid var(--accent);outline-offset:-1px;z-index:9;
+    background:rgba(0,180,216,0.08);
+  }
+  .pivot tbody td.c-alloc.copying{
+    outline:2px dashed var(--success);outline-offset:-1px;
+  }
+
+  /* ── Footer ── */
+  .pivot tfoot td{
+    background:#E8EBF0;padding:5px 10px;font-weight:600;
+    border:1px solid var(--border);text-align:right;font-size:11px;
+    position:sticky;bottom:0;z-index:10;
+  }
+  .pivot tfoot td.row-header{
+    position:sticky;left:0;z-index:15;text-align:left;padding:5px 12px;
+    box-shadow:var(--frozen-shadow);background:#DDE1E8;
+  }
+
+
+  /* ===== TOAST ===== */
+  .toast{
+    position:fixed;bottom:50px;left:50%;transform:translateX(-50%);
+    background:var(--primary);color:white;padding:10px 24px;border-radius:8px;
+    font-size:12px;font-weight:500;z-index:999;opacity:0;transition:opacity .3s;
+    pointer-events:none;box-shadow:0 4px 12px rgba(0,0,0,.15);
+  }
+  .toast.show{opacity:1;}
+
+  /* ===== SIMULATION OVERLAY ===== */
+  .sim-overlay{
+    position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:100;
+    display:none;align-items:center;justify-content:center;
+  }
+  .sim-overlay.active{display:flex;}
+  .sim-box{
+    background:white;border-radius:12px;padding:32px 48px;text-align:center;
+    box-shadow:0 8px 32px rgba(0,0,0,.15);
+  }
+  .sim-box .spinner{
+    width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--ai);
+    border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .sim-box .title{font-size:14px;font-weight:600;color:var(--primary);margin-bottom:4px;}
+  .sim-box .desc{font-size:12px;color:var(--text-muted);}
+
+  /* Row hover */
+  .pivot tbody tr:hover td.c-stock{background:#E1E8F0;}
+  .pivot tbody tr:hover td.c-forecast{background:#FFF0B8;}
+  .pivot tbody tr:hover td.row-header,
+  .pivot tbody tr:hover td.row-header-sub{background:#E8EBF0;}
+</style>
+</head>
+<body>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Simulation Overlay -->
+<div class="sim-overlay" id="simOverlay">
+  <div class="sim-box">
+    <div class="spinner"></div>
+    <div class="title">✦ AI 배분 시뮬레이션 실행 중</div>
+    <div class="desc">LightGBM 수요예측 → ILP 최적 배분 계산 중...</div>
+  </div>
+</div>
+
+<!-- ===== PAGE TITLE ===== -->
+<div class="page-title-bar">
+  <h1>┃ 보충배분-AIA</h1>
+  <span class="ver">v9</span>
+</div>
+
+<!-- ===== FILTER SECTION (한 줄) ===== -->
+<div class="filter-section">
+  <div class="filter-row" style="padding:8px 24px;align-items:flex-end;">
+    <div class="fg"><label><span class="req">*</span> 브랜드</label>
+      <select id="fBrand"><option>X: Discovery</option><option>M: MLB</option><option>I: MLB KIDS</option><option>V: Duvetica</option><option>ST: Sergio Tacchini</option></select></div>
+    <div class="fg"><label><span class="req">*</span> AP</label>
+      <select id="fAP"><option>오프라인 정상</option><option>온라인</option><option>아울렛</option></select></div>
+    <div class="fg"><label><span class="req">*</span> 상품시즌</label>
+      <select id="fSeason"><option>26S</option><option>25F</option><option>25S</option></select></div>
+    <div class="fg"><label>매장</label>
+      <select id="fShop"><option value="">전체</option></select></div>
+    <div class="fg"><label>스타일</label>
+      <input type="text" id="fStyle" placeholder="스타일코드" style="min-width:110px;"></div>
+    <div class="fg"><label>컬러</label>
+      <select id="fColor" style="min-width:100px;"><option value="">전체</option></select></div>
+    <button class="btn" style="background:var(--accent);color:white;border-color:var(--accent);" onclick="doSearch()">🔍 조회</button>
+    <button class="btn" onclick="resetFilters()">↻ 초기화</button>
+  </div>
+</div>
+
+<!-- ===== TOGGLE BAR ===== -->
+<div class="toggle-bar">
+  <div class="toggle-group">
+    <button class="toggle-btn active" id="btnByShop" onclick="switchView('shop')">매장별 보기</button>
+    <button class="toggle-btn" id="btnByStyle" onclick="switchView('style')">스타일별 보기</button>
+  </div>
+  <span class="info">셀: <b style="color:#4A5568;">현 재고</b> · <b style="color:#92400E;">판매 예측</b> · <b style="color:var(--ai);">배분</b></span>
+  <div class="actions">
+    <button class="btn btn-ai" onclick="runSimulation()">✦ 배분 시뮬레이션</button>
+    <button class="btn" onclick="downloadExcel()">📥 엑셀 다운로드</button>
+  </div>
+</div>
+
+<!-- ===== SCS 배분 현황 요약 ===== -->
+<div id="scsSummaryPanel" style="background:white;border-bottom:1px solid var(--border);padding:10px 24px;flex-shrink:0;">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+    <span style="font-size:13px;font-weight:600;color:var(--primary);">SCS 배분 현황</span>
+    <span style="font-size:11px;color:var(--text-muted);">스타일-컬러-사이즈별 배분 수량 합계</span>
+  </div>
+  <div style="overflow-x:auto;max-height:180px;overflow-y:auto;">
+    <table id="scsSummaryTable" style="border-collapse:collapse;font-size:12px;width:100%;">
+      <thead>
+        <tr style="background:var(--header-bg);">
+          <th style="padding:6px 12px;border:1px solid var(--border);text-align:left;font-weight:600;color:var(--text-light);position:sticky;top:0;background:var(--header-bg);min-width:200px;">SCS (스타일-컬러-사이즈)</th>
+          <th style="padding:6px 12px;border:1px solid var(--border);text-align:right;font-weight:600;color:var(--text-light);position:sticky;top:0;background:var(--header-bg);min-width:100px;">AP 가용재고</th>
+          <th style="padding:6px 12px;border:1px solid var(--border);text-align:right;font-weight:600;color:var(--ai);position:sticky;top:0;background:var(--header-bg);min-width:100px;">배분 수량 합계</th>
+          <th style="padding:6px 12px;border:1px solid var(--border);text-align:right;font-weight:600;color:var(--text-light);position:sticky;top:0;background:var(--header-bg);min-width:80px;">잔량</th>
+        </tr>
+      </thead>
+      <tbody id="scsSummaryBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ===== PIVOT TABLE ===== -->
+<div class="grid-container">
+  <div class="grid-scroll" id="gridScroll">
+    <table class="pivot" id="pivotTable">
+      <thead id="pivotHead"></thead>
+      <tbody id="pivotBody"></tbody>
+      <tfoot id="pivotFoot"></tfoot>
+    </table>
+  </div>
+</div>
+
+
+<script>
+// ====================================================================
+// MOCK DATA — 4× expanded
+// ====================================================================
+const SHOPS = [
+  {id:'S001',name:'강남점',grade:'S'},{id:'S002',name:'잠실점',grade:'S'},
+  {id:'S003',name:'명동점',grade:'S'},{id:'S004',name:'코엑스점',grade:'A'},
+  {id:'S005',name:'여의도IFC점',grade:'A'},{id:'S006',name:'판교현대점',grade:'A'},
+  {id:'S007',name:'스타필드하남점',grade:'A'},{id:'S008',name:'타임스퀘어점',grade:'A'},
+  {id:'S009',name:'수원AK점',grade:'B'},{id:'S010',name:'대전갤러리아점',grade:'B'},
+  {id:'S011',name:'부산센텀점',grade:'B'},{id:'S012',name:'광주신세계점',grade:'B'},
+  {id:'S013',name:'대구현대점',grade:'B'},{id:'S014',name:'울산현대점',grade:'B'},
+  {id:'S015',name:'인천스퀘어원점',grade:'B'},{id:'S016',name:'청주지웰시티점',grade:'C'},
+  {id:'S017',name:'천안신세계점',grade:'C'},{id:'S018',name:'전주현대점',grade:'C'},
+  {id:'S019',name:'창원NC점',grade:'C'},{id:'S020',name:'김해롯데점',grade:'C'},
+  {id:'S021',name:'제주노형점',grade:'C'},{id:'S022',name:'포항점',grade:'C'},
+  {id:'S023',name:'안양점',grade:'C'},{id:'S024',name:'일산현대점',grade:'B'},
+  {id:'S025',name:'분당AK점',grade:'B'},{id:'S026',name:'동탄롯데점',grade:'B'},
+  {id:'S027',name:'평택점',grade:'C'},{id:'S028',name:'춘천점',grade:'C'},
+  {id:'S029',name:'원주점',grade:'C'},{id:'S030',name:'속초점',grade:'C'},
+  {id:'S031',name:'강릉점',grade:'C'},{id:'S032',name:'세종점',grade:'C'},
+];
+
+const STYLES = [
+  {code:'XJWT7341',name:'경량 바람막이 JKT',item:'JKT',colors:['BK','IV','NV']},
+  {code:'XJOT5230',name:'오버핏 코치 JKT',item:'JKT',colors:['BK','KH']},
+  {code:'XMST3120',name:'에센셜 반팔 TEE',item:'TEE',colors:['BK','IV','NV','KH']},
+  {code:'XMPT4210',name:'클래식 조거 PNT',item:'PNT',colors:['BK','NV']},
+  {code:'XJVT6310',name:'경량 다운 VST',item:'VST',colors:['BK','IV']},
+  {code:'XJWT8150',name:'레트로 윈드 JKT',item:'JKT',colors:['NV','KH','WH']},
+  {code:'XMST3250',name:'그래픽 오버핏 TEE',item:'TEE',colors:['BK','WH']},
+  {code:'XMST3380',name:'쿨링 메쉬 TEE',item:'TEE',colors:['BK','GY','NV']},
+  {code:'XMPT4320',name:'카고 와이드 PNT',item:'PNT',colors:['BK','KH','BG']},
+  {code:'XJOT5440',name:'MA-1 볼리에 JKT',item:'JKT',colors:['BK','NV']},
+  {code:'XMST3510',name:'빅로고 크롭 TEE',item:'TEE',colors:['WH','PK','IV']},
+  {code:'XMPT4630',name:'트레이닝 쇼트 PNT',item:'PNT',colors:['BK','GY']},
+  {code:'XJWT7720',name:'고어텍스 쉘 JKT',item:'JKT',colors:['BK','RD','NV']},
+  {code:'XAHT2100',name:'버킷햇 로고',item:'ACC',colors:['BK','IV','NV']},
+  {code:'XASG2200',name:'크로스백 미니',item:'ACC',colors:['BK','KH']},
+  {code:'XMPT4850',name:'스트레치 슬랙스 PNT',item:'PNT',colors:['BK','NV','BG']},
+  {code:'XJOT5960',name:'플리스 집업 JKT',item:'JKT',colors:['BK','IV','GY']},
+  {code:'XMST3670',name:'피그먼트 워싱 TEE',item:'TEE',colors:['BK','BG','NV']},
+  {code:'XMPT4780',name:'데님 와이드 PNT',item:'PNT',colors:['LB','MB']},
+  {code:'XJVT6490',name:'패딩 후드 VST',item:'VST',colors:['BK','NV','KH']},
+];
+
+const SIZES = ['S','M','L','XL','XXL'];
+
+function genStock(){return Math.floor(Math.random()*18);}
+function genForecast(){return Math.floor(Math.random()*10)+1;}
+
+// ====================================================================
+// STATE
+// ====================================================================
+let viewMode='shop';
+let stockData={};
+let simulationDone=false;
+let selectedCells=new Set();
+let activeCell=null;
+let anchorCell=null;
+let isEditing=false;
+let clipboard=[];
+let clipboardCells=new Set();
+let isDragging=false;
+let dragStart=null;
+let cellMap={};
+let coordMap={};
+
+// AP 가용재고 per SCS (fixed mock)
+let apStockMap={};
+
+function initData(){
+  stockData={};
+  apStockMap={};
+  STYLES.forEach(style=>{
+    style.colors.forEach(color=>{
+      SIZES.forEach(size=>{
+        const scsKey=`${style.code}-${color}-${size}`;
+        apStockMap[scsKey] = 30 + Math.floor(Math.random()*120); // mock AP stock
+        SHOPS.forEach(shop=>{
+          const key=`${shop.id}_${style.code}_${color}_${size}`;
+          const f=genForecast();
+          stockData[key]={stock:genStock(),forecast:f,alloc:f};
+        });
+      });
+    });
+  });
+  simulationDone=true;
+}
+
+// ====================================================================
+// RENDER
+// ====================================================================
+function renderTable(){
+  clearSelection();
+  cellMap={};coordMap={};
+  if(viewMode==='shop') renderShopView(); else renderStyleView();
+  attachCellEvents();
+  renderSCSSummary();
+}
+
+function renderShopView(){
+  const thead=document.getElementById('pivotHead');
+  const tbody=document.getElementById('pivotBody');
+  const tfoot=document.getElementById('pivotFoot');
+  const ROW_HEADER_W='180px';
+
+  // === HEADER ===
+  let h1=`<tr><th class="corner" rowspan="3" style="width:${ROW_HEADER_W};min-width:${ROW_HEADER_W};">매장</th>`;
+  let h2='<tr>';
+  let h3='<tr>';
+
+  STYLES.forEach(style=>{
+    const totalCols=style.colors.length*SIZES.length*3;
+    h1+=`<th class="th-group" colspan="${totalCols}">${style.code}<br><span style="font-weight:400;font-size:10px;color:var(--text-muted);">${style.name}</span></th>`;
+    style.colors.forEach(color=>{
+      const sizeCols=SIZES.length*3;
+      h2+=`<th class="th-group" colspan="${sizeCols}" style="font-size:11px;">${color}</th>`;
+      SIZES.forEach(size=>{
+        h3+=`<th class="th-sub stock">${size}<br>재고</th>`;
+        h3+=`<th class="th-sub forecast">${size}<br>예측</th>`;
+        h3+=`<th class="th-sub alloc">${size}<br>배분</th>`;
+      });
+    });
+  });
+  h1+='</tr>';h2+='</tr>';h3+='</tr>';
+  thead.innerHTML=h1+h2+h3;
+
+  // === BODY ===
+  let rows='';let rowIdx=0;
+  SHOPS.forEach(shop=>{
+    rows+=`<tr><td class="row-header" style="width:${ROW_HEADER_W};min-width:${ROW_HEADER_W};">${shop.name} <span style="font-size:10px;color:var(--text-muted);">(${shop.grade})</span></td>`;
+    let colIdx=0;
+    STYLES.forEach(style=>{
+      style.colors.forEach(color=>{
+        SIZES.forEach(size=>{
+          const key=`${shop.id}_${style.code}_${color}_${size}`;
+          const d=stockData[key]||{stock:0,forecast:null,alloc:null};
+          rows+=`<td class="c-stock">${d.stock}</td>`;
+          rows+=`<td class="c-forecast">${d.forecast!==null?d.forecast:'-'}</td>`;
+          const ak=`a_${rowIdx}_${colIdx}`;
+          const av=d.alloc!==null?d.alloc:'';
+          rows+=`<td class="c-alloc" data-key="${ak}" data-row="${rowIdx}" data-col="${colIdx}" data-dk="${key}"><span class="cell-val">${av}</span></td>`;
+          cellMap[ak]={row:rowIdx,col:colIdx,dk:key};
+          coordMap[`${rowIdx}_${colIdx}`]=ak;
+          colIdx++;
+        });
+      });
+    });
+    rows+='</tr>';rowIdx++;
+  });
+  tbody.innerHTML=rows;
+
+  // === FOOTER ===
+  let foot=`<tr><td class="row-header" style="font-weight:700;width:${ROW_HEADER_W};min-width:${ROW_HEADER_W};">합계</td>`;
+  STYLES.forEach(style=>{
+    style.colors.forEach(color=>{
+      SIZES.forEach(size=>{
+        let ts=0,tf=0,ta=0;
+        SHOPS.forEach(shop=>{const d=stockData[`${shop.id}_${style.code}_${color}_${size}`];if(d){ts+=d.stock||0;tf+=d.forecast||0;ta+=d.alloc||0;}});
+        foot+=`<td style="background:#DDE3EA;">${ts}</td>`;
+        foot+=`<td style="background:#FFF0B8;">${tf||'-'}</td>`;
+        foot+=`<td style="background:#D9D0F0;color:var(--ai);font-weight:700;">${ta||''}</td>`;
+      });
+    });
+  });
+  foot+='</tr>';tfoot.innerHTML=foot;
+
+}
+
+function renderStyleView(){
+  const thead=document.getElementById('pivotHead');
+  const tbody=document.getElementById('pivotBody');
+  const tfoot=document.getElementById('pivotFoot');
+  const ROW_HEADER_W='200px';
+
+  let h1=`<tr><th class="corner" rowspan="3" style="width:${ROW_HEADER_W};min-width:${ROW_HEADER_W};">스타일 / 컬러</th>`;
+  let h2='<tr>';let h3='<tr>';
+
+  SHOPS.forEach(shop=>{
+    const sizeCols=SIZES.length*3;
+    h1+=`<th class="th-group" colspan="${sizeCols}">${shop.name} <span style="font-weight:400;font-size:10px;">(${shop.grade})</span></th>`;
+    SIZES.forEach(size=>{
+      h2+=`<th class="th-group" colspan="3" style="font-size:11px;">${size}</th>`;
+      h3+=`<th class="th-sub stock">재고</th><th class="th-sub forecast">예측</th><th class="th-sub alloc">배분</th>`;
+    });
+  });
+  h1+='</tr>';h2+='</tr>';h3+='</tr>';
+  thead.innerHTML=h1+h2+h3;
+
+  let rows='';let rowIdx=0;
+  STYLES.forEach(style=>{
+    style.colors.forEach(color=>{
+      rows+=`<tr><td class="row-header" style="width:${ROW_HEADER_W};min-width:${ROW_HEADER_W};">${style.code} / ${color}<br><span style="font-size:10px;color:var(--text-muted);">${style.name}</span></td>`;
+      let colIdx=0;
+      SHOPS.forEach(shop=>{
+        SIZES.forEach(size=>{
+          const key=`${shop.id}_${style.code}_${color}_${size}`;
+          const d=stockData[key]||{stock:0,forecast:null,alloc:null};
+          rows+=`<td class="c-stock">${d.stock}</td>`;
+          rows+=`<td class="c-forecast">${d.forecast!==null?d.forecast:'-'}</td>`;
+          const ak=`a_${rowIdx}_${colIdx}`;
+          const av=d.alloc!==null?d.alloc:'';
+          rows+=`<td class="c-alloc" data-key="${ak}" data-row="${rowIdx}" data-col="${colIdx}" data-dk="${key}"><span class="cell-val">${av}</span></td>`;
+          cellMap[ak]={row:rowIdx,col:colIdx,dk:key};
+          coordMap[`${rowIdx}_${colIdx}`]=ak;
+          colIdx++;
+        });
+      });
+      rows+='</tr>';rowIdx++;
+    });
+  });
+  tbody.innerHTML=rows;
+
+  let foot=`<tr><td class="row-header" style="font-weight:700;width:${ROW_HEADER_W};min-width:${ROW_HEADER_W};">합계</td>`;
+  SHOPS.forEach(shop=>{
+    SIZES.forEach(size=>{
+      let ts=0,tf=0,ta=0;
+      STYLES.forEach(style=>{style.colors.forEach(color=>{const d=stockData[`${shop.id}_${style.code}_${color}_${size}`];if(d){ts+=d.stock||0;tf+=d.forecast||0;ta+=d.alloc||0;}});});
+      foot+=`<td style="background:#DDE3EA;">${ts}</td>`;
+      foot+=`<td style="background:#FFF0B8;">${tf||'-'}</td>`;
+      foot+=`<td style="background:#D9D0F0;color:var(--ai);font-weight:700;">${ta||''}</td>`;
+    });
+  });
+  foot+='</tr>';tfoot.innerHTML=foot;
+
+  const sc=STYLES.reduce((s,st)=>s+st.colors.length,0);
+}
+
+// ====================================================================
+// VIEW SWITCHING
+// ====================================================================
+function switchView(mode){
+  viewMode=mode;
+  document.getElementById('btnByShop').classList.toggle('active',mode==='shop');
+  document.getElementById('btnByStyle').classList.toggle('active',mode==='style');
+  renderTable();
+  document.getElementById('gridScroll').scrollTop=0;
+  document.getElementById('gridScroll').scrollLeft=0;
+}
+
+// ====================================================================
+// SIMULATION
+// ====================================================================
+function runSimulation(){
+  document.getElementById('simOverlay').classList.add('active');
+  setTimeout(()=>{
+    Object.keys(stockData).forEach(k=>{
+      const f=genForecast();
+      stockData[k].forecast=f;
+      stockData[k].alloc=f;
+    });
+    simulationDone=true;
+    document.getElementById('simOverlay').classList.remove('active');
+    renderTable();
+    showToast('✦ AI 배분 시뮬레이션 완료 — 판매 예측값이 배분 셀에 반영되었습니다.');
+  },1800);
+}
+
+// ====================================================================
+// EXCEL-LIKE CELL INTERACTION (Enhanced)
+// ====================================================================
+// Track the saved selection for multi-cell fill
+let savedSelection = new Set();
+
+function attachCellEvents(){
+  document.querySelectorAll('.c-alloc').forEach(cell=>{
+    cell.addEventListener('mousedown',onCellMouseDown);
+    cell.addEventListener('mouseover',onCellMouseOver);
+    cell.addEventListener('dblclick',onCellDblClick);
+  });
+}
+
+function onCellMouseDown(e){
+  e.preventDefault();
+  const key=this.dataset.key;if(!key)return;
+  commitEdit(false); // don't clear selection yet
+  if(e.shiftKey&&anchorCell){selectRange(anchorCell,key);}
+  else if(e.ctrlKey||e.metaKey){
+    if(selectedCells.has(key)){selectedCells.delete(key);this.classList.remove('selected');}
+    else{selectedCells.add(key);this.classList.add('selected');}
+    setActiveCell(key);
+  } else {
+    clearSelection();selectedCells.add(key);this.classList.add('selected');
+    setActiveCell(key);anchorCell=key;isDragging=true;dragStart=key;
+  }
+}
+function onCellMouseOver(e){
+  if(!isDragging||!dragStart)return;
+  const key=this.dataset.key;if(!key)return;
+  selectRange(dragStart,key);
+}
+function onCellDblClick(e){const key=this.dataset.key;if(key)startEdit(key,false);}
+document.addEventListener('mouseup',()=>{isDragging=false;});
+
+function setActiveCell(key){
+  if(activeCell){const p=document.querySelector(`[data-key="${activeCell}"]`);if(p)p.classList.remove('sel-active');}
+  activeCell=key;
+  const el=document.querySelector(`[data-key="${key}"]`);if(el)el.classList.add('sel-active');
+}
+function clearSelection(){
+  selectedCells.forEach(k=>{const el=document.querySelector(`[data-key="${k}"]`);if(el){el.classList.remove('selected','sel-active','copying');}});
+  selectedCells.clear();
+  clipboardCells.forEach(k=>{const el=document.querySelector(`[data-key="${k}"]`);if(el)el.classList.remove('copying');});
+  clipboardCells.clear();activeCell=null;
+  savedSelection.clear();
+}
+function selectRange(fromKey,toKey){
+  const from=cellMap[fromKey],to=cellMap[toKey];if(!from||!to)return;
+  const r1=Math.min(from.row,to.row),r2=Math.max(from.row,to.row);
+  const c1=Math.min(from.col,to.col),c2=Math.max(from.col,to.col);
+  selectedCells.forEach(k=>{const el=document.querySelector(`[data-key="${k}"]`);if(el)el.classList.remove('selected','sel-active');});
+  selectedCells.clear();
+  for(let r=r1;r<=r2;r++)for(let c=c1;c<=c2;c++){
+    const k=coordMap[`${r}_${c}`];if(k){selectedCells.add(k);const el=document.querySelector(`[data-key="${k}"]`);if(el)el.classList.add('selected');}
+  }
+  setActiveCell(toKey);
+}
+
+// ====================================================================
+// CELL EDITING (Enhanced — supports multi-cell fill via Ctrl+Enter)
+// ====================================================================
+function startEdit(key, clearFirst){
+  if(isEditing) commitEdit(false);
+  isEditing=true;
+
+  // Save current multi-cell selection before editing
+  savedSelection = new Set(selectedCells);
+
+  const cell=document.querySelector(`[data-key="${key}"]`);if(!cell)return;
+  const span=cell.querySelector('.cell-val');
+  const input=document.createElement('input');input.className='cell-edit';input.type='text';
+  input.value = clearFirst ? '' : span.textContent.trim();
+  cell.appendChild(input);input.focus();
+  if(!clearFirst) input.select();
+
+  input.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){
+      e.preventDefault();
+      if(e.ctrlKey||e.metaKey){
+        // Ctrl+Enter → fill ALL selected cells with this value
+        fillSelectedCells(input.value.trim());
+        cancelEdit();
+        showToast(`${savedSelection.size}개 셀에 값 일괄 입력 완료`);
+      } else {
+        // Normal Enter → commit single cell, move down
+        commitEdit(false);moveTo(key,1,0);
+      }
+    }
+    else if(e.key==='Tab'){e.preventDefault();commitEdit(false);moveTo(key,0,e.shiftKey?-1:1);}
+    else if(e.key==='Escape'){cancelEdit();}
+  });
+  input.addEventListener('blur',()=>{setTimeout(()=>{if(isEditing)commitEdit(false);},150);});
+}
+
+function commitEdit(shouldClearSelection){
+  if(!isEditing)return;
+  const input=document.querySelector('.cell-edit');
+  if(!input){isEditing=false;return;}
+  const cell=input.closest('.c-alloc');const dk=cell.dataset.dk;
+  const val=input.value.trim();const numVal=val===''?null:parseInt(val)||0;
+  if(stockData[dk])stockData[dk].alloc=numVal;
+  cell.querySelector('.cell-val').textContent=numVal!==null?numVal:'';
+  input.remove();isEditing=false;
+  if(shouldClearSelection) clearSelection();
+  updateFooterOnly();
+}
+
+function cancelEdit(){
+  const input=document.querySelector('.cell-edit');if(input)input.remove();isEditing=false;
+  // Restore selection visuals
+  savedSelection.forEach(k=>{
+    const el=document.querySelector(`[data-key="${k}"]`);
+    if(el)el.classList.add('selected');
+  });
+}
+
+function fillSelectedCells(valStr){
+  const numVal=valStr===''?null:parseInt(valStr)||0;
+  const targets = savedSelection.size > 1 ? savedSelection : selectedCells;
+  targets.forEach(ck=>{
+    const info=cellMap[ck];if(!info)return;
+    if(stockData[info.dk]) stockData[info.dk].alloc=numVal;
+    const el=document.querySelector(`[data-key="${ck}"]`);
+    if(el) el.querySelector('.cell-val').textContent=numVal!==null?numVal:'';
+  });
+  updateFooterOnly();
+}
+
+// Lightweight footer update — only recalc totals without full re-render
+function updateFooterOnly(){
+  const tfoot=document.getElementById('pivotFoot');
+  if(viewMode==='shop'){
+    let foot=`<tr><td class="row-header" style="font-weight:700;width:180px;min-width:180px;">합계</td>`;
+    STYLES.forEach(style=>{style.colors.forEach(color=>{SIZES.forEach(size=>{
+      let ts=0,tf=0,ta=0;
+      SHOPS.forEach(shop=>{const d=stockData[`${shop.id}_${style.code}_${color}_${size}`];if(d){ts+=d.stock||0;tf+=d.forecast||0;ta+=d.alloc||0;}});
+      foot+=`<td style="background:#DDE3EA;">${ts}</td>`;
+      foot+=`<td style="background:#FFF0B8;">${tf||'-'}</td>`;
+      foot+=`<td style="background:#D9D0F0;color:var(--ai);font-weight:700;">${ta||''}</td>`;
+    });});});
+    foot+='</tr>';tfoot.innerHTML=foot;
+  } else {
+    let foot=`<tr><td class="row-header" style="font-weight:700;width:200px;min-width:200px;">합계</td>`;
+    SHOPS.forEach(shop=>{SIZES.forEach(size=>{
+      let ts=0,tf=0,ta=0;
+      STYLES.forEach(style=>{style.colors.forEach(color=>{const d=stockData[`${shop.id}_${style.code}_${color}_${size}`];if(d){ts+=d.stock||0;tf+=d.forecast||0;ta+=d.alloc||0;}});});
+      foot+=`<td style="background:#DDE3EA;">${ts}</td>`;
+      foot+=`<td style="background:#FFF0B8;">${tf||'-'}</td>`;
+      foot+=`<td style="background:#D9D0F0;color:var(--ai);font-weight:700;">${ta||''}</td>`;
+    });});
+    foot+='</tr>';tfoot.innerHTML=foot;
+  }
+  renderSCSSummary();
+}
+
+// ====================================================================
+// KEYBOARD (Enhanced)
+// ====================================================================
+document.addEventListener('keydown',e=>{
+  // While editing, only intercept specific keys (handled in input listener)
+  if(isEditing) return;
+
+  const k=e.key;
+
+  // Arrow keys: navigate or extend selection
+  if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(k)){
+    e.preventDefault();if(!activeCell)return;
+    const dr=k==='ArrowDown'?1:k==='ArrowUp'?-1:0;
+    const dc=k==='ArrowRight'?1:k==='ArrowLeft'?-1:0;
+    if(e.shiftKey){
+      // Extend selection from anchor
+      const t=getNeighbor(activeCell,dr,dc);
+      if(t) selectRange(anchorCell||activeCell,t);
+    } else {
+      moveTo(activeCell,dr,dc);
+    }
+    return;
+  }
+
+  // Enter → edit active cell
+  if(k==='Enter'&&activeCell){e.preventDefault();startEdit(activeCell,false);return;}
+
+  // F2 → edit (keep existing value)
+  if(k==='F2'&&activeCell){e.preventDefault();startEdit(activeCell,false);return;}
+
+  // Delete / Backspace → clear all selected cells
+  if((k==='Delete'||k==='Backspace')&&selectedCells.size>0){
+    e.preventDefault();
+    const cnt=selectedCells.size;
+    selectedCells.forEach(ck=>{
+      const info=cellMap[ck];if(info&&stockData[info.dk])stockData[info.dk].alloc=null;
+      const el=document.querySelector(`[data-key="${ck}"]`);if(el)el.querySelector('.cell-val').textContent='';
+    });
+    updateFooterOnly();showToast(`${cnt}개 셀 삭제됨`);return;
+  }
+
+  // Ctrl+C → copy
+  if((e.ctrlKey||e.metaKey)&&k==='c'){e.preventDefault();copySelection();return;}
+
+  // Ctrl+V → paste
+  if((e.ctrlKey||e.metaKey)&&k==='v'){e.preventDefault();pasteClipboard();return;}
+
+  // Ctrl+A → select all
+  if((e.ctrlKey||e.metaKey)&&k==='a'){e.preventDefault();selectAll();return;}
+
+  // Ctrl+D → fill down (copy first row of selection to all rows below)
+  if((e.ctrlKey||e.metaKey)&&k==='d'&&selectedCells.size>1){
+    e.preventDefault();fillDown();return;
+  }
+
+  // Ctrl+R → fill right (copy first col of selection to all cols right)
+  if((e.ctrlKey||e.metaKey)&&k==='r'&&selectedCells.size>1){
+    e.preventDefault();fillRight();return;
+  }
+
+  // Number/minus → start editing with clear (replace mode)
+  if((/^[0-9\-]$/.test(k))&&activeCell&&!e.ctrlKey&&!e.metaKey){
+    startEdit(activeCell,true);
+    setTimeout(()=>{const inp=document.querySelector('.cell-edit');if(inp){inp.value=k;
+      // Move cursor to end
+      inp.setSelectionRange(inp.value.length,inp.value.length);}},10);
+    return;
+  }
+});
+
+function moveTo(fromKey,dr,dc){
+  const t=getNeighbor(fromKey,dr,dc);if(!t)return;
+  clearSelection();selectedCells.add(t);
+  const el=document.querySelector(`[data-key="${t}"]`);
+  if(el){el.classList.add('selected');el.scrollIntoView({block:'nearest',inline:'nearest'});}
+  setActiveCell(t);anchorCell=t;
+}
+function getNeighbor(key,dr,dc){
+  const info=cellMap[key];if(!info)return null;
+  return coordMap[`${info.row+dr}_${info.col+dc}`]||null;
+}
+
+// ====================================================================
+// FILL DOWN / FILL RIGHT (Ctrl+D, Ctrl+R)
+// ====================================================================
+function getSelectionBounds(){
+  let minR=Infinity,maxR=-Infinity,minC=Infinity,maxC=-Infinity;
+  selectedCells.forEach(ck=>{
+    const info=cellMap[ck];if(info){
+      minR=Math.min(minR,info.row);maxR=Math.max(maxR,info.row);
+      minC=Math.min(minC,info.col);maxC=Math.max(maxC,info.col);
+    }
+  });
+  return {minR,maxR,minC,maxC};
+}
+
+function fillDown(){
+  const {minR,maxR,minC,maxC}=getSelectionBounds();
+  if(minR===maxR)return; // only one row
+  let filled=0;
+  for(let c=minC;c<=maxC;c++){
+    const srcKey=coordMap[`${minR}_${c}`];
+    if(!srcKey)continue;
+    const srcInfo=cellMap[srcKey];
+    const srcVal=stockData[srcInfo.dk]?stockData[srcInfo.dk].alloc:null;
+    for(let r=minR+1;r<=maxR;r++){
+      const tKey=coordMap[`${r}_${c}`];if(!tKey)continue;
+      const tInfo=cellMap[tKey];
+      if(tInfo&&stockData[tInfo.dk]){
+        stockData[tInfo.dk].alloc=srcVal;
+        const el=document.querySelector(`[data-key="${tKey}"]`);
+        if(el)el.querySelector('.cell-val').textContent=srcVal!==null?srcVal:'';
+        filled++;
+      }
+    }
+  }
+  updateFooterOnly();
+  showToast(`아래로 채우기 완료 (${filled}개 셀)`);
+}
+
+function fillRight(){
+  const {minR,maxR,minC,maxC}=getSelectionBounds();
+  if(minC===maxC)return;
+  let filled=0;
+  for(let r=minR;r<=maxR;r++){
+    const srcKey=coordMap[`${r}_${minC}`];
+    if(!srcKey)continue;
+    const srcInfo=cellMap[srcKey];
+    const srcVal=stockData[srcInfo.dk]?stockData[srcInfo.dk].alloc:null;
+    for(let c=minC+1;c<=maxC;c++){
+      const tKey=coordMap[`${r}_${c}`];if(!tKey)continue;
+      const tInfo=cellMap[tKey];
+      if(tInfo&&stockData[tInfo.dk]){
+        stockData[tInfo.dk].alloc=srcVal;
+        const el=document.querySelector(`[data-key="${tKey}"]`);
+        if(el)el.querySelector('.cell-val').textContent=srcVal!==null?srcVal:'';
+        filled++;
+      }
+    }
+  }
+  updateFooterOnly();
+  showToast(`오른쪽으로 채우기 완료 (${filled}개 셀)`);
+}
+
+// ====================================================================
+// COPY / PASTE
+// ====================================================================
+// ====================================================================
+// COPY / PASTE (Enhanced — rectangular grid, tiling paste)
+// ====================================================================
+let clipboardGrid = []; // 2D array: clipboardGrid[relRow][relCol] = value
+let clipboardRows = 0;
+let clipboardCols = 0;
+
+function copySelection(){
+  if(!selectedCells.size)return;
+
+  // Clear old visuals
+  clipboardCells.forEach(ck=>{const el=document.querySelector(`[data-key="${ck}"]`);if(el)el.classList.remove('copying');});
+
+  const {minR,maxR,minC,maxC}=getSelectionBounds();
+  clipboardRows = maxR-minR+1;
+  clipboardCols = maxC-minC+1;
+
+  // Build 2D grid
+  clipboardGrid = [];
+  for(let r=0;r<clipboardRows;r++){
+    clipboardGrid[r]=[];
+    for(let c=0;c<clipboardCols;c++){
+      const ck=coordMap[`${minR+r}_${minC+c}`];
+      if(ck && cellMap[ck]){
+        const d=stockData[cellMap[ck].dk];
+        clipboardGrid[r][c]=d?d.alloc:null;
+      } else {
+        clipboardGrid[r][c]=null;
+      }
+    }
+  }
+
+  // Also build flat clipboard for legacy + plain text for OS clipboard
+  clipboard=[];
+  clipboardCells=new Set(selectedCells);
+  let tsvText='';
+  for(let r=0;r<clipboardRows;r++){
+    const rowVals=[];
+    for(let c=0;c<clipboardCols;c++){
+      const v=clipboardGrid[r][c];
+      rowVals.push(v!==null?v:'');
+      clipboard.push({relRow:r,relCol:c,value:v});
+    }
+    tsvText+=rowVals.join('\t')+'\n';
+  }
+
+  // Copy to system clipboard as TSV (for Excel interop)
+  try{navigator.clipboard.writeText(tsvText);}catch(e){}
+
+  // Visual feedback
+  selectedCells.forEach(ck=>{const el=document.querySelector(`[data-key="${ck}"]`);if(el)el.classList.add('copying');});
+  showToast(`${selectedCells.size}개 셀 복사됨 (${clipboardRows}×${clipboardCols})`);
+}
+
+function pasteClipboard(){
+  if(!activeCell)return;
+  const base=cellMap[activeCell];if(!base)return;
+
+  // Determine paste area: if multi-cell selected, tile into that area
+  let pasteRows, pasteCols;
+  if(selectedCells.size>1){
+    const {minR,maxR,minC,maxC}=getSelectionBounds();
+    pasteRows=maxR-minR+1;
+    pasteCols=maxC-minC+1;
+    // Paste starts from selection top-left
+    var startR=minR, startC=minC;
+  } else {
+    pasteRows=clipboardRows;
+    pasteCols=clipboardCols;
+    var startR=base.row, startC=base.col;
+  }
+
+  if(!clipboardGrid.length)return;
+
+  let pasted=0;
+  for(let r=0;r<pasteRows;r++){
+    for(let c=0;c<pasteCols;c++){
+      // Tile: wrap around clipboard dimensions
+      const srcR=r%clipboardRows;
+      const srcC=c%clipboardCols;
+      const val=clipboardGrid[srcR][srcC];
+
+      const tk=coordMap[`${startR+r}_${startC+c}`];
+      if(tk){
+        const info=cellMap[tk];
+        if(info&&stockData[info.dk]){
+          stockData[info.dk].alloc=val;
+          const el=document.querySelector(`[data-key="${tk}"]`);
+          if(el)el.querySelector('.cell-val').textContent=val!==null?val:'';
+          pasted++;
+        }
+      }
+    }
+  }
+
+  // Clear copy visuals
+  clipboardCells.forEach(ck=>{const el=document.querySelector(`[data-key="${ck}"]`);if(el)el.classList.remove('copying');});
+  clipboardCells.clear();
+  updateFooterOnly();
+  showToast(`${pasted}개 셀에 붙여넣기 완료`);
+}
+
+// Handle paste from OS clipboard (e.g., from Excel)
+document.addEventListener('paste',e=>{
+  if(isEditing)return; // let input handle it
+  if(!activeCell)return;
+  e.preventDefault();
+  const text=(e.clipboardData||window.clipboardData).getData('text');
+  if(!text.trim())return;
+
+  // Parse TSV
+  const rows=text.trim().split('\n').map(r=>r.split('\t'));
+  clipboardRows=rows.length;
+  clipboardCols=Math.max(...rows.map(r=>r.length));
+  clipboardGrid=[];
+  for(let r=0;r<clipboardRows;r++){
+    clipboardGrid[r]=[];
+    for(let c=0;c<clipboardCols;c++){
+      const raw=(rows[r]&&rows[r][c]!==undefined)?rows[r][c].trim():'';
+      clipboardGrid[r][c]=raw===''?null:(parseInt(raw)||0);
+    }
+  }
+  clipboard=[];
+  pasteClipboard();
+});
+function selectAll(){
+  clearSelection();Object.keys(cellMap).forEach(ck=>{selectedCells.add(ck);const el=document.querySelector(`[data-key="${ck}"]`);if(el)el.classList.add('selected');});
+  if(Object.keys(cellMap).length>0){const fk=Object.keys(cellMap)[0];setActiveCell(fk);anchorCell=fk;}
+  showToast(`전체 배분 셀 선택됨 (${selectedCells.size}개)`);
+}
+
+// ====================================================================
+// EXCEL DOWNLOAD (CSV)
+// ====================================================================
+function downloadExcel(){
+  let csv='\uFEFF';
+  if(viewMode==='shop'){
+    csv+='매장';
+    STYLES.forEach(s=>s.colors.forEach(c=>SIZES.forEach(sz=>{csv+=`,${s.code}_${c}_${sz}_재고,${s.code}_${c}_${sz}_예측,${s.code}_${c}_${sz}_배분`;})));
+    csv+='\n';
+    SHOPS.forEach(shop=>{csv+=shop.name;STYLES.forEach(st=>st.colors.forEach(co=>SIZES.forEach(sz=>{
+      const d=stockData[`${shop.id}_${st.code}_${co}_${sz}`]||{};csv+=`,${d.stock||0},${d.forecast||''},${d.alloc||''}`;})));csv+='\n';});
+  } else {
+    csv+='스타일_컬러';
+    SHOPS.forEach(sh=>SIZES.forEach(sz=>{csv+=`,${sh.name}_${sz}_재고,${sh.name}_${sz}_예측,${sh.name}_${sz}_배분`;}));
+    csv+='\n';
+    STYLES.forEach(st=>st.colors.forEach(co=>{csv+=`${st.code}_${co}`;SHOPS.forEach(sh=>SIZES.forEach(sz=>{
+      const d=stockData[`${sh.id}_${st.code}_${co}_${sz}`]||{};csv+=`,${d.stock||0},${d.forecast||''},${d.alloc||''}`;}));csv+='\n';}));
+  }
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=`보충배분AIA_${viewMode}_${new Date().toISOString().slice(0,10)}.csv`;a.click();URL.revokeObjectURL(url);
+  showToast('📥 엑셀(CSV) 다운로드 완료');
+}
+
+// ====================================================================
+// UTILS
+// ====================================================================
+function resetFilters(){
+  document.getElementById('fBrand').selectedIndex=0;
+  document.getElementById('fAP').selectedIndex=0;
+  document.getElementById('fSeason').selectedIndex=0;
+  document.getElementById('fShop').selectedIndex=0;
+  document.getElementById('fStyle').value='';
+  document.getElementById('fColor').selectedIndex=0;
+  showToast('필터가 초기화되었습니다.');
+}
+function doSearch(){
+  showToast('🔍 조회 완료 — 데이터가 갱신되었습니다.');
+  initData();renderTable();
+}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+
+// ====================================================================
+// SCS SUMMARY PANEL
+// ====================================================================
+function renderSCSSummary(){
+  const tbody=document.getElementById('scsSummaryBody');
+  // Aggregate: per Style-Color-Size → sum of alloc across all shops
+  const scsMap={};
+  STYLES.forEach(style=>{
+    style.colors.forEach(color=>{
+      SIZES.forEach(size=>{
+        const scsKey=`${style.code}-${color}-${size}`;
+        let totalAlloc=0;
+        const apStock = apStockMap[scsKey] || 0;
+        SHOPS.forEach(shop=>{
+          const dk=`${shop.id}_${style.code}_${color}_${size}`;
+          const d=stockData[dk];
+          if(d) totalAlloc += d.alloc||0;
+        });
+        scsMap[scsKey]={label:`${style.code} / ${color} / ${size}`, name:style.name, apStock:apStock, alloc:totalAlloc};
+      });
+    });
+  });
+
+  // Sort by alloc descending, take all
+  const entries=Object.values(scsMap).sort((a,b)=>b.alloc-a.alloc);
+
+  let html='';
+  let grandAlloc=0, grandAP=0;
+  entries.forEach(e=>{
+    const remain=e.apStock-e.alloc;
+    const remainColor=remain<0?'color:var(--danger);font-weight:600;':'';
+    grandAlloc+=e.alloc; grandAP+=e.apStock;
+    html+=`<tr>
+      <td style="padding:5px 12px;border:1px solid var(--border);font-size:12px;">${e.label} <span style="color:var(--text-muted);font-size:10px;">${e.name}</span></td>
+      <td style="padding:5px 12px;border:1px solid var(--border);text-align:right;font-variant-numeric:tabular-nums;">${e.apStock.toLocaleString()}</td>
+      <td style="padding:5px 12px;border:1px solid var(--border);text-align:right;color:var(--ai);font-weight:600;font-variant-numeric:tabular-nums;">${e.alloc.toLocaleString()}</td>
+      <td style="padding:5px 12px;border:1px solid var(--border);text-align:right;font-variant-numeric:tabular-nums;${remainColor}">${remain.toLocaleString()}</td>
+    </tr>`;
+  });
+  // Grand total row
+  const grandRemain=grandAP-grandAlloc;
+  html+=`<tr style="background:var(--header-bg);font-weight:700;">
+    <td style="padding:5px 12px;border:1px solid var(--border);">합계</td>
+    <td style="padding:5px 12px;border:1px solid var(--border);text-align:right;font-variant-numeric:tabular-nums;">${grandAP.toLocaleString()}</td>
+    <td style="padding:5px 12px;border:1px solid var(--border);text-align:right;color:var(--ai);font-variant-numeric:tabular-nums;">${grandAlloc.toLocaleString()}</td>
+    <td style="padding:5px 12px;border:1px solid var(--border);text-align:right;font-variant-numeric:tabular-nums;${grandRemain<0?'color:var(--danger);':''}">${grandRemain.toLocaleString()}</td>
+  </tr>`;
+  tbody.innerHTML=html;
+}
+
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.pivot')&&!e.target.closest('.toggle-bar')&&!isEditing)clearSelection();
+});
+
+// ====================================================================
+// INIT
+// ====================================================================
+initData();
+renderTable();
+</script>
+</body>
+</html>

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>보충배분 MD 분석 대시보드</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',-apple-system,sans-serif;background:#f0f2f5;color:#1a1a2e;line-height:1.5}
+header{background:linear-gradient(135deg,#1a1a2e,#0f3460);color:white;padding:26px 40px}
+header h1{font-size:20px;font-weight:800}
+header p{font-size:12px;color:#94a3b8;margin-top:5px}
+.badge{display:inline-block;background:#e94560;color:white;font-size:11px;padding:2px 9px;border-radius:10px;margin-left:8px;font-weight:700;vertical-align:middle}
+
+.container{max-width:1200px;margin:0 auto;padding:26px 22px}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
+.kpi{background:white;border-radius:10px;padding:18px 16px;box-shadow:0 1px 4px rgba(0,0,0,.07);border-left:4px solid var(--ac,#0f3460)}
+.kpi .lb{font-size:11px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.kpi .vl{font-size:26px;font-weight:900;color:#1a1a2e;margin:5px 0 2px}
+.kpi .sb{font-size:11px;color:#94a3b8}
+
+/* 섹션 */
+.sec{margin-bottom:22px}
+.sec-ttl{font-size:14px;font-weight:800;color:#1a1a2e;margin-bottom:12px;padding-bottom:7px;border-bottom:2px solid #e2e8f0;display:flex;align-items:center;gap:8px}
+
+/* 차트박스 */
+.cb{background:white;border-radius:10px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.cb h3{font-size:13px;font-weight:700;margin-bottom:14px}
+.cb p.desc{font-size:12px;color:#64748b;margin-bottom:12px;line-height:1.6}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.g12{display:grid;grid-template-columns:1.4fr 1fr;gap:14px}
+
+/* 주차 요약 */
+.wk-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.wk{background:white;border-radius:10px;padding:18px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.wk h3{font-size:12px;font-weight:800;color:#64748b;margin-bottom:12px}
+.wm{display:flex;justify-content:space-between;margin-bottom:6px;font-size:12.5px}
+.mk{color:#64748b} .mv{font-weight:700}
+.g{color:#16a34a} .y{color:#d97706} .r{color:#dc2626} .p{color:#9333ea} .b{color:#2563eb}
+.wk-note{font-size:11px;color:#94a3b8;margin-top:10px;padding-top:8px;border-top:1px solid #f1f5f9}
+
+/* 4분면 */
+.quad-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;border-radius:8px;overflow:hidden;border:1px solid #e2e8f0}
+.quad{padding:16px 14px;text-align:center}
+.quad .qn{font-size:22px;font-weight:900;margin-bottom:4px}
+.quad .ql{font-size:11px;line-height:1.5;color:#475569;font-weight:600}
+.quad .qa{font-size:10px;color:#94a3b8;margin-top:4px}
+
+/* 테이블 */
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead tr{background:#f8fafc}
+th{padding:7px 10px;text-align:left;color:#64748b;font-weight:700;font-size:10.5px;text-transform:uppercase;border-bottom:1px solid #e2e8f0}
+td{padding:6px 10px;border-bottom:1px solid #f1f5f9}
+tr:hover td{background:#fafafa}
+.pill{display:inline-block;padding:1px 7px;border-radius:8px;font-weight:700;font-size:11px}
+.pr{background:#fef2f2;color:#dc2626} .py{background:#fffbeb;color:#d97706}
+.pg{background:#f0fdf4;color:#16a34a} .pp{background:#fdf4ff;color:#9333ea}
+
+/* 인사이트 */
+.insight{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:14px 16px;font-size:12.5px;line-height:1.8;color:#1e40af;margin-top:12px}
+.insight strong{color:#1e3a8a}
+.warn{background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:12px 16px;font-size:12px;color:#92400e;margin-bottom:16px;line-height:1.7}
+footer{text-align:center;padding:18px;font-size:11.5px;color:#94a3b8}
+</style>
+</head>
+<body>
+<header>
+  <h1>보충배분 MD 분석 대시보드<span class="badge">Discovery 의류</span></h1>
+  <p>분석기간 W1~W3 &nbsp;|&nbsp; MD 배분 이력 vs Snowflake 실판매 비교 &nbsp;|&nbsp; 핵심 질문: MD의 배분 우선순위가 실수요와 얼마나 일치하는가?</p>
+</header>
+
+<div class="container">
+
+<div class="warn">
+  ⚠️ <strong>분석 범위</strong>: MD 배분 CSV 868개 (week×style) 중 현시즌 판매 데이터와 매칭된 <strong>226개(26%)</strong> 기준.
+  나머지 642개는 구시즌(053·051) 재고처리 상품 또는 해당 주 미판매 스타일.
+  STR은 "전국 실판매÷보충배분량"으로 기존 재고 판매 포함이므로 100% 초과가 정상.
+  핵심 지표는 <strong>배분-판매 상관계수</strong>와 <strong>배분 우선순위 오류율</strong>입니다.
+</div>
+
+<!-- KPI 카드 -->
+<div class="kpi-grid">
+  <div class="kpi" style="--ac:#0f3460">
+    <div class="lb">배분-판매 상관</div>
+    <div class="vl" style="font-size:22px">0.243</div>
+    <div class="sb">Pearson r (Spearman 0.12)</div>
+  </div>
+  <div class="kpi" style="--ac:#e94560">
+    <div class="lb">분석 SKU (매칭)</div>
+    <div class="vl">226</div>
+    <div class="sb">전체 550개 스타일</div>
+  </div>
+  <div class="kpi" style="--ac:#10b981">
+    <div class="lb">총 배분 수량</div>
+    <div class="vl" style="font-size:20px">40,999</div>
+    <div class="sb">3주 전체 (구시즌 포함)</div>
+  </div>
+  <div class="kpi" style="--ac:#8b5cf6">
+    <div class="lb">배분 편중 높음</div>
+    <div class="vl">1%</div>
+    <div class="sb">CV > 1.5 스타일 비율</div>
+  </div>
+  <div class="kpi" style="--ac:#f59e0b">
+    <div class="lb">배분 대상 매장</div>
+    <div class="vl">263</div>
+    <div class="sb">전국 매장</div>
+  </div>
+</div>
+
+<!-- 주차별 현황 -->
+<div class="sec">
+  <div class="sec-ttl">📅 주차별 배분 현황</div>
+  <div class="wk-grid">
+
+    <div class="wk">
+      <h3>📦 W1 주차</h3>
+      <div class="wm"><span class="mk">총 배분량</span><span class="mv">7,948개</span></div>
+      <div class="wm"><span class="mk">현시즌(063/061) 비율</span><span class="mv b">27%</span></div>
+      <div class="wm"><span class="mk">배분 SKU 수</span><span class="mv">301개 (매칭 72)</span></div>
+      <div class="wm"><span class="mk">매장 배분 CV (평균)</span><span class="mv g">0.67</span></div>
+      <div class="wm"><span class="mk">배분↔판매 상관 (r)</span><span class="mv r">0.158</span></div>
+      <div class="wk-note">구시즌 73% 포함 — 재고처리성 배분</div>
+    </div>
+
+    <div class="wk">
+      <h3>📦 W2 주차</h3>
+      <div class="wm"><span class="mk">총 배분량</span><span class="mv">8,454개</span></div>
+      <div class="wm"><span class="mk">현시즌(063/061) 비율</span><span class="mv b">26%</span></div>
+      <div class="wm"><span class="mk">배분 SKU 수</span><span class="mv">313개 (매칭 96)</span></div>
+      <div class="wm"><span class="mk">매장 배분 CV (평균)</span><span class="mv g">0.46</span></div>
+      <div class="wm"><span class="mk">배분↔판매 상관 (r)</span><span class="mv y">0.356</span></div>
+      <div class="wk-note">구시즌 74% 포함 — 재고처리성 배분</div>
+    </div>
+
+    <div class="wk">
+      <h3>📦 W3 주차</h3>
+      <div class="wm"><span class="mk">총 배분량</span><span class="mv">24,597개</span></div>
+      <div class="wm"><span class="mk">현시즌(063/061) 비율</span><span class="mv b">8%</span></div>
+      <div class="wm"><span class="mk">배분 SKU 수</span><span class="mv">254개 (매칭 58)</span></div>
+      <div class="wm"><span class="mk">매장 배분 CV (평균)</span><span class="mv g">0.45</span></div>
+      <div class="wm"><span class="mk">배분↔판매 상관 (r)</span><span class="mv r">0.239</span></div>
+      <div class="wk-note">구시즌 92% 포함 — 재고처리성 배분</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 핵심 분석 1: 상관관계 + 4분위 -->
+<div class="sec">
+  <div class="sec-ttl">📈 배분-판매 상관 분석 — MD가 수요를 얼마나 맞게 예측했나?</div>
+  <div class="g12">
+    <div class="cb">
+      <h3>배분량 vs 실판매량 산점도 (상위 50 스타일)</h3>
+      <p class="desc">각 점은 스타일×주차 단위. 대각선 위쪽=판매>배분(과소배분 가능성), 아래쪽=배분>판매.</p>
+      <canvas id="scatterChart" height="220"></canvas>
+    </div>
+    <div class="cb">
+      <h3>배분 분위별 평균 실판매</h3>
+      <p class="desc">배분량 하위 25%~상위 25% 구간별 평균 실판매 수준. 우상향이면 MD 우선순위 정확.</p>
+      <canvas id="quartileChart" height="220"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- 핵심 분석 2: 우선순위 오류 4분면 -->
+<div class="sec">
+  <div class="sec-ttl">🎯 배분 우선순위 오류 분석 (2×2 매트릭스)</div>
+  <div class="g2">
+    <div class="cb">
+      <h3>배분량 × 실판매 4분면 (판매·배분 중앙값 기준)</h3>
+      <p class="desc">이상적: 우상단(적정배분)과 좌하단(효율배분)에 집중. 우하단(과다배분)·좌상단(과소배분)은 개선 대상.</p>
+      <div id="quadGrid" class="quad-grid"></div>
+    </div>
+    <div class="cb">
+      <h3>배분 우선순위 오류 vs 올바른 판단</h3>
+      <canvas id="quadChart" height="220"></canvas>
+    </div>
+  </div>
+  <div class="insight">
+    <strong>📌 배분-판매 상관계수 해석</strong>: 전체 r = <strong>{corr_all['pearson']:.3f}</strong> ({corr_desc})<br>
+    • Pearson r ≥ 0.7: MD가 수요 높은 상품에 더 많이 배분 → 매우 정확한 우선순위<br>
+    • r = 0.3~0.7: 부분적으로 맞지만 개선 여지 존재 &nbsp;|&nbsp; r &lt; 0.3: 배분과 수요의 연관성 낮음<br>
+    • 이상적 시스템(ILP)은 예측치 기반으로 배분하므로 상관계수가 더 높아야 함
+  </div>
+</div>
+
+<!-- 매장 배분 편중도 -->
+<div class="sec">
+  <div class="sec-ttl">⚖️ 매장 간 배분 공정성 (CV 분석)</div>
+  <div class="g2">
+    <div class="cb">
+      <h3>스타일별 매장 배분 CV 분포</h3>
+      <p class="desc">CV(변동계수) = 표준편차/평균. 낮을수록 매장 간 균등 배분. CV>1.5는 특정 매장 집중 배분.</p>
+      <canvas id="cvChart" height="200"></canvas>
+    </div>
+    <div class="cb">
+      <h3>시즌별 배분 구성</h3>
+      <p class="desc">현시즌(26SS·25FW) vs 구시즌(25SS·24FW) 배분 수량 비율. 구시즌 비율이 높으면 재고처리 목적 배분.</p>
+      <canvas id="seasonChart" height="200"></canvas>
+    </div>
+  </div>
+  <div class="insight">
+    <strong>📌 매장 공정성 해석</strong>:
+    CV가 높은 스타일은 일부 매장에만 재고가 집중됨 → 해당 매장 재고 소화 실패 시 손실 발생.<br>
+    ILP 방식은 매장 예측치 비례 배분으로 CV를 낮추는 것이 이론적 강점.
+    현재 편중 높음(CV>1.5) 비율: <strong>{cv_high_pct:.0f}%</strong>
+  </div>
+</div>
+
+</div>
+
+<footer>보충배분-AIA 검증팀 &nbsp;|&nbsp; Discovery 의류 MD 보충배분 분석 &nbsp;|&nbsp; W1~W3 실적 기준</footer>
+
+<script>
+const D = {"corr_all": {"pearson": 0.243, "spearman": 0.12}, "quartile": [{"label": "Q1 (\ub0ae\uc740 \ubc30\ubd84)", "avg_alloc": 1.5, "avg_actual": 50.2, "n": 56}, {"label": "Q2 (\uc911\ud558 \ubc30\ubd84)", "avg_alloc": 2.7, "avg_actual": 78.8, "n": 56}, {"label": "Q3 (\uc911\uc0c1 \ubc30\ubd84)", "avg_alloc": 8.7, "avg_actual": 116.4, "n": 56}, {"label": "Q4 (\ub192\uc740 \ubc30\ubd84)", "avg_alloc": 91.0, "avg_actual": 119.4, "n": 58}], "quad": {"HH": {"count": 73, "label": "\uc801\uc815\ubc30\ubd84\n(\uc798 \ud314\ub9bc, \ub9ce\uc774 \ubc30\ubd84)"}, "LH": {"count": 40, "label": "\uacfc\uc18c\ubc30\ubd84\n(\uc798 \ud314\ub9bc, \uc801\uac8c \ubc30\ubd84)"}, "HL": {"count": 50, "label": "\uacfc\ub2e4\ubc30\ubd84\n(\uc548 \ud314\ub9bc, \ub9ce\uc774 \ubc30\ubd84)"}, "LL": {"count": 63, "label": "\ud6a8\uc728\ubc30\ubd84\n(\uc548 \ud314\ub9bc, \uc801\uac8c \ubc30\ubd84)"}}, "cv_bins": {"\u22640.5": 160, "0.5~1.0": 103, "1.0~1.5": 31, "1.5~2.0": 1, ">2.0": 1}, "scatter": [{"x": 452, "y": 6, "style": "DWWJR4063", "week": "W3"}, {"x": 447, "y": 675, "style": "DMTS71063", "week": "W3"}, {"x": 286, "y": 1, "style": "DMWJR3063", "week": "W3"}, {"x": 223, "y": 258, "style": "DXTB7A063", "week": "W2"}, {"x": 218, "y": 23, "style": "DKAZ22063", "week": "W2"}, {"x": 193, "y": 211, "style": "DWRS74063", "week": "W1"}, {"x": 174, "y": 122, "style": "DWRS97063", "week": "W2"}, {"x": 160, "y": 303, "style": "DWRS94063", "week": "W2"}, {"x": 151, "y": 237, "style": "DWPT7F063", "week": "W2"}, {"x": 150, "y": 686, "style": "DMTS71063", "week": "W1"}, {"x": 144, "y": 31, "style": "DKRS76063", "week": "W1"}, {"x": 125, "y": 14, "style": "DXSW63063", "week": "W1"}, {"x": 115, "y": 7, "style": "DWSW92063", "week": "W3"}, {"x": 109, "y": 177, "style": "DMTS63063", "week": "W1"}, {"x": 105, "y": 139, "style": "DMRS8I063", "week": "W2"}, {"x": 100, "y": 11, "style": "DMSW77063", "week": "W1"}, {"x": 100, "y": 38, "style": "DWRS9M063", "week": "W2"}, {"x": 89, "y": 175, "style": "DMTS81063", "week": "W1"}, {"x": 85, "y": 2, "style": "DWSW91063", "week": "W3"}, {"x": 80, "y": 14, "style": "DWRS9N063", "week": "W1"}, {"x": 76, "y": 64, "style": "DXRS7K063", "week": "W1"}, {"x": 75, "y": 171, "style": "DXRS7S063", "week": "W1"}, {"x": 75, "y": 3, "style": "DWSWB2063", "week": "W1"}, {"x": 75, "y": 7, "style": "DWSW93063", "week": "W3"}, {"x": 74, "y": 191, "style": "DWWJR2063", "week": "W2"}, {"x": 72, "y": 1, "style": "DKSZ96063", "week": "W1"}, {"x": 72, "y": 17, "style": "DMSP78063", "week": "W2"}, {"x": 60, "y": 4, "style": "DKSZ98063", "week": "W1"}, {"x": 60, "y": 4, "style": "DWSWB3063", "week": "W1"}, {"x": 60, "y": 2, "style": "DWSB96063", "week": "W3"}, {"x": 55, "y": 69, "style": "DXRS7K063", "week": "W2"}, {"x": 52, "y": 695, "style": "DMTS71063", "week": "W2"}, {"x": 50, "y": 78, "style": "DWRS9R063", "week": "W1"}, {"x": 49, "y": 118, "style": "DMTS81063", "week": "W3"}, {"x": 47, "y": 504, "style": "DMRS63063", "week": "W3"}, {"x": 45, "y": 2, "style": "DWSB95063", "week": "W3"}, {"x": 45, "y": 2, "style": "DWSW95063", "week": "W3"}, {"x": 42, "y": 59, "style": "DMPT7C063", "week": "W1"}, {"x": 42, "y": 154, "style": "DMPT7E063", "week": "W1"}, {"x": 42, "y": 138, "style": "DMTS7Q063", "week": "W2"}, {"x": 40, "y": 6, "style": "DMSB7E063", "week": "W1"}, {"x": 40, "y": 5, "style": "DMSW7E063", "week": "W1"}, {"x": 40, "y": 4, "style": "DWSW9F063", "week": "W1"}, {"x": 40, "y": 8, "style": "DWSW96063", "week": "W2"}, {"x": 40, "y": 3, "style": "DWSWB4063", "week": "W3"}, {"x": 39, "y": 2, "style": "DWTR95063", "week": "W1"}, {"x": 36, "y": 8, "style": "DWTB95063", "week": "W3"}, {"x": 35, "y": 5, "style": "DMSW7D063", "week": "W2"}, {"x": 34, "y": 94, "style": "DXRS5G063", "week": "W2"}, {"x": 33, "y": 543, "style": "DMRS63063", "week": "W1"}], "season_alloc": {"26SS": {"alloc": 6258, "cnt": 201}, "25SS": {"alloc": 8098, "cnt": 422}, "24FW": {"alloc": 1697, "cnt": 111}, "25FW": {"alloc": 119, "cnt": 33}, "\uae30\ud0c0": {"alloc": 24827, "cnt": 101}}, "week_summary": {"W1": {"n_all": 301, "n_matched": 72, "total_alloc": 7948, "alloc_cur": 2147, "alloc_old": 5801, "avg_cv": 0.666, "corr_pearson": 0.158, "corr_spearman": -0.026}, "W2": {"n_all": 313, "n_matched": 96, "total_alloc": 8454, "alloc_cur": 2162, "alloc_old": 6292, "avg_cv": 0.462, "corr_pearson": 0.356, "corr_spearman": 0.423}, "W3": {"n_all": 254, "n_matched": 58, "total_alloc": 24597, "alloc_cur": 2068, "alloc_old": 22529, "avg_cv": 0.447, "corr_pearson": 0.239, "corr_spearman": -0.225}}, "overall": {"n_rows": 868, "n_matched": 226, "total_alloc": 40999, "total_actual": 20667, "n_styles": 550}};
+
+// ── 산점도 ────────────────────────────────────────────────────────────────────
+new Chart(document.getElementById('scatterChart'), {
+  type: 'scatter',
+  data: {
+    datasets: [{
+      label: '스타일×주차',
+      data: D.scatter.map(r => ({x: r.x, y: r.y, label: r.style + ' ' + r.week})),
+      backgroundColor: 'rgba(14, 52, 96, 0.55)',
+      pointRadius: 5, pointHoverRadius: 7
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: { callbacks: { label: (ctx) => ctx.raw.label + ': 배분 ' + ctx.raw.x + ' / 판매 ' + ctx.raw.y } }
+    },
+    scales: {
+      x: { title: { display: true, text: 'MD 배분량 (개)', font:{size:11} } },
+      y: { title: { display: true, text: '실판매량 (개)', font:{size:11} } }
+    }
+  }
+});
+
+// ── 4분위 바 ──────────────────────────────────────────────────────────────────
+new Chart(document.getElementById('quartileChart'), {
+  type: 'bar',
+  data: {
+    labels: D.quartile.map(q => q.label),
+    datasets: [
+      { label: '평균 배분량', data: D.quartile.map(q => q.avg_alloc), backgroundColor: '#0f346099', borderRadius: 4 },
+      { label: '평균 실판매', data: D.quartile.map(q => q.avg_actual), backgroundColor: '#e9456099', borderRadius: 4 }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { position: 'top', labels: {font:{size:11}} } },
+    scales: { y: { title: { display: true, text: '평균 수량', font:{size:11} } } }
+  }
+});
+
+// ── 4분면 그리드 ──────────────────────────────────────────────────────────────
+const quadDef = [
+  { key:'LH', bg:'#fef9c3', color:'#854d0e', icon:'⚠️' },
+  { key:'HH', bg:'#dcfce7', color:'#14532d', icon:'✅' },
+  { key:'LL', bg:'#f1f5f9', color:'#475569', icon:'💤' },
+  { key:'HL', bg:'#fee2e2', color:'#7f1d1d', icon:'❌' },
+];
+const qg = document.getElementById('quadGrid');
+quadDef.forEach(q => {
+  const d = D.quad[q.key];
+  const div = document.createElement('div');
+  div.className = 'quad';
+  div.style.background = q.bg;
+  div.innerHTML = `<div class="qn" style="color:${q.color}">${d.count}</div>
+    <div class="ql" style="color:${q.color}">${q.icon} ${d.label.replace('\\n','<br>')}</div>`;
+  qg.appendChild(div);
+});
+
+// ── 4분면 도넛 ──────────────────────────────────────────────────────────────
+const quadOrder = ['HH','LH','HL','LL'];
+const quadColors = ['#10b981','#f59e0b','#ef4444','#94a3b8'];
+const quadNames = ['적정배분','과소배분','과다배분','효율배분'];
+new Chart(document.getElementById('quadChart'), {
+  type: 'doughnut',
+  data: {
+    labels: quadNames,
+    datasets: [{ data: quadOrder.map(k => D.quad[k].count), backgroundColor: quadColors, borderWidth: 2 }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { position: 'bottom', labels: { font: {size:11}, padding:8 } },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => {
+            const tot = ctx.dataset.data.reduce((a,b)=>a+b,0);
+            return ` ${ctx.label}: ${ctx.parsed}개 (${(ctx.parsed/tot*100).toFixed(0)}%)`;
+          }
+        }
+      }
+    }
+  }
+});
+
+// ── CV 히스토그램 ─────────────────────────────────────────────────────────────
+const cvLabels = Object.keys(D.cv_bins);
+new Chart(document.getElementById('cvChart'), {
+  type: 'bar',
+  data: {
+    labels: cvLabels,
+    datasets: [{
+      label: '스타일 수',
+      data: cvLabels.map(l => D.cv_bins[l]),
+      backgroundColor: ['#10b981','#4ade80','#facc15','#f97316','#ef4444'],
+      borderRadius: 4
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { title: { display: true, text: 'CV 구간 (낮을수록 균등)', font:{size:11} } },
+      y: { title: { display: true, text: '스타일 수', font:{size:11} } }
+    }
+  }
+});
+
+// ── 시즌 도넛 ────────────────────────────────────────────────────────────────
+const sOrder = ['26SS','25FW','25SS','24FW','기타'];
+const sColors = ['#0f3460','#e94560','#94a3b8','#cbd5e1','#e2e8f0'];
+new Chart(document.getElementById('seasonChart'), {
+  type: 'doughnut',
+  data: {
+    labels: sOrder,
+    datasets: [{
+      data: sOrder.map(s => (D.season_alloc[s] || {alloc:0}).alloc),
+      backgroundColor: sColors, borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { position: 'bottom', labels: { font:{size:11}, padding:8 } },
+      tooltip: {
+        callbacks: {
+          label: (ctx) => {
+            const tot = ctx.dataset.data.reduce((a,b)=>a+b,0);
+            return ` ${ctx.label}: ${ctx.parsed.toLocaleString()}개 (${(ctx.parsed/tot*100).toFixed(1)}%)`;
+          }
+        }
+      }
+    }
+  }
+});
+</script>
+</body>
+</html>

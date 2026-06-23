@@ -1,0 +1,25 @@
+{
+  "items": [
+    {
+      "brandCd": "I",
+      "brandNm": "엠엘비 아동"
+    },
+    {
+      "brandCd": "M",
+      "brandNm": "엠엘비"
+    },
+    {
+      "brandCd": "ST",
+      "brandNm": "세르지오 타키니"
+    },
+    {
+      "brandCd": "V",
+      "brandNm": "DUVETICA"
+    },
+    {
+      "brandCd": "X",
+      "brandNm": "디스커버리"
+    }
+  ],
+  "generatedAt": "2026-06-15T04:27:34.051123+00:00"
+}

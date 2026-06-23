@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F&F S-ERP | 배분보충-AIA v3</title>
+<style>
+  :root {
+    --primary: #1B3A5C;
+    --primary-light: #2C5F8A;
+    --accent: #00A3E0;
+    --accent-light: #E6F7FF;
+    --success: #28A745;
+    --warning: #F5A623;
+    --danger: #DC3545;
+    --bg: #F5F7FA;
+    --card: #FFFFFF;
+    --border: #E2E8F0;
+    --text: #2D3748;
+    --text-light: #718096;
+    --ai-purple: #7C3AED;
+    --ai-purple-light: #EDE9FE;
+    --rt-minus: #E53E3E;
+    --rt-minus-bg: #FFF5F5;
+    --rt-plus: #38A169;
+    --rt-plus-bg: #F0FFF4;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: 'Pretendard',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--bg); color:var(--text); font-size:13px; }
+
+  /* ===== TOP NAV ===== */
+  .serp-nav { background:var(--primary); color:white; display:flex; align-items:center; height:42px; padding:0 16px; gap:4px; font-size:12px; }
+  .serp-nav .logo { font-weight:700; font-size:14px; margin-right:12px; letter-spacing:1px; }
+  .serp-nav a { color:rgba(255,255,255,0.7); text-decoration:none; padding:8px 14px; border-radius:4px 4px 0 0; transition:all 0.2s; white-space:nowrap; }
+  .serp-nav a:hover { color:white; background:rgba(255,255,255,0.1); }
+  .serp-nav a.active { color:white; background:var(--accent); font-weight:600; }
+  .serp-nav .spacer { flex:1; }
+  .serp-nav .user-info { font-size:11px; color:rgba(255,255,255,0.6); display:flex; align-items:center; gap:8px; }
+
+  /* ===== PAGE HEADER ===== */
+  .page-header { background:white; border-bottom:1px solid var(--border); padding:12px 20px; display:flex; align-items:center; justify-content:space-between; }
+  .page-header h1 { font-size:16px; font-weight:700; color:var(--primary); display:flex; align-items:center; gap:8px; }
+  .badge-ai { background:linear-gradient(135deg,var(--ai-purple),#9F7AEA); color:white; font-size:10px; padding:2px 8px; border-radius:10px; font-weight:600; }
+  .badge-ver { background:#EDF2F7; color:var(--text-light); font-size:10px; padding:2px 8px; border-radius:10px; }
+
+  /* ===== TABS ===== */
+  .tab-bar { display:flex; background:white; border-bottom:2px solid var(--border); padding:0 20px; }
+  .tab { padding:10px 20px; cursor:pointer; font-size:13px; color:var(--text-light); border-bottom:2px solid transparent; margin-bottom:-2px; transition:all 0.2s; display:flex; align-items:center; gap:6px; }
+  .tab:hover { color:var(--text); }
+  .tab.active { color:var(--accent); border-bottom-color:var(--accent); font-weight:600; }
+  .tab .ai-dot { width:6px; height:6px; background:var(--ai-purple); border-radius:50%; }
+
+  /* ===== FILTER BAR ===== */
+  .filter-bar { background:white; padding:12px 20px; display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end; border-bottom:1px solid var(--border); }
+  .filter-group { display:flex; flex-direction:column; gap:4px; }
+  .filter-group label { font-size:11px; color:var(--text-light); font-weight:600; }
+  .filter-group label .req { color:var(--danger); }
+  .filter-group select, .filter-group input[type="date"], .filter-group input[type="text"] {
+    border:1px solid var(--border); border-radius:4px; padding:6px 10px; font-size:12px; min-width:130px; background:white; color:var(--text);
+  }
+  .filter-group select:focus, .filter-group input:focus { border-color:var(--accent); outline:none; box-shadow:0 0 0 2px rgba(0,163,224,0.15); }
+
+  /* ===== BUTTONS ===== */
+  .btn { padding:7px 16px; border-radius:4px; border:1px solid var(--border); font-size:12px; cursor:pointer; display:inline-flex; align-items:center; gap:5px; font-weight:500; transition:all 0.2s; }
+  .btn-primary { background:var(--accent); color:white; border-color:var(--accent); }
+  .btn-primary:hover { background:#0093CC; }
+  .btn-ai { background:linear-gradient(135deg,var(--ai-purple),#9F7AEA); color:white; border:none; }
+  .btn-ai:hover { opacity:0.9; }
+  .btn-success { background:var(--success); color:white; border-color:var(--success); }
+  .btn-outline { background:white; color:var(--text); }
+  .btn-outline:hover { background:var(--bg); }
+  .btn-sm { padding:4px 10px; font-size:11px; }
+
+  /* ===== CONTENT ===== */
+  .content { padding:16px 20px; }
+
+  /* ===== CARDS ===== */
+  .dashboard-row { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:16px; }
+  .stat-card { background:white; border-radius:8px; padding:16px; border:1px solid var(--border); box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  .stat-card .label { font-size:11px; color:var(--text-light); margin-bottom:4px; display:flex; align-items:center; gap:4px; }
+  .stat-card .value { font-size:22px; font-weight:700; color:var(--primary); }
+  .stat-card .sub { font-size:11px; color:var(--text-light); margin-top:4px; }
+  .stat-card .change { font-size:11px; margin-top:2px; }
+  .stat-card .change.up { color:var(--success); }
+  .stat-card .change.down { color:var(--danger); }
+  .stat-card.ai-card { border-left:3px solid var(--ai-purple); }
+
+  /* ===== PANELS ===== */
+  .panel-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+  .panel-row.full { grid-template-columns:1fr; }
+  .panel-row.tri { grid-template-columns:1fr 1fr 1fr; }
+  .panel { background:white; border-radius:8px; border:1px solid var(--border); overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,0.04); }
+  .panel-header { padding:12px 16px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:#FAFBFC; }
+  .panel-header h3 { font-size:13px; font-weight:600; display:flex; align-items:center; gap:6px; }
+  .panel-body { padding:16px; }
+
+  /* ===== TABLE ===== */
+  .table-scroll { overflow-x:auto; }
+  .data-table { width:100%; border-collapse:collapse; font-size:12px; }
+  .data-table thead th { background:#F7F8FA; padding:8px 10px; text-align:left; font-weight:600; color:var(--text-light); border-bottom:2px solid var(--border); white-space:nowrap; font-size:11px; }
+  .data-table tbody td { padding:7px 10px; border-bottom:1px solid #F0F2F5; white-space:nowrap; }
+  .data-table tbody tr:hover { background:#F7F9FC; }
+  .data-table .num { text-align:right; font-variant-numeric:tabular-nums; }
+  .data-table .ai-val { color:var(--ai-purple); font-weight:600; }
+  .data-table .pred-val { color:var(--accent); font-style:italic; }
+  .data-table .rt-minus { color:var(--rt-minus); background:var(--rt-minus-bg); font-weight:600; }
+  .data-table .rt-plus { color:var(--rt-plus); background:var(--rt-plus-bg); font-weight:600; }
+
+  /* ===== STATUS ===== */
+  .status { padding:2px 8px; border-radius:10px; font-size:11px; font-weight:500; display:inline-block; }
+  .status-ready { background:#E6F7FF; color:#0077B6; }
+  .status-running { background:var(--ai-purple-light); color:var(--ai-purple); }
+  .status-done { background:#E8F5E9; color:#2E7D32; }
+  .status-warn { background:#FFF8E1; color:#E65100; }
+  .status-error { background:#FFEBEE; color:#C62828; }
+
+  /* ===== TOGGLE ===== */
+  .toggle-group { display:flex; border:1px solid var(--border); border-radius:6px; overflow:hidden; }
+  .toggle-btn { padding:6px 14px; font-size:12px; cursor:pointer; border:none; background:white; color:var(--text-light); transition:all 0.2s; font-weight:500; }
+  .toggle-btn.active { background:var(--primary); color:white; }
+  .toggle-btn:hover:not(.active) { background:var(--bg); }
+
+  /* ===== ARCHITECTURE BOX ===== */
+  .arch-box { background:linear-gradient(135deg,#F5F3FF,#EDE9FE); border:1px solid #DDD6FE; border-radius:8px; padding:14px 16px; margin-bottom:16px; }
+  .arch-flow { display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:10px; }
+  .arch-step { background:white; border:1px solid #DDD6FE; border-radius:6px; padding:8px 14px; font-size:12px; text-align:center; min-width:100px; }
+  .arch-step.highlight { background:var(--ai-purple); color:white; border-color:var(--ai-purple); font-weight:600; }
+  .arch-step .small { font-size:10px; color:var(--text-light); display:block; margin-top:2px; }
+  .arch-step.highlight .small { color:rgba(255,255,255,0.8); }
+  .arch-arrow { color:var(--ai-purple); font-size:16px; font-weight:700; }
+
+  /* ===== AI INSIGHT ===== */
+  .ai-insight { background:linear-gradient(135deg,#F5F3FF,#EDE9FE); border:1px solid #DDD6FE; border-radius:8px; padding:14px 16px; margin-bottom:16px; display:flex; gap:12px; align-items:flex-start; }
+  .ai-insight .ai-icon { background:var(--ai-purple); color:white; width:28px; height:28px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+  .ai-insight .ai-text { font-size:12px; line-height:1.6; color:#4C1D95; }
+  .ai-insight .ai-text strong { color:var(--ai-purple); }
+
+  /* ===== SIZE COLUMNS ===== */
+  .size-cols { display:grid; grid-template-columns:repeat(auto-fill,minmax(36px,1fr)); gap:2px; }
+  .size-cell { text-align:center; padding:2px 4px; font-size:11px; border-radius:3px; font-variant-numeric:tabular-nums; }
+  .size-cell.has-val { background:#F0FFF4; color:#2E7D32; font-weight:500; }
+  .size-cell.empty { background:#F7F8FA; color:#CBD5E0; }
+  .size-cell.rt-out { background:var(--rt-minus-bg); color:var(--rt-minus); font-weight:600; }
+  .size-header { text-align:center; font-size:10px; color:var(--text-light); padding:2px 4px; }
+
+  /* ===== JSON PREVIEW ===== */
+  .json-preview { background:#1E1E2E; color:#CDD6F4; border-radius:8px; padding:14px; font-family:'JetBrains Mono','Fira Code',monospace; font-size:11px; line-height:1.5; overflow-x:auto; max-height:280px; overflow-y:auto; }
+  .json-preview .key { color:#89B4FA; }
+  .json-preview .str { color:#A6E3A1; }
+  .json-preview .num { color:#FAB387; }
+  .json-preview .comment { color:#6C7086; }
+
+  /* ===== PROGRESS ===== */
+  .progress-bar { height:6px; background:var(--bg); border-radius:3px; overflow:hidden; }
+  .progress-bar .fill { height:100%; border-radius:3px; }
+
+  /* ===== PIPELINE ===== */
+  .pipeline { display:flex; gap:4px; margin-bottom:16px; background:white; padding:12px 16px; border-radius:8px; border:1px solid var(--border); }
+  .pipeline-step { flex:1; text-align:center; padding:8px 4px; border-radius:4px; font-size:11px; position:relative; color:var(--text-light); background:var(--bg); }
+  .pipeline-step.active { background:var(--accent); color:white; font-weight:600; }
+  .pipeline-step.done { background:#E8F5E9; color:#2E7D32; }
+  .pipeline-step.ai-step { background:var(--ai-purple-light); color:var(--ai-purple); }
+  .pipeline-step::after { content:'→'; position:absolute; right:-10px; top:50%; transform:translateY(-50%); color:#CBD5E0; font-size:12px; z-index:1; }
+  .pipeline-step:last-child::after { display:none; }
+
+  /* ===== FOOTER ===== */
+  .page-footer { background:white; border-top:1px solid var(--border); padding:10px 20px; display:flex; justify-content:space-between; align-items:center; }
+  .page-footer .info { font-size:11px; color:var(--text-light); }
+
+  /* ===== TAB CONTENT ===== */
+  .tab-content { display:none; }
+  .tab-content.active { display:block; }
+
+  /* ===== INLINE EDIT ===== */
+  .inline-input { width:48px; border:1px solid #ddd; border-radius:3px; padding:2px 4px; text-align:right; font-size:12px; font-variant-numeric:tabular-nums; }
+  .inline-input:focus { border-color:var(--accent); outline:none; }
+  .inline-input.modified { border-color:var(--warning); background:#FFFBEB; font-weight:600; }
+
+  /* ===== STORE GROUP CHIP ===== */
+  .group-chip { display:inline-flex; align-items:center; gap:4px; background:#EDF2F7; border:1px solid var(--border); border-radius:12px; padding:3px 10px; font-size:11px; cursor:pointer; }
+  .group-chip.selected { background:var(--accent-light); border-color:var(--accent); color:var(--accent); }
+  .group-chip .x { font-size:10px; color:var(--text-light); margin-left:2px; }
+
+  @media (max-width:1280px) {
+    .dashboard-row { grid-template-columns:repeat(2,1fr); }
+    .panel-row { grid-template-columns:1fr; }
+    .panel-row.tri { grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== TOP NAV ===== -->
+<nav class="serp-nav">
+  <span class="logo">F&F</span>
+  <a href="#">기준정보 관리</a>
+  <a href="#">계획 관리</a>
+  <a href="#">재고 운영 관리</a>
+  <a href="#" class="active">배분RT 관리</a>
+  <a href="#">반품 관리</a>
+  <a href="#">매장 운영 관리</a>
+  <a href="#">판매 현황</a>
+  <a href="#">영업/고객 관리</a>
+  <a href="#">재고조사</a>
+  <a href="#">관리자</a>
+  <span class="spacer"></span>
+  <span class="user-info">F&F(FNF) 🔍 ⏱ 01:59:52 연장</span>
+</nav>
+
+<!-- ===== PAGE HEADER ===== -->
+<div class="page-header">
+  <h1>
+    ┃ 배분보충-AIA
+    <span class="badge-ai">✦ AI Assisted</span>
+    <span class="badge-ver">v3 — 실시간 계산 아키텍처</span>
+  </h1>
+  <div style="font-size:11px;color:var(--text-light);">Menu: 배분RT 관리 &gt; 배분 관리 &gt; 배분보충-AIA</div>
+</div>
+
+<!-- ===== TAB BAR ===== -->
+<div class="tab-bar">
+  <div class="tab active" onclick="switchTab('replenish')"><span class="ai-dot"></span> 보충 배분</div>
+  <div class="tab" onclick="switchTab('mapping')"><span class="ai-dot"></span> 스타일 맵핑</div>
+  <div class="tab" onclick="switchTab('arch')">시스템 아키텍처</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- TAB 1: 보충 배분 (메인) -->
+<!-- ============================================================ -->
+<div id="tab-replenish" class="tab-content active">
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label><span class="req">*</span>브랜드</label>
+      <select><option>X: Discovery</option><option>M: MLB</option><option>I: MLB KIDS</option></select>
+    </div>
+    <div class="filter-group">
+      <label><span class="req">*</span>AP</label>
+      <select><option>오프라인 정상</option><option>온라인</option></select>
+    </div>
+    <div class="filter-group">
+      <label><span class="req">*</span>운영시즌</label>
+      <select><option>26S</option><option>25F</option></select>
+    </div>
+    <div class="filter-group">
+      <label>ITEM</label>
+      <select><option>전체</option><option>바람막이</option><option>반팔티</option></select>
+    </div>
+    <div class="filter-group">
+      <label>매장그룹</label>
+      <select><option>전체 매장</option><option>S+ 매장</option><option>백화점 특정</option><option>직영점</option></select>
+    </div>
+    <div class="filter-group" style="flex-direction:row;align-items:flex-end;gap:8px;">
+      <div>
+        <label>RT 모드</label>
+        <div class="toggle-group">
+          <button class="toggle-btn active" onclick="toggleRT(this,'off')">RT Off</button>
+          <button class="toggle-btn" onclick="toggleRT(this,'on')">RT On</button>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-primary" style="align-self:flex-end;">🔍 조회하기</button>
+    <button class="btn btn-ai" style="align-self:flex-end;">✦ 보충 계산 요청</button>
+  </div>
+
+  <div class="content">
+
+    <!-- REALTIME NOTICE -->
+    <div class="ai-insight">
+      <div class="ai-icon">⚡</div>
+      <div class="ai-text">
+        <strong>실시간 계산 모드</strong> — 보충값은 테이블에 저장되지 않고, 요청 시점의 <strong>SERP 실시간 재고</strong>와 <strong>ML 예측 테이블</strong>을 조합하여 즉석 계산됩니다.
+        매장 재고가 수시로 변동되므로, 보충 수량은 <strong>조회할 때마다 달라질 수 있습니다.</strong><br>
+        <span style="font-size:11px;opacity:0.8;">데이터 흐름: 유저 요청 → SERP 재고 조회 + 예측 테이블(SCS-shop) 조회 → ILP 보충 API → 화면 표시</span>
+      </div>
+    </div>
+
+    <!-- PIPELINE -->
+    <div class="pipeline">
+      <div class="pipeline-step done">① SERP 재고 조회</div>
+      <div class="pipeline-step done ai-step">② ML 예측 조회 (SCS-shop)</div>
+      <div class="pipeline-step active ai-step">③ ILP 보충 최적화 (RT Off)</div>
+      <div class="pipeline-step">④ MD 검토/수정</div>
+      <div class="pipeline-step">⑤ 보충 확정</div>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="dashboard-row">
+      <div class="stat-card ai-card">
+        <div class="label"><span style="display:inline-block;width:6px;height:6px;background:var(--ai-purple);border-radius:50%;"></span> ML 예측 정확도 (WAPE)</div>
+        <div class="value" style="color:var(--ai-purple);">82.4%</div>
+        <div class="change up">▲ 3.2%p vs 지난주 배치</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">조회 대상 SCS 수</div>
+        <div class="value">3,842</div>
+        <div class="sub">212 스타일 × 평균 5.9 컬러 × 사이즈</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">물류 가용재고 (실시간)</div>
+        <div class="value">48,720</div>
+        <div class="sub">⏱ 2026-03-27 09:15 기준</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">보충 대상 매장</div>
+        <div class="value" style="color:var(--danger);">156 / 320</div>
+        <div class="sub">전매장 예측 → 필터 적용 후</div>
+      </div>
+    </div>
+
+    <!-- 매장그룹 필터 칩 -->
+    <div style="margin-bottom:12px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+      <span style="font-size:11px;color:var(--text-light);font-weight:600;">선택 매장:</span>
+      <span class="group-chip selected">전체 매장 (320) <span class="x">×</span></span>
+      <span class="group-chip">S+ (28)</span>
+      <span class="group-chip">A등급 (64)</span>
+      <span class="group-chip">백화점 (52)</span>
+      <span class="group-chip">직영 (38)</span>
+      <span class="group-chip">쇼핑몰 (45)</span>
+    </div>
+
+    <!-- ===== SC 보충 요약 테이블 (예측 + 보충 오버레이) ===== -->
+    <div class="panel-row full">
+      <div class="panel">
+        <div class="panel-header">
+          <h3>📊 SC별 보충 제안 요약 <span style="font-size:11px;color:var(--text-light);font-weight:400;">(예측값 + 보충값 오버레이)</span></h3>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-outline btn-sm">📥 엑셀 다운로드 (매크로)</button>
+            <button class="btn btn-outline btn-sm">📤 엑셀 업로드</button>
+            <button class="btn btn-ai btn-sm">✦ 전체 ILP 재계산</button>
+          </div>
+        </div>
+        <div class="panel-body" style="padding:0;">
+          <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th><input type="checkbox" checked></th>
+                <th>SC (스타일-컬러)</th>
+                <th>스타일명</th>
+                <th>ITEM</th>
+                <th class="num">T+1 예측<br><span style="font-size:9px;color:var(--accent);">SC-shop합</span></th>
+                <th class="num">T+2 예측<br><span style="font-size:9px;color:var(--accent);">SC-shop합</span></th>
+                <th class="num">물류재고<br><span style="font-size:9px;">(실시간)</span></th>
+                <th class="num">매장재고합<br><span style="font-size:9px;">(실시간)</span></th>
+                <th class="num">PR Ratio</th>
+                <th class="num ai-val">ILP 보충량<br><span style="font-size:9px;">RT Off</span></th>
+                <th class="num">보충 매장수</th>
+                <th>긴급도</th>
+                <th>상세</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="checkbox" checked></td>
+                <td style="font-weight:600;">DXDJ73041-BKS</td>
+                <td>레저 바람막이 자켓</td>
+                <td>바람막이</td>
+                <td class="num pred-val">342</td>
+                <td class="num pred-val">310</td>
+                <td class="num">580</td>
+                <td class="num">89</td>
+                <td class="num">0.62</td>
+                <td class="num ai-val">253</td>
+                <td class="num">28</td>
+                <td><span class="status status-error">긴급</span></td>
+                <td><button class="btn btn-outline btn-sm" onclick="document.getElementById('shop-detail').scrollIntoView({behavior:'smooth'})">▾ 매장별</button></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" checked></td>
+                <td style="font-weight:600;">DXDJ73041-IVS</td>
+                <td>레저 바람막이 자켓</td>
+                <td>바람막이</td>
+                <td class="num pred-val">285</td>
+                <td class="num pred-val">260</td>
+                <td class="num">410</td>
+                <td class="num">72</td>
+                <td class="num">0.58</td>
+                <td class="num ai-val">213</td>
+                <td class="num">25</td>
+                <td><span class="status status-error">긴급</span></td>
+                <td><button class="btn btn-outline btn-sm">▾ 매장별</button></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" checked></td>
+                <td style="font-weight:600;">DXTS72031-NVS</td>
+                <td>에센셜 라운드 반팔티</td>
+                <td>반팔티</td>
+                <td class="num pred-val">198</td>
+                <td class="num pred-val">185</td>
+                <td class="num">320</td>
+                <td class="num">105</td>
+                <td class="num">0.71</td>
+                <td class="num ai-val">93</td>
+                <td class="num">18</td>
+                <td><span class="status status-warn">높음</span></td>
+                <td><button class="btn btn-outline btn-sm">▾ 매장별</button></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" checked></td>
+                <td style="font-weight:600;">DXPN72011-BKS</td>
+                <td>에센셜 조거 팬츠</td>
+                <td>팬츠</td>
+                <td class="num pred-val">176</td>
+                <td class="num pred-val">162</td>
+                <td class="num">290</td>
+                <td class="num">88</td>
+                <td class="num">0.65</td>
+                <td class="num ai-val">88</td>
+                <td class="num">15</td>
+                <td><span class="status status-warn">높음</span></td>
+                <td><button class="btn btn-outline btn-sm">▾ 매장별</button></td>
+              </tr>
+              <tr style="background:#F7F8FA;font-weight:600;">
+                <td></td>
+                <td colspan="3">합계 (전체 SC)</td>
+                <td class="num pred-val">2,840</td>
+                <td class="num pred-val">2,612</td>
+                <td class="num">48,720</td>
+                <td class="num">4,280</td>
+                <td class="num">-</td>
+                <td class="num ai-val">1,847</td>
+                <td class="num">156</td>
+                <td></td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== 매장별 SCS 상세 (사이즈별) ===== -->
+    <div id="shop-detail" style="scroll-margin-top:16px;">
+    <div class="panel-row full">
+      <div class="panel">
+        <div class="panel-header">
+          <h3>🏪 매장별 SCS 보충 상세 — <span style="color:var(--ai-purple);">DXDJ73041-BKS</span>
+            <span style="font-size:11px;color:var(--text-light);font-weight:400;margin-left:8px;">레저 바람막이 자켓 / 블랙</span>
+          </h3>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <div class="toggle-group" style="font-size:11px;">
+              <button class="toggle-btn active" style="font-size:11px;padding:4px 10px;">RT Off</button>
+              <button class="toggle-btn" style="font-size:11px;padding:4px 10px;">RT On</button>
+            </div>
+            <button class="btn btn-outline btn-sm">📥 엑셀 (매크로)</button>
+            <button class="btn btn-success btn-sm">✓ 선택 확정</button>
+          </div>
+        </div>
+        <div class="panel-body" style="padding:0;">
+          <div class="table-scroll">
+          <table class="data-table" id="scs-table">
+            <thead>
+              <tr>
+                <th><input type="checkbox" checked></th>
+                <th>매장코드</th>
+                <th>매장명</th>
+                <th>유형</th>
+                <th>등급</th>
+                <th class="num">현 재고<br><span style="font-size:9px;">(실시간)</span></th>
+                <th class="num pred-val">T+1 예측<br><span style="font-size:9px;">SCS-shop</span></th>
+                <th class="num pred-val">T+2 예측<br><span style="font-size:9px;">SCS-shop</span></th>
+                <th class="num">PR Ratio</th>
+                <!-- 사이즈별 보충수량 -->
+                <th class="num" style="background:#F0F7FF;">90</th>
+                <th class="num" style="background:#F0F7FF;">95</th>
+                <th class="num" style="background:#F0F7FF;">100</th>
+                <th class="num" style="background:#F0F7FF;">105</th>
+                <th class="num" style="background:#F0F7FF;">110</th>
+                <th class="num ai-val">보충합계</th>
+                <th class="num">MD 수정</th>
+                <th>상태</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="checkbox" checked></td>
+                <td>10089</td>
+                <td style="font-weight:500;">신세계 강남점</td>
+                <td>백화점</td>
+                <td><span class="status status-error" style="font-size:10px;">S+</span></td>
+                <td class="num">2</td>
+                <td class="num pred-val">9</td>
+                <td class="num pred-val">8</td>
+                <td class="num">0.68</td>
+                <td class="num" style="background:#F0FFF4;font-weight:500;">2</td>
+                <td class="num" style="background:#F0FFF4;font-weight:500;">3</td>
+                <td class="num" style="background:#F0FFF4;font-weight:500;">4</td>
+                <td class="num" style="background:#F0FFF4;font-weight:500;">3</td>
+                <td class="num" style="background:#F0FFF4;font-weight:500;">2</td>
+                <td class="num ai-val">14</td>
+                <td class="num"><input type="number" value="14" class="inline-input"></td>
+                <td><span class="status status-ready">대기</span></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" checked></td>
+                <td>10124</td>
+                <td style="font-weight:500;">롯데 분당점</td>
+                <td>백화점</td>
+                <td><span class="status status-error" style="font-size:10px;">S+</span></td>
+                <td class="num">3</td>
+                <td class="num pred-val">8</td>
+                <td class="num pred-val">7</td>
+                <td class="num">0.64</td>
+                <td class="num" style="background:#F0FFF4;font-weight:500;">2</td>
+                <td class="num" style="background:#F0FFF4;font-weight:500;">3</td>
+                <td class="num" style="background:#F0FFF4;font-weight:500;">3</td>
+                <td class="num" style="background:#F0FFF4;font-weight:500;">2</td>
+                <td class="num" style="background:#F0FFF4;font-weight:500;">2</td>
+                <td class="num ai-val">12</td>
+                <td class="num"><input type="number" value="12" class="inline-input"></td>
+                <td><span class="status status-ready">대기</span></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" checked></td>
+                <td>10201</td>
+                <td style="font-weight:500;">현대 판교점</td>
+                <td>백화점</td>
+                <td><span class="status status-warn" style="font-size:10px;">A</span></td>
+                <td class="num">5</td>
+                <td class="num pred-val">6</td>
+                <td class="num pred-val">5</td>
+                <td class="num">0.55</td>
+                <td class="num" style="background:#F0FFF4;font-weight:500;">1</td>
+                <td class="num" style="background:#F0FFF4;font-weight:500;">1</td>
+                <td class="num" style="background:#F0FFF4;font-weight:500;">2</td>
+                <td class="num" style="background:#F0FFF4;font-weight:500;">1</td>
+                <td class="num" style="background:#F0FFF4;font-weight:500;">1</td>
+                <td class="num ai-val">6</td>
+                <td class="num"><input type="number" value="8" class="inline-input modified"></td>
+                <td><span class="status status-warn">MD수정</span></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" checked></td>
+                <td>20045</td>
+                <td style="font-weight:500;">가로수길 직영점</td>
+                <td>직영</td>
+                <td><span class="status status-warn" style="font-size:10px;">A</span></td>
+                <td class="num">4</td>
+                <td class="num pred-val">7</td>
+                <td class="num pred-val">6</td>
+                <td class="num">0.60</td>
+                <td class="num" style="background:#F0FFF4;font-weight:500;">1</td>
+                <td class="num" style="background:#F0FFF4;font-weight:500;">2</td>
+                <td class="num" style="background:#F0FFF4;font-weight:500;">2</td>
+                <td class="num" style="background:#F0FFF4;font-weight:500;">2</td>
+                <td class="num" style="background:#F0FFF4;font-weight:500;">1</td>
+                <td class="num ai-val">8</td>
+                <td class="num"><input type="number" value="8" class="inline-input"></td>
+                <td><span class="status status-ready">대기</span></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox"></td>
+                <td>30012</td>
+                <td style="font-weight:500;color:var(--text-light);">온라인 직영몰</td>
+                <td>온라인</td>
+                <td><span class="status" style="font-size:10px;background:#EDF2F7;">-</span></td>
+                <td class="num">42</td>
+                <td class="num pred-val">3</td>
+                <td class="num pred-val">2</td>
+                <td class="num">0.12</td>
+                <td class="num" style="color:#CBD5E0;">0</td>
+                <td class="num" style="color:#CBD5E0;">0</td>
+                <td class="num" style="color:#CBD5E0;">0</td>
+                <td class="num" style="color:#CBD5E0;">0</td>
+                <td class="num" style="color:#CBD5E0;">0</td>
+                <td class="num" style="color:#CBD5E0;">0</td>
+                <td class="num"><input type="number" value="0" class="inline-input"></td>
+                <td><span class="status" style="background:#EDF2F7;color:#A0AEC0;">재고충분</span></td>
+              </tr>
+              <tr style="background:#F7F8FA;font-weight:600;">
+                <td></td>
+                <td colspan="4">합계 (28개 보충 매장)</td>
+                <td class="num">89</td>
+                <td class="num pred-val">210</td>
+                <td class="num pred-val">192</td>
+                <td class="num">-</td>
+                <td class="num">38</td>
+                <td class="num">52</td>
+                <td class="num">65</td>
+                <td class="num">55</td>
+                <td class="num">43</td>
+                <td class="num ai-val">253</td>
+                <td class="num">257</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <!-- ===== RT On 모드 미리보기 (숨김 상태, 토글 시 표시) ===== -->
+    <div id="rt-on-preview" style="display:none;">
+      <div class="ai-insight" style="background:linear-gradient(135deg,#FFF5F5,#FED7D7);border-color:#FEB2B2;">
+        <div class="ai-icon" style="background:var(--rt-minus);">↔</div>
+        <div class="ai-text" style="color:#9B2C2C;">
+          <strong>RT On 모드</strong> — 매장 간 이동(RT)이 허용됩니다. <strong style="color:var(--rt-minus);">음수 값(빨간색)</strong>은 해당 매장에서 재고가 빠져나감을 의미합니다.
+          물류 재고 + 매장 간 재이동을 함께 최적화합니다.
+        </div>
+      </div>
+
+      <div class="panel-row full">
+        <div class="panel">
+          <div class="panel-header">
+            <h3>↔ RT On — 매장별 SCS 보충/이동 상세</h3>
+          </div>
+          <div class="panel-body" style="padding:0;">
+            <div class="table-scroll">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th><input type="checkbox"></th>
+                  <th>매장코드</th>
+                  <th>매장명</th>
+                  <th>등급</th>
+                  <th class="num">현 재고</th>
+                  <th class="num pred-val">T+1 예측</th>
+                  <th class="num" style="background:#F0F7FF;">90</th>
+                  <th class="num" style="background:#F0F7FF;">95</th>
+                  <th class="num" style="background:#F0F7FF;">100</th>
+                  <th class="num" style="background:#F0F7FF;">105</th>
+                  <th class="num" style="background:#F0F7FF;">110</th>
+                  <th class="num">보충합계</th>
+                  <th>방향</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><input type="checkbox" checked></td>
+                  <td>10089</td>
+                  <td>신세계 강남점</td>
+                  <td><span class="status status-error" style="font-size:10px;">S+</span></td>
+                  <td class="num">2</td>
+                  <td class="num pred-val">9</td>
+                  <td class="num rt-plus">+2</td>
+                  <td class="num rt-plus">+4</td>
+                  <td class="num rt-plus">+5</td>
+                  <td class="num rt-plus">+3</td>
+                  <td class="num rt-plus">+2</td>
+                  <td class="num rt-plus" style="font-weight:700;">+16</td>
+                  <td><span class="status status-done">입고 ▼</span></td>
+                </tr>
+                <tr style="background:var(--rt-minus-bg);">
+                  <td><input type="checkbox" checked></td>
+                  <td>30012</td>
+                  <td>온라인 직영몰</td>
+                  <td><span class="status" style="font-size:10px;background:#EDF2F7;">-</span></td>
+                  <td class="num">42</td>
+                  <td class="num pred-val">3</td>
+                  <td class="num rt-minus">-1</td>
+                  <td class="num rt-minus">-2</td>
+                  <td class="num rt-minus">-3</td>
+                  <td class="num rt-minus">-2</td>
+                  <td class="num rt-minus">-1</td>
+                  <td class="num rt-minus" style="font-weight:700;">-9</td>
+                  <td><span class="status status-error">출고 ▲</span></td>
+                </tr>
+                <tr style="background:var(--rt-minus-bg);">
+                  <td><input type="checkbox" checked></td>
+                  <td>20078</td>
+                  <td>스타필드 하남점</td>
+                  <td><span class="status status-ready" style="font-size:10px;">B</span></td>
+                  <td class="num">18</td>
+                  <td class="num pred-val">4</td>
+                  <td class="num rt-minus">0</td>
+                  <td class="num rt-minus">-1</td>
+                  <td class="num rt-minus">-2</td>
+                  <td class="num rt-minus">-1</td>
+                  <td class="num rt-minus">0</td>
+                  <td class="num rt-minus" style="font-weight:700;">-4</td>
+                  <td><span class="status status-error">출고 ▲</span></td>
+                </tr>
+              </tbody>
+            </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- TAB 2: 스타일 맵핑 -->
+<!-- ============================================================ -->
+<div id="tab-mapping" class="tab-content">
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label><span class="req">*</span>브랜드</label>
+      <select><option>X: Discovery</option></select>
+    </div>
+    <div class="filter-group">
+      <label><span class="req">*</span>운영시즌 (신상)</label>
+      <select><option>26S</option></select>
+    </div>
+    <div class="filter-group">
+      <label>참조시즌 (전년)</label>
+      <select><option>25S</option></select>
+    </div>
+    <div class="filter-group">
+      <label>ITEM</label>
+      <select><option>전체</option></select>
+    </div>
+    <div class="filter-group">
+      <label>맵핑 상태</label>
+      <select><option>전체</option><option>미맵핑</option><option>AI 자동</option><option>확정</option></select>
+    </div>
+    <button class="btn btn-primary" style="align-self:flex-end;">🔍 조회</button>
+    <button class="btn btn-ai" style="align-self:flex-end;">✦ AI 자동 맵핑</button>
+  </div>
+
+  <div class="content">
+    <div class="ai-insight">
+      <div class="ai-icon">✦</div>
+      <div class="ai-text">
+        <strong>AI 자동 맵핑 결과</strong> — Discovery 26S <strong>212개 스타일</strong> 중 <strong>178개(84%)</strong> 자동 맵핑 완료.
+        같은 ITEM군 제약 + 상품속성 유사도 기반 1:N 맵핑. 맵핑된 전년 판매 이력이 ML 예측 피처로 활용됩니다.
+        미맵핑 34개는 신규 카테고리/판매이력 부재 → 모델에서 자동 결측치 처리.
+      </div>
+    </div>
+
+    <div class="dashboard-row">
+      <div class="stat-card"><div class="label">전체 스타일</div><div class="value">212</div></div>
+      <div class="stat-card ai-card"><div class="label">AI 자동 맵핑</div><div class="value" style="color:var(--ai-purple);">178</div>
+        <div class="sub"><div class="progress-bar" style="width:100%;margin-top:4px;"><div class="fill" style="width:84%;background:var(--ai-purple);"></div></div></div>
+      </div>
+      <div class="stat-card"><div class="label">사용자 확정</div><div class="value" style="color:var(--success);">96</div></div>
+      <div class="stat-card"><div class="label">미맵핑</div><div class="value" style="color:var(--warning);">34</div></div>
+    </div>
+
+    <div class="panel-row full">
+      <div class="panel">
+        <div class="panel-header">
+          <h3>🔗 스타일 맵핑 관리</h3>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-outline btn-sm">📥 엑셀 업로드</button>
+            <button class="btn btn-outline btn-sm">📤 다운로드</button>
+            <button class="btn btn-success btn-sm">✓ 선택 확정</button>
+          </div>
+        </div>
+        <div class="panel-body" style="padding:0;">
+          <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th><input type="checkbox"></th>
+                <th>상태</th>
+                <th>26S 스타일</th>
+                <th>스타일명</th>
+                <th>ITEM</th>
+                <th>→</th>
+                <th>25S 맵핑 스타일</th>
+                <th>맵핑 스타일명</th>
+                <th>유사도</th>
+                <th class="num">전년 판매량</th>
+                <th>방식</th>
+                <th>액션</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="checkbox"></td>
+                <td><span class="status status-done">확정</span></td>
+                <td>DXDJ73041</td>
+                <td>레저 바람막이 자켓</td>
+                <td>바람막이</td>
+                <td style="color:var(--text-light);">→</td>
+                <td style="color:var(--ai-purple);font-weight:500;">DXDJ63041</td>
+                <td>레저 바람막이 자켓</td>
+                <td><span style="color:var(--ai-purple);font-weight:600;">96%</span></td>
+                <td class="num">12,450</td>
+                <td><span class="status status-running">AI</span></td>
+                <td><button class="btn btn-outline btn-sm">변경</button></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox"></td>
+                <td><span class="status status-running">AI제안</span></td>
+                <td>DXDJ73055</td>
+                <td>레저 마운틴 자켓</td>
+                <td>레저자켓</td>
+                <td style="color:var(--text-light);">→</td>
+                <td style="color:var(--ai-purple);font-weight:500;">DXDJ63062, DXDJ63055</td>
+                <td>1:2 맵핑</td>
+                <td><span style="color:var(--ai-purple);font-weight:600;">78%</span></td>
+                <td class="num">8,920</td>
+                <td><span class="status status-running">AI</span></td>
+                <td><button class="btn btn-outline btn-sm">변경</button></td>
+              </tr>
+              <tr style="background:#FFF8E1;">
+                <td><input type="checkbox"></td>
+                <td><span class="status status-warn">미맵핑</span></td>
+                <td>DXNW73001</td>
+                <td>어반 클라우드 샌들</td>
+                <td>샌들</td>
+                <td style="color:var(--text-light);">→</td>
+                <td style="color:var(--text-light);">-</td>
+                <td style="color:var(--text-light);">판매이력 없음</td>
+                <td>-</td>
+                <td class="num">-</td>
+                <td><span class="status status-warn">수동</span></td>
+                <td><button class="btn btn-primary btn-sm">맵핑</button></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- TAB 3: 시스템 아키텍처 -->
+<!-- ============================================================ -->
+<div id="tab-arch" class="tab-content">
+  <div class="content">
+
+    <div style="margin-bottom:16px;">
+      <h2 style="font-size:15px;font-weight:700;color:var(--primary);margin-bottom:8px;">보충 배분 시스템 아키텍처 (3/26 미팅 기준)</h2>
+      <p style="font-size:12px;color:var(--text-light);line-height:1.6;">
+        보충값은 테이블에 저장하지 않고 <strong>실시간 계산</strong>으로 진행합니다.
+        매장 재고가 수시로 변동되고, 보충 대상 매장 리스트도 바뀌기 때문입니다.
+        ML 예측값만 테이블에 적재하고, 보충값은 요청 시 계산합니다.
+      </p>
+    </div>
+
+    <!-- ARCHITECTURE FLOW -->
+    <div class="arch-box">
+      <div style="font-size:12px;font-weight:600;color:var(--ai-purple);margin-bottom:8px;">📐 데이터 흐름 (End-to-End)</div>
+      <div class="arch-flow">
+        <div class="arch-step">👤 유저 요청<span class="small">조회 조건 입력</span></div>
+        <span class="arch-arrow">→</span>
+        <div class="arch-step">📦 SERP 재고<span class="small">매장재고 + 물류재고<br>SQL API</span></div>
+        <span class="arch-arrow">→</span>
+        <div class="arch-step highlight">🧠 예측 테이블<span class="small">ML_DIST.Pred_*<br>SCS-shop</span></div>
+        <span class="arch-arrow">→</span>
+        <div class="arch-step highlight">⚡ ILP 보충 API<span class="small">RT Off / RT On<br>실시간 계산</span></div>
+        <span class="arch-arrow">→</span>
+        <div class="arch-step">📊 화면 표시<span class="small">JSON → 그리드<br>예측+보충 오버레이</span></div>
+        <span class="arch-arrow">→</span>
+        <div class="arch-step">📥 엑셀/확정<span class="small">매크로 다운로드<br>업로드 지원</span></div>
+      </div>
+    </div>
+
+    <!-- 상세 설명 패널들 -->
+    <div class="panel-row tri">
+      <div class="panel">
+        <div class="panel-header"><h3>🧠 ML 예측 테이블</h3></div>
+        <div class="panel-body" style="font-size:12px;line-height:1.7;">
+          <strong>스키마:</strong> ML_DIST<br>
+          <strong>테이블:</strong><br>
+          &nbsp;&nbsp;• <code>Pred_SC_total</code> — SC 레벨 Total 예측<br>
+          &nbsp;&nbsp;• <code>Pred_SC_shop</code> — SC × 매장 레벨 예측<br>
+          &nbsp;&nbsp;• <code>Pred_SCS_shop</code> — SCS × 매장 (화면 표시용)<br>
+          <br>
+          <strong>포함 정보:</strong> 예측 판매량, PR Ratio, 예측 기준일, 예측 기간(T+1~T+2)
+          <br><br>
+          <strong>배치:</strong> 매주 1회 (최신 데이터로 갱신)
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><h3>⚡ ILP 보충 API</h3></div>
+        <div class="panel-body" style="font-size:12px;line-height:1.7;">
+          <strong>RT Off 버전</strong> (우선 개발)<br>
+          &nbsp;&nbsp;• 물류 → 매장 단방향 보충<br>
+          &nbsp;&nbsp;• 물류 가용재고 상한 제약<br>
+          &nbsp;&nbsp;• 매장 재고 상한 제약<br>
+          &nbsp;&nbsp;• 정수 제약 (Integer)<br>
+          <br>
+          <strong>RT On 버전</strong> (향후 확장)<br>
+          &nbsp;&nbsp;• 매장 ↔ 매장 이동 허용<br>
+          &nbsp;&nbsp;• 음수값 = 해당 매장에서 출고<br>
+          &nbsp;&nbsp;• 색상으로 입고/출고 구분 표시
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><h3>📦 SERP 연동</h3></div>
+        <div class="panel-body" style="font-size:12px;line-height:1.7;">
+          <strong>수신 데이터:</strong><br>
+          &nbsp;&nbsp;• 매장 재고 (실시간)<br>
+          &nbsp;&nbsp;• 물류 재고 (실시간)<br>
+          &nbsp;&nbsp;• 매장 마스터, 매장 그룹<br>
+          <br>
+          <strong>연동 방식:</strong> SQL API<br>
+          <strong>담당:</strong> IT팀 (경중님) 확인 요청 중<br>
+          <br>
+          <strong>향후 계획:</strong><br>
+          &nbsp;&nbsp;• 현재: 별도 화면 (약식 시연용)<br>
+          &nbsp;&nbsp;• 향후: SERP 내 통합
+        </div>
+      </div>
+    </div>
+
+    <!-- JSON 예시 -->
+    <div class="panel-row full">
+      <div class="panel">
+        <div class="panel-header">
+          <h3>📄 ILP API 응답 JSON 예시 (매장별 SCS 보충 수량)</h3>
+          <button class="btn btn-outline btn-sm">📋 복사</button>
+        </div>
+        <div class="panel-body" style="padding:12px;">
+          <div class="json-preview">
+<span class="comment">// ILP 보충 API Response — RT Off</span>
+{
+  <span class="key">"request_id"</span>: <span class="str">"repl-20260327-001"</span>,
+  <span class="key">"mode"</span>: <span class="str">"rt_off"</span>,
+  <span class="key">"brand"</span>: <span class="str">"X"</span>,
+  <span class="key">"season"</span>: <span class="str">"26S"</span>,
+  <span class="key">"calculated_at"</span>: <span class="str">"2026-03-27T09:15:32Z"</span>,
+  <span class="key">"total_replenish_qty"</span>: <span class="num">253</span>,
+  <span class="key">"results"</span>: [
+    {
+      <span class="key">"shop_id"</span>: <span class="str">"10089"</span>,
+      <span class="key">"shop_name"</span>: <span class="str">"신세계 강남점"</span>,
+      <span class="key">"style_cd"</span>: <span class="str">"DXDJ73041"</span>,
+      <span class="key">"color_cd"</span>: <span class="str">"BKS"</span>,
+      <span class="key">"current_stock"</span>: <span class="num">2</span>,
+      <span class="key">"pred_t1"</span>: <span class="num">9</span>,        <span class="comment">// SCS-shop T+1 예측</span>
+      <span class="key">"pred_t2"</span>: <span class="num">8</span>,        <span class="comment">// SCS-shop T+2 예측</span>
+      <span class="key">"pr_ratio"</span>: <span class="num">0.68</span>,    <span class="comment">// PR Ratio</span>
+      <span class="key">"replenish_by_size"</span>: {
+        <span class="key">"90"</span>: <span class="num">2</span>,
+        <span class="key">"95"</span>: <span class="num">3</span>,
+        <span class="key">"100"</span>: <span class="num">4</span>,
+        <span class="key">"105"</span>: <span class="num">3</span>,
+        <span class="key">"110"</span>: <span class="num">2</span>
+      },
+      <span class="key">"replenish_total"</span>: <span class="num">14</span>
+    },
+    <span class="comment">// ... 다음 매장</span>
+  ]
+}
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<div class="page-footer">
+  <div class="info">F&F S-ERP 배분보충-AIA <strong>v3</strong> | ALOC10004 | 실시간 계산 아키텍처 | 2026-03-27</div>
+  <div style="display:flex;gap:8px;">
+    <button class="btn btn-outline" style="font-size:11px;">💬 피드백</button>
+    <button class="btn btn-outline" style="font-size:11px;">📖 가이드</button>
+  </div>
+</div>
+
+<script>
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + tabId).classList.add('active');
+  const map = { replenish:0, mapping:1, arch:2 };
+  document.querySelectorAll('.tab')[map[tabId]].classList.add('active');
+}
+
+function toggleRT(btn, mode) {
+  btn.parentElement.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const rtPreview = document.getElementById('rt-on-preview');
+  const scsTable = document.getElementById('shop-detail');
+  if (mode === 'on') {
+    rtPreview.style.display = 'block';
+    scsTable.style.display = 'none';
+  } else {
+    rtPreview.style.display = 'none';
+    scsTable.style.display = 'block';
+  }
+}
+
+// 인라인 수정 감지
+document.querySelectorAll('.inline-input').forEach(input => {
+  const orig = input.value;
+  input.addEventListener('input', function() {
+    if (this.value !== orig) {
+      this.classList.add('modified');
+    } else {
+      this.classList.remove('modified');
+    }
+  });
+});
+</script>
+
+</body>
+</html>

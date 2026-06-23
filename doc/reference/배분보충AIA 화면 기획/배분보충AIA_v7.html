@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F&F S-ERP | 보충배분-AIA v7</title>
+<style>
+  :root {
+    --primary:#1B3A5C; --accent:#00B4D8; --accent-bg:#E8F8FD;
+    --success:#28A745; --warning:#F5A623; --danger:#DC3545;
+    --bg:#F4F6F9; --card:#FFF; --border:#E0E4EA; --border-light:#F0F2F5;
+    --text:#2D3748; --text-light:#8492A6; --text-muted:#A0AEC0;
+    --ai:#7C3AED; --ai-bg:#F3EFFE;
+    --header-bg:#F7F8FA;
+    --cell-stock:#F0F4F8; --cell-forecast:#FFF8E1; --cell-alloc:#EDE9FE;
+    --cell-alloc-edit:#F5F3FF;
+    --sel-blue:rgba(0,180,216,0.12); --sel-blue-border:#00B4D8;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:13px;user-select:none;}
+
+  /* ===== PAGE TITLE ===== */
+  .page-title-bar{background:white;padding:14px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+  .page-title-bar h1{font-size:16px;font-weight:700;color:var(--primary);}
+  .page-title-bar .ver{font-size:11px;color:var(--ai);background:var(--ai-bg);padding:2px 8px;border-radius:10px;font-weight:600;}
+
+  /* ===== FILTER ROWS ===== */
+  .filter-section{background:white;border-bottom:1px solid var(--border);}
+  .filter-row{padding:10px 24px;display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;}
+  .filter-row+.filter-row{padding-top:0;}
+  .fg{display:flex;flex-direction:column;gap:3px;}
+  .fg label{font-size:11px;color:var(--text-light);font-weight:600;}
+  .fg label .req{color:var(--danger);}
+  .fg select,.fg input[type="text"]{border:1px solid var(--border);border-radius:4px;padding:7px 10px;font-size:12px;min-width:140px;background:white;color:var(--text);}
+  .fg select:focus,.fg input:focus{border-color:var(--accent);outline:none;}
+  .filter-row .spacer{flex:1;}
+
+  /* ===== BUTTONS ===== */
+  .btn{padding:7px 16px;border-radius:4px;border:1px solid var(--border);font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-weight:500;transition:all .15s;background:white;color:var(--text);}
+  .btn:hover{background:var(--bg);}
+  .btn-ai{background:linear-gradient(135deg,var(--ai),#9F7AEA);color:white;border:none;font-weight:600;}
+  .btn-ai:hover{opacity:.9;}
+  .btn-success{background:var(--success);color:white;border-color:var(--success);}
+  .btn-sm{padding:4px 10px;font-size:11px;}
+
+  /* ===== VIEW TOGGLE ===== */
+  .toggle-bar{background:white;padding:10px 24px;display:flex;align-items:center;gap:16px;border-bottom:1px solid var(--border);}
+  .toggle-group{display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+  .toggle-btn{padding:7px 18px;font-size:12px;cursor:pointer;background:white;border:none;color:var(--text-light);font-weight:500;transition:all .15s;}
+  .toggle-btn.active{background:var(--accent);color:white;font-weight:600;}
+  .toggle-btn:hover:not(.active){background:var(--bg);}
+  .toggle-bar .info{font-size:11px;color:var(--text-muted);margin-left:8px;}
+  .toggle-bar .actions{margin-left:auto;display:flex;gap:8px;}
+
+  /* ===== PIVOT TABLE ===== */
+  .grid-wrap{background:white;overflow:auto;max-height:calc(100vh - 280px);position:relative;}
+  .pivot{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed;}
+
+  /* Header */
+  .pivot thead th{
+    background:var(--header-bg);padding:0;text-align:center;font-weight:600;
+    color:var(--text-light);border:1px solid var(--border);white-space:nowrap;
+    font-size:11px;position:sticky;top:0;z-index:10;
+  }
+  .pivot thead th.corner{background:#EDF1F5;z-index:11;}
+  .pivot thead .th-group{padding:7px 6px;border-bottom:1px solid var(--border);}
+  .pivot thead .th-sub{padding:5px 4px;font-size:10px;font-weight:500;}
+  .pivot thead .th-sub.stock{background:var(--cell-stock);color:#4A5568;}
+  .pivot thead .th-sub.forecast{background:var(--cell-forecast);color:#92400E;}
+  .pivot thead .th-sub.alloc{background:var(--cell-alloc);color:var(--ai);}
+
+  /* Body */
+  .pivot tbody td{
+    padding:0;border:1px solid var(--border);font-variant-numeric:tabular-nums;
+    text-align:right;height:32px;vertical-align:middle;
+  }
+  .pivot tbody td.row-header{
+    background:var(--header-bg);text-align:left;padding:6px 10px;
+    font-weight:500;position:sticky;left:0;z-index:5;white-space:nowrap;
+    border-right:2px solid var(--border);
+  }
+  .pivot tbody td.row-header-sub{
+    background:#FAFBFC;text-align:left;padding:6px 10px;
+    position:sticky;left:0;z-index:5;white-space:nowrap;color:var(--text-light);
+    border-right:2px solid var(--border);font-size:11px;
+  }
+
+  /* Cell types */
+  .pivot tbody td.c-stock{background:var(--cell-stock);padding:4px 8px;color:#4A5568;}
+  .pivot tbody td.c-forecast{background:var(--cell-forecast);padding:4px 8px;color:#92400E;}
+  .pivot tbody td.c-alloc{
+    background:var(--cell-alloc-edit);padding:0;cursor:cell;position:relative;
+  }
+  .pivot tbody td.c-alloc .cell-val{
+    display:block;width:100%;height:100%;padding:4px 8px;
+    font-variant-numeric:tabular-nums;text-align:right;color:var(--ai);font-weight:500;
+    line-height:24px;
+  }
+  .pivot tbody td.c-alloc input.cell-edit{
+    position:absolute;inset:0;width:100%;height:100%;border:2px solid var(--accent);
+    background:white;padding:4px 8px;font-size:12px;text-align:right;
+    font-variant-numeric:tabular-nums;outline:none;z-index:20;color:var(--ai);font-weight:600;
+  }
+
+  /* Selection */
+  .pivot tbody td.c-alloc.selected{
+    background:var(--sel-blue);outline:2px solid var(--sel-blue-border);outline-offset:-1px;z-index:6;
+  }
+  .pivot tbody td.c-alloc.sel-active{
+    outline:2px solid var(--accent);outline-offset:-1px;z-index:7;
+    background:rgba(0,180,216,0.08);
+  }
+  .pivot tbody td.c-alloc.copying{
+    outline:2px dashed var(--success);outline-offset:-1px;
+  }
+
+  /* Footer */
+  .pivot tfoot td{
+    background:var(--header-bg);padding:6px 8px;font-weight:600;
+    border:1px solid var(--border);text-align:right;font-size:11px;
+    position:sticky;bottom:0;z-index:8;
+  }
+  .pivot tfoot td.row-header{position:sticky;left:0;z-index:9;text-align:left;padding:6px 10px;}
+
+  /* ===== BOTTOM BAR ===== */
+  .bottom-bar{
+    background:white;border-top:1px solid var(--border);padding:8px 24px;
+    font-size:11px;color:var(--text-muted);display:flex;justify-content:space-between;
+    align-items:center;position:sticky;bottom:0;z-index:20;
+  }
+  .bottom-bar .keys{display:flex;gap:12px;}
+  .bottom-bar .key{background:#EDF2F7;padding:2px 6px;border-radius:3px;font-family:monospace;font-size:10px;}
+
+  /* ===== TOAST ===== */
+  .toast{
+    position:fixed;bottom:60px;left:50%;transform:translateX(-50%);
+    background:var(--primary);color:white;padding:10px 24px;border-radius:8px;
+    font-size:12px;font-weight:500;z-index:999;opacity:0;transition:opacity .3s;
+    pointer-events:none;box-shadow:0 4px 12px rgba(0,0,0,.15);
+  }
+  .toast.show{opacity:1;}
+
+  /* ===== SIMULATION LOADING ===== */
+  .sim-overlay{
+    position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:100;
+    display:none;align-items:center;justify-content:center;
+  }
+  .sim-overlay.active{display:flex;}
+  .sim-box{
+    background:white;border-radius:12px;padding:32px 48px;text-align:center;
+    box-shadow:0 8px 32px rgba(0,0,0,.15);
+  }
+  .sim-box .spinner{
+    width:40px;height:40px;border:3px solid var(--border);border-top-color:var(--ai);
+    border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px;
+  }
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .sim-box .title{font-size:14px;font-weight:600;color:var(--primary);margin-bottom:4px;}
+  .sim-box .desc{font-size:12px;color:var(--text-muted);}
+
+  /* ===== SIZE LEGEND ===== */
+  .size-legend{display:inline-flex;gap:4px;margin-left:12px;}
+  .size-legend span{font-size:10px;padding:1px 6px;border-radius:3px;background:#EDF2F7;color:var(--text-light);}
+</style>
+</head>
+<body>
+
+<!-- Toast Notification -->
+<div class="toast" id="toast"></div>
+
+<!-- Simulation Overlay -->
+<div class="sim-overlay" id="simOverlay">
+  <div class="sim-box">
+    <div class="spinner"></div>
+    <div class="title">✦ AI 배분 시뮬레이션 실행 중</div>
+    <div class="desc">LightGBM 수요예측 → ILP 최적 배분 계산 중...</div>
+  </div>
+</div>
+
+<!-- ===== PAGE TITLE ===== -->
+<div class="page-title-bar">
+  <h1>┃ 보충배분-AIA</h1>
+  <span class="ver">v7</span>
+</div>
+
+<!-- ===== FILTER SECTION (2 Rows) ===== -->
+<div class="filter-section">
+  <!-- Row 1: 브랜드, AP, 상품시즌 -->
+  <div class="filter-row">
+    <div class="fg">
+      <label><span class="req">*</span> 브랜드</label>
+      <select id="filterBrand">
+        <option value="X">X: Discovery</option>
+        <option value="M">M: MLB</option>
+        <option value="I">I: MLB KIDS</option>
+        <option value="V">V: Duvetica</option>
+        <option value="ST">ST: Sergio Tacchini</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label><span class="req">*</span> AP</label>
+      <select id="filterAP">
+        <option>오프라인 정상</option>
+        <option>온라인</option>
+        <option>아울렛</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label><span class="req">*</span> 상품시즌</label>
+      <select id="filterSeason">
+        <option>26S</option>
+        <option>25F</option>
+        <option>25S</option>
+      </select>
+    </div>
+    <span class="spacer"></span>
+  </div>
+  <!-- Row 2: 매장, 스타일, 컬러 -->
+  <div class="filter-row" style="padding-bottom:12px;">
+    <div class="fg">
+      <label>매장</label>
+      <select id="filterShop">
+        <option value="">전체</option>
+        <option>강남점</option>
+        <option>잠실점</option>
+        <option>명동점</option>
+      </select>
+    </div>
+    <div class="fg">
+      <label>스타일</label>
+      <input type="text" id="filterStyle" placeholder="스타일코드 입력">
+    </div>
+    <div class="fg">
+      <label>컬러</label>
+      <select id="filterColor">
+        <option value="">전체</option>
+        <option>BK (Black)</option>
+        <option>IV (Ivory)</option>
+        <option>NV (Navy)</option>
+        <option>KH (Khaki)</option>
+      </select>
+    </div>
+    <span class="spacer"></span>
+    <button class="btn" style="align-self:flex-end;" onclick="resetFilters()">↻ 초기화</button>
+  </div>
+</div>
+
+<!-- ===== TOGGLE BAR ===== -->
+<div class="toggle-bar">
+  <div class="toggle-group">
+    <button class="toggle-btn active" id="btnByShop" onclick="switchView('shop')">매장별 보기</button>
+    <button class="toggle-btn" id="btnByStyle" onclick="switchView('style')">스타일별 보기</button>
+  </div>
+  <span class="info">| 셀 구성: <b style="color:#4A5568;">현 재고</b> / <b style="color:#92400E;">판매 예측</b> / <b style="color:var(--ai);">배분</b></span>
+  <div class="actions">
+    <button class="btn btn-ai" onclick="runSimulation()">✦ 배분 시뮬레이션</button>
+    <button class="btn" onclick="downloadExcel()">📥 엑셀 다운로드</button>
+  </div>
+</div>
+
+<!-- ===== PIVOT TABLE ===== -->
+<div class="grid-wrap" id="gridWrap">
+  <table class="pivot" id="pivotTable">
+    <thead id="pivotHead"></thead>
+    <tbody id="pivotBody"></tbody>
+    <tfoot id="pivotFoot"></tfoot>
+  </table>
+</div>
+
+<!-- ===== BOTTOM BAR ===== -->
+<div class="bottom-bar">
+  <span id="statusBar">매장: 8 | 스타일: 5 | 사이즈: 5</span>
+  <div class="keys">
+    <span><span class="key">Click</span> 셀 선택</span>
+    <span><span class="key">Shift+Click</span> 범위 선택</span>
+    <span><span class="key">Ctrl+C</span> 복사</span>
+    <span><span class="key">Ctrl+V</span> 붙여넣기</span>
+    <span><span class="key">Delete</span> 삭제</span>
+    <span><span class="key">Tab/Enter</span> 다음 셀</span>
+    <span><span class="key">↑↓←→</span> 이동</span>
+  </div>
+</div>
+
+<script>
+// ====================================================================
+// MOCK DATA
+// ====================================================================
+const SHOPS = [
+  {id:'S001', name:'강남점', grade:'A'},
+  {id:'S002', name:'잠실점', grade:'A'},
+  {id:'S003', name:'명동점', grade:'A'},
+  {id:'S004', name:'코엑스점', grade:'B'},
+  {id:'S005', name:'여의도IFC점', grade:'B'},
+  {id:'S006', name:'판교점', grade:'B'},
+  {id:'S007', name:'수원점', grade:'C'},
+  {id:'S008', name:'대전점', grade:'C'},
+];
+
+const STYLES = [
+  {code:'XJWT7341', name:'경량 바람막이 JKT', item:'JKT', colors:['BK','IV','NV']},
+  {code:'XJOT5230', name:'오버핏 코치 JKT', item:'JKT', colors:['BK','KH']},
+  {code:'XMST3120', name:'에센셜 반팔 TEE', item:'TEE', colors:['BK','IV','NV','KH']},
+  {code:'XMPT4210', name:'조거 팬츠', item:'PNT', colors:['BK','NV']},
+  {code:'XJVT6310', name:'다운 베스트', item:'VST', colors:['BK','IV']},
+];
+
+const SIZES = ['S','M','L','XL','XXL'];
+
+// Generate mock stock data
+function genStock() { return Math.floor(Math.random()*15); }
+function genForecast() { return Math.floor(Math.random()*8)+1; }
+
+// ====================================================================
+// STATE
+// ====================================================================
+let viewMode = 'shop'; // 'shop' or 'style'
+let stockData = {};     // key: `${shop}_${style}_${color}_${size}` → {stock, forecast, alloc}
+let simulationDone = false;
+
+// Selection state
+let selectedCells = new Set();  // Set of cell keys
+let activeCell = null;          // Currently active cell key
+let anchorCell = null;          // For shift-click range
+let isEditing = false;
+let clipboard = [];             // [{row,col,value}]
+let clipboardCells = new Set(); // For dashed outline
+let isDragging = false;
+let dragStart = null;
+
+// Cell coordinate mapping
+let cellMap = {};   // key → {row, col, el}
+let coordMap = {};  // `${row}_${col}` → key
+
+function initData() {
+  stockData = {};
+  SHOPS.forEach(shop => {
+    STYLES.forEach(style => {
+      style.colors.forEach(color => {
+        SIZES.forEach(size => {
+          const key = `${shop.id}_${style.code}_${color}_${size}`;
+          stockData[key] = {
+            stock: genStock(),
+            forecast: null,
+            alloc: null
+          };
+        });
+      });
+    });
+  });
+}
+
+// ====================================================================
+// RENDER PIVOT TABLE
+// ====================================================================
+function renderTable() {
+  clearSelection();
+  cellMap = {};
+  coordMap = {};
+
+  if (viewMode === 'shop') {
+    renderShopView();
+  } else {
+    renderStyleView();
+  }
+  attachCellEvents();
+}
+
+function renderShopView() {
+  // Columns: Styles × Colors × Sizes → sub-cells: stock/forecast/alloc
+  const thead = document.getElementById('pivotHead');
+  const tbody = document.getElementById('pivotBody');
+  const tfoot = document.getElementById('pivotFoot');
+
+  // === HEADER ===
+  let h1 = '<tr><th class="corner" rowspan="3" style="width:140px;min-width:140px;">매장</th>';
+  let h2 = '<tr>';
+  let h3 = '<tr>';
+
+  STYLES.forEach(style => {
+    const totalCols = style.colors.length * SIZES.length * 3;
+    h1 += `<th class="th-group" colspan="${totalCols}">${style.code}<br><span style="font-weight:400;font-size:10px;color:var(--text-muted);">${style.name}</span></th>`;
+
+    style.colors.forEach(color => {
+      const sizeCols = SIZES.length * 3;
+      h2 += `<th class="th-group" colspan="${sizeCols}" style="font-size:11px;">${color}</th>`;
+
+      SIZES.forEach(size => {
+        h3 += `<th class="th-sub stock" style="width:48px;min-width:48px;">${size}<br>재고</th>`;
+        h3 += `<th class="th-sub forecast" style="width:48px;min-width:48px;">${size}<br>예측</th>`;
+        h3 += `<th class="th-sub alloc" style="width:48px;min-width:48px;">${size}<br>배분</th>`;
+      });
+    });
+  });
+  h1 += '</tr>';
+  h2 += '</tr>';
+  h3 += '</tr>';
+  thead.innerHTML = h1 + h2 + h3;
+
+  // === BODY ===
+  let rows = '';
+  let rowIdx = 0;
+
+  SHOPS.forEach(shop => {
+    rows += `<tr>`;
+    rows += `<td class="row-header">${shop.name} <span style="font-size:10px;color:var(--text-muted);">(${shop.grade})</span></td>`;
+
+    let colIdx = 0;
+    STYLES.forEach(style => {
+      style.colors.forEach(color => {
+        SIZES.forEach(size => {
+          const key = `${shop.id}_${style.code}_${color}_${size}`;
+          const d = stockData[key] || {stock:0, forecast:null, alloc:null};
+
+          rows += `<td class="c-stock">${d.stock}</td>`;
+          rows += `<td class="c-forecast">${d.forecast !== null ? d.forecast : '-'}</td>`;
+
+          const allocKey = `alloc_${rowIdx}_${colIdx}`;
+          const allocVal = d.alloc !== null ? d.alloc : '';
+          rows += `<td class="c-alloc" data-key="${allocKey}" data-row="${rowIdx}" data-col="${colIdx}" data-datakey="${key}">` +
+                  `<span class="cell-val">${allocVal}</span></td>`;
+
+          cellMap[allocKey] = {row: rowIdx, col: colIdx, dataKey: key};
+          coordMap[`${rowIdx}_${colIdx}`] = allocKey;
+          colIdx++;
+        });
+      });
+    });
+    rows += '</tr>';
+    rowIdx++;
+  });
+  tbody.innerHTML = rows;
+
+  // === FOOTER (합계) ===
+  let foot = '<tr><td class="row-header" style="font-weight:700;">합계</td>';
+  STYLES.forEach(style => {
+    style.colors.forEach(color => {
+      SIZES.forEach(size => {
+        let totalStock = 0, totalForecast = 0, totalAlloc = 0;
+        SHOPS.forEach(shop => {
+          const key = `${shop.id}_${style.code}_${color}_${size}`;
+          const d = stockData[key];
+          if(d) {
+            totalStock += d.stock || 0;
+            totalForecast += d.forecast || 0;
+            totalAlloc += d.alloc || 0;
+          }
+        });
+        foot += `<td style="background:var(--cell-stock);">${totalStock}</td>`;
+        foot += `<td style="background:var(--cell-forecast);">${totalForecast || '-'}</td>`;
+        foot += `<td style="background:var(--cell-alloc);">${totalAlloc || ''}</td>`;
+      });
+    });
+  });
+  foot += '</tr>';
+  tfoot.innerHTML = foot;
+
+  document.getElementById('statusBar').textContent =
+    `매장: ${SHOPS.length} | 스타일: ${STYLES.length} | 사이즈: ${SIZES.length}`;
+}
+
+function renderStyleView() {
+  const thead = document.getElementById('pivotHead');
+  const tbody = document.getElementById('pivotBody');
+  const tfoot = document.getElementById('pivotFoot');
+
+  // Columns: Shops × Sizes → sub-cells
+  let h1 = '<tr><th class="corner" rowspan="3" style="width:160px;min-width:160px;">스타일 / 컬러</th>';
+  let h2 = '<tr>';
+  let h3 = '<tr>';
+
+  SHOPS.forEach(shop => {
+    const sizeCols = SIZES.length * 3;
+    h1 += `<th class="th-group" colspan="${sizeCols}">${shop.name} <span style="font-weight:400;font-size:10px;">(${shop.grade})</span></th>`;
+
+    SIZES.forEach(size => {
+      h2 += `<th class="th-group" colspan="3" style="font-size:11px;">${size}</th>`;
+      h3 += `<th class="th-sub stock">재고</th>`;
+      h3 += `<th class="th-sub forecast">예측</th>`;
+      h3 += `<th class="th-sub alloc">배분</th>`;
+    });
+  });
+  h1 += '</tr>';
+  h2 += '</tr>';
+  h3 += '</tr>';
+  thead.innerHTML = h1 + h2 + h3;
+
+  let rows = '';
+  let rowIdx = 0;
+
+  STYLES.forEach(style => {
+    style.colors.forEach(color => {
+      rows += `<tr>`;
+      rows += `<td class="row-header">${style.code} / ${color}<br><span style="font-size:10px;color:var(--text-muted);">${style.name}</span></td>`;
+
+      let colIdx = 0;
+      SHOPS.forEach(shop => {
+        SIZES.forEach(size => {
+          const key = `${shop.id}_${style.code}_${color}_${size}`;
+          const d = stockData[key] || {stock:0, forecast:null, alloc:null};
+
+          rows += `<td class="c-stock">${d.stock}</td>`;
+          rows += `<td class="c-forecast">${d.forecast !== null ? d.forecast : '-'}</td>`;
+
+          const allocKey = `alloc_${rowIdx}_${colIdx}`;
+          const allocVal = d.alloc !== null ? d.alloc : '';
+          rows += `<td class="c-alloc" data-key="${allocKey}" data-row="${rowIdx}" data-col="${colIdx}" data-datakey="${key}">` +
+                  `<span class="cell-val">${allocVal}</span></td>`;
+
+          cellMap[allocKey] = {row: rowIdx, col: colIdx, dataKey: key};
+          coordMap[`${rowIdx}_${colIdx}`] = allocKey;
+          colIdx++;
+        });
+      });
+      rows += '</tr>';
+      rowIdx++;
+    });
+  });
+  tbody.innerHTML = rows;
+
+  // Footer
+  let foot = '<tr><td class="row-header" style="font-weight:700;">합계</td>';
+  SHOPS.forEach(shop => {
+    SIZES.forEach(size => {
+      let totalStock = 0, totalForecast = 0, totalAlloc = 0;
+      STYLES.forEach(style => {
+        style.colors.forEach(color => {
+          const key = `${shop.id}_${style.code}_${color}_${size}`;
+          const d = stockData[key];
+          if(d) {
+            totalStock += d.stock || 0;
+            totalForecast += d.forecast || 0;
+            totalAlloc += d.alloc || 0;
+          }
+        });
+      });
+      foot += `<td style="background:var(--cell-stock);">${totalStock}</td>`;
+      foot += `<td style="background:var(--cell-forecast);">${totalForecast || '-'}</td>`;
+      foot += `<td style="background:var(--cell-alloc);">${totalAlloc || ''}</td>`;
+    });
+  });
+  foot += '</tr>';
+  tfoot.innerHTML = foot;
+
+  const styleCount = STYLES.reduce((s,st)=>s+st.colors.length, 0);
+  document.getElementById('statusBar').textContent =
+    `스타일×컬러: ${styleCount} | 매장: ${SHOPS.length} | 사이즈: ${SIZES.length}`;
+}
+
+// ====================================================================
+// VIEW SWITCHING
+// ====================================================================
+function switchView(mode) {
+  viewMode = mode;
+  document.getElementById('btnByShop').classList.toggle('active', mode==='shop');
+  document.getElementById('btnByStyle').classList.toggle('active', mode==='style');
+  renderTable();
+}
+
+// ====================================================================
+// SIMULATION
+// ====================================================================
+function runSimulation() {
+  const overlay = document.getElementById('simOverlay');
+  overlay.classList.add('active');
+
+  setTimeout(() => {
+    // Generate forecast & alloc values
+    Object.keys(stockData).forEach(key => {
+      const forecast = genForecast();
+      stockData[key].forecast = forecast;
+      stockData[key].alloc = forecast; // Copy forecast to alloc initially
+    });
+    simulationDone = true;
+    overlay.classList.remove('active');
+    renderTable();
+    showToast('✦ AI 배분 시뮬레이션 완료 — 판매 예측값이 배분 셀에 반영되었습니다.');
+  }, 1800);
+}
+
+// ====================================================================
+// EXCEL-LIKE CELL INTERACTION
+// ====================================================================
+function attachCellEvents() {
+  const cells = document.querySelectorAll('.c-alloc');
+  cells.forEach(cell => {
+    cell.addEventListener('mousedown', onCellMouseDown);
+    cell.addEventListener('mouseover', onCellMouseOver);
+    cell.addEventListener('dblclick', onCellDblClick);
+  });
+}
+
+function onCellMouseDown(e) {
+  e.preventDefault();
+  const key = this.dataset.key;
+  if (!key) return;
+
+  // End any editing
+  commitEdit();
+
+  if (e.shiftKey && anchorCell) {
+    // Range select from anchor to this
+    selectRange(anchorCell, key);
+  } else if (e.ctrlKey || e.metaKey) {
+    // Toggle individual cell
+    if (selectedCells.has(key)) {
+      selectedCells.delete(key);
+      this.classList.remove('selected');
+    } else {
+      selectedCells.add(key);
+      this.classList.add('selected');
+    }
+    setActiveCell(key);
+  } else {
+    // Single click: clear and select
+    clearSelection();
+    selectedCells.add(key);
+    this.classList.add('selected');
+    setActiveCell(key);
+    anchorCell = key;
+
+    // Start drag selection
+    isDragging = true;
+    dragStart = key;
+  }
+}
+
+function onCellMouseOver(e) {
+  if (!isDragging || !dragStart) return;
+  const key = this.dataset.key;
+  if (!key) return;
+
+  // Select range from dragStart to current
+  selectRange(dragStart, key);
+}
+
+function onCellDblClick(e) {
+  const key = this.dataset.key;
+  if (!key) return;
+  startEdit(key);
+}
+
+document.addEventListener('mouseup', () => {
+  isDragging = false;
+});
+
+function setActiveCell(key) {
+  // Remove previous active
+  if (activeCell) {
+    const prev = document.querySelector(`[data-key="${activeCell}"]`);
+    if (prev) prev.classList.remove('sel-active');
+  }
+  activeCell = key;
+  const el = document.querySelector(`[data-key="${key}"]`);
+  if (el) el.classList.add('sel-active');
+}
+
+function clearSelection() {
+  selectedCells.forEach(k => {
+    const el = document.querySelector(`[data-key="${k}"]`);
+    if (el) { el.classList.remove('selected'); el.classList.remove('sel-active'); el.classList.remove('copying'); }
+  });
+  selectedCells.clear();
+  clipboardCells.forEach(k => {
+    const el = document.querySelector(`[data-key="${k}"]`);
+    if (el) el.classList.remove('copying');
+  });
+  clipboardCells.clear();
+  activeCell = null;
+}
+
+function selectRange(fromKey, toKey) {
+  const from = cellMap[fromKey];
+  const to = cellMap[toKey];
+  if (!from || !to) return;
+
+  const r1 = Math.min(from.row, to.row), r2 = Math.max(from.row, to.row);
+  const c1 = Math.min(from.col, to.col), c2 = Math.max(from.col, to.col);
+
+  // Clear old selection visuals
+  selectedCells.forEach(k => {
+    const el = document.querySelector(`[data-key="${k}"]`);
+    if (el) { el.classList.remove('selected'); el.classList.remove('sel-active'); }
+  });
+  selectedCells.clear();
+
+  for (let r = r1; r <= r2; r++) {
+    for (let c = c1; c <= c2; c++) {
+      const k = coordMap[`${r}_${c}`];
+      if (k) {
+        selectedCells.add(k);
+        const el = document.querySelector(`[data-key="${k}"]`);
+        if (el) el.classList.add('selected');
+      }
+    }
+  }
+  setActiveCell(toKey);
+}
+
+// ====================================================================
+// CELL EDITING
+// ====================================================================
+function startEdit(key) {
+  if (isEditing) commitEdit();
+  isEditing = true;
+
+  const cell = document.querySelector(`[data-key="${key}"]`);
+  if (!cell) return;
+
+  const span = cell.querySelector('.cell-val');
+  const currentVal = span.textContent.trim();
+
+  const input = document.createElement('input');
+  input.className = 'cell-edit';
+  input.type = 'text';
+  input.value = currentVal;
+  cell.appendChild(input);
+  input.focus();
+  input.select();
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      commitEdit();
+      moveTo(key, 0, 1); // Move right
+    } else if (e.key === 'Tab') {
+      e.preventDefault();
+      commitEdit();
+      moveTo(key, 0, e.shiftKey ? -1 : 1);
+    } else if (e.key === 'Escape') {
+      cancelEdit();
+    }
+  });
+
+  input.addEventListener('blur', () => {
+    // Delay to allow click events
+    setTimeout(() => { if (isEditing) commitEdit(); }, 100);
+  });
+}
+
+function commitEdit() {
+  if (!isEditing) return;
+  const input = document.querySelector('.cell-edit');
+  if (!input) { isEditing = false; return; }
+
+  const cell = input.closest('.c-alloc');
+  const key = cell.dataset.datakey;
+  const val = input.value.trim();
+  const numVal = val === '' ? null : parseInt(val) || 0;
+
+  // Update data
+  if (stockData[key]) {
+    stockData[key].alloc = numVal;
+  }
+
+  // Update display
+  const span = cell.querySelector('.cell-val');
+  span.textContent = numVal !== null ? numVal : '';
+  input.remove();
+  isEditing = false;
+
+  // Update footer
+  updateFooter();
+}
+
+function cancelEdit() {
+  const input = document.querySelector('.cell-edit');
+  if (input) input.remove();
+  isEditing = false;
+}
+
+function updateFooter() {
+  // Re-render is simpler for prototype; in prod, targeted update
+  const tfoot = document.getElementById('pivotFoot');
+  if (viewMode === 'shop') {
+    let foot = '<tr><td class="row-header" style="font-weight:700;">합계</td>';
+    STYLES.forEach(style => {
+      style.colors.forEach(color => {
+        SIZES.forEach(size => {
+          let totalStock = 0, totalForecast = 0, totalAlloc = 0;
+          SHOPS.forEach(shop => {
+            const key = `${shop.id}_${style.code}_${color}_${size}`;
+            const d = stockData[key];
+            if(d) { totalStock += d.stock||0; totalForecast += d.forecast||0; totalAlloc += d.alloc||0; }
+          });
+          foot += `<td style="background:var(--cell-stock);">${totalStock}</td>`;
+          foot += `<td style="background:var(--cell-forecast);">${totalForecast||'-'}</td>`;
+          foot += `<td style="background:var(--cell-alloc);">${totalAlloc||''}</td>`;
+        });
+      });
+    });
+    foot += '</tr>';
+    tfoot.innerHTML = foot;
+  }
+  // Style view footer similarly
+}
+
+// ====================================================================
+// KEYBOARD NAVIGATION
+// ====================================================================
+document.addEventListener('keydown', (e) => {
+  // Don't intercept while editing (except handled in input)
+  if (isEditing) return;
+
+  const key = e.key;
+
+  // Arrow keys
+  if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(key)) {
+    e.preventDefault();
+    if (!activeCell) return;
+    const dr = key==='ArrowDown'?1 : key==='ArrowUp'?-1 : 0;
+    const dc = key==='ArrowRight'?1 : key==='ArrowLeft'?-1 : 0;
+
+    if (e.shiftKey) {
+      // Extend selection
+      const target = getNeighbor(activeCell, dr, dc);
+      if (target) {
+        selectRange(anchorCell || activeCell, target);
+      }
+    } else {
+      moveTo(activeCell, dr, dc);
+    }
+    return;
+  }
+
+  // Enter → edit active cell
+  if (key === 'Enter' && activeCell) {
+    e.preventDefault();
+    startEdit(activeCell);
+    return;
+  }
+
+  // F2 → edit
+  if (key === 'F2' && activeCell) {
+    e.preventDefault();
+    startEdit(activeCell);
+    return;
+  }
+
+  // Delete/Backspace → clear selected
+  if ((key === 'Delete' || key === 'Backspace') && selectedCells.size > 0) {
+    e.preventDefault();
+    selectedCells.forEach(k => {
+      const info = cellMap[k];
+      if (info && stockData[info.dataKey]) {
+        stockData[info.dataKey].alloc = null;
+      }
+      const el = document.querySelector(`[data-key="${k}"]`);
+      if (el) el.querySelector('.cell-val').textContent = '';
+    });
+    updateFooter();
+    showToast(`${selectedCells.size}개 셀 삭제됨`);
+    return;
+  }
+
+  // Ctrl+C → copy
+  if ((e.ctrlKey || e.metaKey) && key === 'c') {
+    e.preventDefault();
+    copySelection();
+    return;
+  }
+
+  // Ctrl+V → paste
+  if ((e.ctrlKey || e.metaKey) && key === 'v') {
+    e.preventDefault();
+    pasteClipboard();
+    return;
+  }
+
+  // Ctrl+A → select all alloc cells
+  if ((e.ctrlKey || e.metaKey) && key === 'a') {
+    e.preventDefault();
+    selectAll();
+    return;
+  }
+
+  // Typing a number → start editing
+  if (/^[0-9]$/.test(key) && activeCell) {
+    startEdit(activeCell);
+    // Insert the typed digit
+    setTimeout(() => {
+      const input = document.querySelector('.cell-edit');
+      if (input) { input.value = key; }
+    }, 10);
+    return;
+  }
+});
+
+function moveTo(fromKey, dr, dc) {
+  const target = getNeighbor(fromKey, dr, dc);
+  if (target) {
+    clearSelection();
+    selectedCells.add(target);
+    const el = document.querySelector(`[data-key="${target}"]`);
+    if (el) el.classList.add('selected');
+    setActiveCell(target);
+    anchorCell = target;
+
+    // Scroll into view
+    if (el) el.scrollIntoView({block:'nearest', inline:'nearest'});
+  }
+}
+
+function getNeighbor(key, dr, dc) {
+  const info = cellMap[key];
+  if (!info) return null;
+  const nk = coordMap[`${info.row+dr}_${info.col+dc}`];
+  return nk || null;
+}
+
+// ====================================================================
+// COPY / PASTE
+// ====================================================================
+function copySelection() {
+  if (selectedCells.size === 0) return;
+
+  // Clear old clipboard visuals
+  clipboardCells.forEach(k => {
+    const el = document.querySelector(`[data-key="${k}"]`);
+    if (el) el.classList.remove('copying');
+  });
+
+  // Determine bounding box
+  let minR=Infinity, maxR=-Infinity, minC=Infinity, maxC=-Infinity;
+  selectedCells.forEach(k => {
+    const info = cellMap[k];
+    if(info) {
+      minR = Math.min(minR, info.row); maxR = Math.max(maxR, info.row);
+      minC = Math.min(minC, info.col); maxC = Math.max(maxC, info.col);
+    }
+  });
+
+  clipboard = [];
+  clipboardCells = new Set(selectedCells);
+
+  selectedCells.forEach(k => {
+    const info = cellMap[k];
+    if (!info) return;
+    const d = stockData[info.dataKey];
+    clipboard.push({
+      relRow: info.row - minR,
+      relCol: info.col - minC,
+      value: d ? d.alloc : null
+    });
+
+    const el = document.querySelector(`[data-key="${k}"]`);
+    if (el) el.classList.add('copying');
+  });
+
+  showToast(`${selectedCells.size}개 셀 복사됨`);
+}
+
+function pasteClipboard() {
+  if (clipboard.length === 0 || !activeCell) return;
+
+  const base = cellMap[activeCell];
+  if (!base) return;
+
+  let pasted = 0;
+  clipboard.forEach(item => {
+    const targetKey = coordMap[`${base.row + item.relRow}_${base.col + item.relCol}`];
+    if (targetKey) {
+      const info = cellMap[targetKey];
+      if (info && stockData[info.dataKey]) {
+        stockData[info.dataKey].alloc = item.value;
+        const el = document.querySelector(`[data-key="${targetKey}"]`);
+        if (el) el.querySelector('.cell-val').textContent = item.value !== null ? item.value : '';
+        pasted++;
+      }
+    }
+  });
+
+  // Clear copying visuals
+  clipboardCells.forEach(k => {
+    const el = document.querySelector(`[data-key="${k}"]`);
+    if (el) el.classList.remove('copying');
+  });
+  clipboardCells.clear();
+
+  updateFooter();
+  showToast(`${pasted}개 셀에 붙여넣기 완료`);
+}
+
+function selectAll() {
+  clearSelection();
+  Object.keys(cellMap).forEach(k => {
+    selectedCells.add(k);
+    const el = document.querySelector(`[data-key="${k}"]`);
+    if (el) el.classList.add('selected');
+  });
+  if (Object.keys(cellMap).length > 0) {
+    const firstKey = Object.keys(cellMap)[0];
+    setActiveCell(firstKey);
+    anchorCell = firstKey;
+  }
+  showToast(`전체 배분 셀 선택됨 (${selectedCells.size}개)`);
+}
+
+// ====================================================================
+// EXCEL DOWNLOAD
+// ====================================================================
+function downloadExcel() {
+  // In a real app, would use SheetJS. For prototype, generate CSV.
+  let csv = '\uFEFF'; // BOM for Korean
+
+  if (viewMode === 'shop') {
+    // Header
+    csv += '매장';
+    STYLES.forEach(s => s.colors.forEach(c => SIZES.forEach(sz => {
+      csv += `,${s.code}_${c}_${sz}_재고,${s.code}_${c}_${sz}_예측,${s.code}_${c}_${sz}_배분`;
+    })));
+    csv += '\n';
+
+    // Body
+    SHOPS.forEach(shop => {
+      csv += shop.name;
+      STYLES.forEach(style => style.colors.forEach(color => SIZES.forEach(size => {
+        const k = `${shop.id}_${style.code}_${color}_${size}`;
+        const d = stockData[k] || {};
+        csv += `,${d.stock||0},${d.forecast||''},${d.alloc||''}`;
+      })));
+      csv += '\n';
+    });
+  }
+
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `보충배분AIA_${viewMode}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('📥 엑셀(CSV) 다운로드 완료');
+}
+
+// ====================================================================
+// UTILS
+// ====================================================================
+function resetFilters() {
+  document.getElementById('filterBrand').selectedIndex = 0;
+  document.getElementById('filterAP').selectedIndex = 0;
+  document.getElementById('filterSeason').selectedIndex = 0;
+  document.getElementById('filterShop').selectedIndex = 0;
+  document.getElementById('filterStyle').value = '';
+  document.getElementById('filterColor').selectedIndex = 0;
+  showToast('필터가 초기화되었습니다.');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// Click outside table → deselect
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.pivot') && !e.target.closest('.toggle-bar') && !isEditing) {
+    clearSelection();
+  }
+});
+
+// ====================================================================
+// INIT
+// ====================================================================
+initData();
+renderTable();
+</script>
+</body>
+</html>

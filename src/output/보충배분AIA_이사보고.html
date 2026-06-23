@@ -1,0 +1,1444 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>보충배분 AIA — 이사 보고</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy-900: #0c2461;
+    --navy-800: #1e3c72;
+    --navy-700: #2a5298;
+    --navy-600: #3b6cb4;
+    --blue-500: #4a90d9;
+    --blue-400: #6ba3e8;
+    --blue-100: #e8f0fe;
+    --blue-50: #f0f6ff;
+    --green-600: #16a34a;
+    --green-100: #dcfce7;
+    --amber-600: #d97706;
+    --amber-100: #fef3c7;
+    --red-600: #dc2626;
+    --red-100: #fee2e2;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+    --radius: 12px;
+    --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+    --shadow: 0 1px 3px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -2px rgba(0,0,0,0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.1);
+  }
+
+  body {
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    background: var(--gray-50);
+    color: var(--gray-800);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, var(--navy-900) 0%, var(--navy-800) 50%, var(--navy-700) 100%);
+    color: white;
+    padding: 56px 0 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -10%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .header h1 {
+    font-size: 32px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+  .header .subtitle {
+    font-size: 16px;
+    color: rgba(255,255,255,0.7);
+    font-weight: 400;
+  }
+  .header .meta {
+    margin-top: 20px;
+    display: flex;
+    gap: 24px;
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+  }
+
+  /* Navigation */
+  .nav-bar {
+    background: white;
+    border-bottom: 1px solid var(--gray-200);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow-sm);
+  }
+  .nav-bar .container {
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+  }
+  .nav-bar a {
+    display: block;
+    padding: 14px 20px;
+    font-size: 13.5px;
+    font-weight: 500;
+    color: var(--gray-500);
+    text-decoration: none;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .nav-bar a:hover {
+    color: var(--navy-800);
+    background: var(--blue-50);
+  }
+  .nav-bar a.active {
+    color: var(--navy-800);
+    border-bottom-color: var(--navy-800);
+  }
+
+  /* Sections */
+  .section {
+    padding: 56px 0 40px;
+  }
+  .section + .section {
+    border-top: 1px solid var(--gray-200);
+  }
+  .section-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--navy-700);
+    background: var(--blue-100);
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--gray-900);
+    margin-bottom: 8px;
+    letter-spacing: -0.3px;
+  }
+  .section-desc {
+    font-size: 15px;
+    color: var(--gray-500);
+    margin-bottom: 32px;
+    max-width: 700px;
+  }
+
+  /* Cards */
+  .card {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px 32px;
+    margin-bottom: 20px;
+    border: 1px solid var(--gray-100);
+  }
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+  }
+  .card-icon.blue { background: var(--blue-100); color: var(--navy-700); }
+  .card-icon.green { background: var(--green-100); color: var(--green-600); }
+  .card-icon.amber { background: var(--amber-100); color: var(--amber-600); }
+  .card-icon.red { background: var(--red-100); color: var(--red-600); }
+  .card-title {
+    font-size: 17px;
+    font-weight: 650;
+    color: var(--gray-800);
+  }
+  .card p, .card li {
+    font-size: 14.5px;
+    color: var(--gray-600);
+    line-height: 1.8;
+  }
+  .card ul { padding-left: 20px; }
+  .card li { margin-bottom: 4px; }
+
+  /* Highlight quote */
+  .highlight-box {
+    background: linear-gradient(135deg, var(--blue-50) 0%, #f0f4ff 100%);
+    border-left: 4px solid var(--navy-700);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 20px 24px;
+    margin: 20px 0;
+    font-size: 15px;
+    color: var(--navy-800);
+    font-weight: 500;
+    line-height: 1.7;
+  }
+
+  /* Problem cards grid */
+  .problem-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .problem-card {
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: 24px;
+    transition: box-shadow 0.2s;
+  }
+  .problem-card:hover { box-shadow: var(--shadow-md); }
+  .problem-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--red-100);
+    color: var(--red-600);
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .problem-card h4 {
+    font-size: 15px;
+    font-weight: 650;
+    color: var(--gray-800);
+    margin-bottom: 8px;
+  }
+  .problem-card p {
+    font-size: 13.5px;
+    color: var(--gray-500);
+    line-height: 1.7;
+  }
+
+  /* Pipeline */
+  .pipeline {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    margin: 24px 0 32px;
+    overflow-x: auto;
+  }
+  .pipe-step {
+    flex: 1;
+    min-width: 180px;
+    padding: 24px 20px;
+    text-align: center;
+    position: relative;
+    background: white;
+    border: 1px solid var(--gray-200);
+  }
+  .pipe-step:first-child { border-radius: var(--radius) 0 0 var(--radius); }
+  .pipe-step:last-child { border-radius: 0 var(--radius) var(--radius) 0; }
+  .pipe-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 12px solid var(--gray-200);
+    border-top: 24px solid transparent;
+    border-bottom: 24px solid transparent;
+    z-index: 2;
+  }
+  .pipe-step:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    right: -11px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 11px solid white;
+    border-top: 23px solid transparent;
+    border-bottom: 23px solid transparent;
+    z-index: 3;
+  }
+  .pipe-step .pipe-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+  }
+  .pipe-step .pipe-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--gray-800);
+    margin-bottom: 4px;
+  }
+  .pipe-step .pipe-detail {
+    font-size: 11.5px;
+    color: var(--gray-400);
+    line-height: 1.5;
+  }
+  .pipe-step.active {
+    background: var(--navy-900);
+    border-color: var(--navy-900);
+  }
+  .pipe-step.active .pipe-label,
+  .pipe-step.active .pipe-detail { color: white; }
+  .pipe-step.active .pipe-detail { color: rgba(255,255,255,0.7); }
+  .pipe-step.active::before {
+    border-left-color: var(--navy-900);
+  }
+
+  /* Tables */
+  .table-wrap {
+    overflow-x: auto;
+    margin: 16px 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+  }
+  thead th {
+    background: var(--gray-50);
+    color: var(--gray-600);
+    font-weight: 600;
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 2px solid var(--gray-200);
+    white-space: nowrap;
+  }
+  tbody td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--gray-100);
+    color: var(--gray-700);
+  }
+  tbody tr:hover { background: var(--blue-50); }
+
+  /* Badges */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 6px;
+  }
+  .badge.green { background: var(--green-100); color: var(--green-600); }
+  .badge.amber { background: var(--amber-100); color: var(--amber-600); }
+  .badge.red { background: var(--red-100); color: var(--red-600); }
+  .badge.blue { background: var(--blue-100); color: var(--navy-700); }
+  .badge.gray { background: var(--gray-100); color: var(--gray-500); }
+
+  /* Stat grid */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin: 20px 0;
+  }
+  .stat-card {
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    text-align: center;
+  }
+  .stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--navy-800);
+    line-height: 1.2;
+  }
+  .stat-label {
+    font-size: 13px;
+    color: var(--gray-500);
+    margin-top: 4px;
+  }
+  .stat-card.highlight {
+    background: linear-gradient(135deg, var(--navy-900), var(--navy-700));
+    border: none;
+  }
+  .stat-card.highlight .stat-value { color: white; }
+  .stat-card.highlight .stat-label { color: rgba(255,255,255,0.7); }
+
+  /* Chart container */
+  .chart-container {
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: 24px;
+    margin: 20px 0;
+  }
+  .chart-container h4 {
+    font-size: 15px;
+    font-weight: 650;
+    color: var(--gray-800);
+    margin-bottom: 4px;
+  }
+  .chart-container .chart-desc {
+    font-size: 13px;
+    color: var(--gray-400);
+    margin-bottom: 16px;
+  }
+  .chart-wrap {
+    position: relative;
+    max-height: 340px;
+  }
+
+  /* Insight callout */
+  .insight {
+    background: var(--green-100);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin: 16px 0;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .insight-icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    background: var(--green-600);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    margin-top: 2px;
+  }
+  .insight p {
+    font-size: 14px;
+    color: var(--gray-700);
+    line-height: 1.7;
+  }
+
+  .warning {
+    background: var(--amber-100);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    margin: 16px 0;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .warning-icon {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    background: var(--amber-600);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    margin-top: 2px;
+  }
+  .warning p {
+    font-size: 14px;
+    color: var(--gray-700);
+    line-height: 1.7;
+  }
+
+  /* Benefit grid */
+  .benefit-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    margin: 24px 0;
+  }
+  .benefit-card {
+    background: linear-gradient(135deg, var(--navy-900), var(--navy-800));
+    border-radius: var(--radius);
+    padding: 28px 24px;
+    color: white;
+    text-align: center;
+  }
+  .benefit-card .benefit-num {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 8px;
+  }
+  .benefit-card h4 {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .benefit-card p {
+    font-size: 13px;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.7;
+  }
+
+  /* Timeline */
+  .timeline {
+    position: relative;
+    padding-left: 32px;
+    margin: 24px 0;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 11px;
+    top: 4px;
+    bottom: 4px;
+    width: 2px;
+    background: var(--gray-200);
+  }
+  .timeline-item {
+    position: relative;
+    margin-bottom: 24px;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -25px;
+    top: 6px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--gray-300);
+    border: 2px solid white;
+    box-shadow: var(--shadow-sm);
+  }
+  .timeline-item.active::before {
+    background: var(--navy-700);
+    box-shadow: 0 0 0 4px var(--blue-100);
+  }
+  .timeline-item.done::before {
+    background: var(--green-600);
+  }
+  .timeline-date {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray-400);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .timeline-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--gray-800);
+    margin-bottom: 4px;
+  }
+  .timeline-desc {
+    font-size: 13px;
+    color: var(--gray-500);
+    line-height: 1.6;
+  }
+
+  /* Sub-section */
+  .sub-section {
+    margin: 32px 0;
+  }
+  .sub-title {
+    font-size: 18px;
+    font-weight: 650;
+    color: var(--gray-800);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .sub-title .sub-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: var(--blue-100);
+    color: var(--navy-700);
+    font-size: 13px;
+    font-weight: 700;
+  }
+  .sub-desc {
+    font-size: 14px;
+    color: var(--gray-500);
+    margin-bottom: 16px;
+    line-height: 1.7;
+  }
+
+  /* Key message */
+  .key-message {
+    background: linear-gradient(135deg, var(--blue-50), #eef3ff);
+    border: 1px solid rgba(42, 82, 152, 0.15);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin: 16px 0;
+  }
+  .key-message-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--navy-700);
+    margin-bottom: 6px;
+  }
+  .key-message p {
+    font-size: 14.5px;
+    color: var(--navy-800);
+    line-height: 1.7;
+    font-weight: 500;
+  }
+
+  /* Narrative */
+  .narrative {
+    font-size: 14.5px;
+    color: var(--gray-600);
+    line-height: 1.85;
+    margin: 12px 0;
+  }
+  .narrative strong {
+    color: var(--gray-800);
+    font-weight: 600;
+  }
+
+  /* Two col */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+
+  /* Footer */
+  .footer {
+    background: var(--gray-800);
+    color: var(--gray-400);
+    padding: 32px 0;
+    font-size: 13px;
+    text-align: center;
+    margin-top: 48px;
+  }
+
+  /* Model table */
+  .model-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 16px 0;
+  }
+  .model-card {
+    background: white;
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+  }
+  .model-card .model-name {
+    font-size: 15px;
+    font-weight: 650;
+    color: var(--navy-800);
+    margin-bottom: 4px;
+  }
+  .model-card .model-algo {
+    font-size: 12px;
+    color: var(--gray-400);
+    margin-bottom: 10px;
+  }
+  .model-card .model-desc {
+    font-size: 13px;
+    color: var(--gray-600);
+    line-height: 1.6;
+  }
+
+  @media (max-width: 768px) {
+    .problem-grid, .benefit-grid, .model-grid, .two-col, .stat-grid {
+      grid-template-columns: 1fr;
+    }
+    .pipeline { flex-direction: column; }
+    .pipe-step { min-width: auto; }
+    .pipe-step:first-child { border-radius: var(--radius) var(--radius) 0 0; }
+    .pipe-step:last-child { border-radius: 0 0 var(--radius) var(--radius); }
+    .pipe-step:not(:last-child)::after,
+    .pipe-step:not(:last-child)::before { display: none; }
+    .header h1 { font-size: 24px; }
+    .section-title { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <div class="container">
+    <h1>보충배분 AIA</h1>
+    <div class="subtitle">AI-Assisted Allocation &mdash; 이사 보고</div>
+    <div class="meta">
+      <span>2026년 5월</span>
+      <span>F&F DCS AI팀</span>
+      <span>작성: 하민</span>
+    </div>
+  </div>
+</div>
+
+<!-- Navigation -->
+<div class="nav-bar">
+  <div class="container">
+    <a href="#sec1">1. 프로젝트 목적</a>
+    <a href="#sec2">2. 솔루션 접근 방식</a>
+    <a href="#sec3">3. 개발 진행 상황</a>
+    <a href="#sec4" class="active">4. 효용성 검증</a>
+    <a href="#sec5">5. 추후 스케줄</a>
+  </div>
+</div>
+
+<!-- Section 1: Project Purpose -->
+<div class="section" id="sec1">
+  <div class="container">
+    <div class="section-label">Section 01</div>
+    <div class="section-title">프로젝트 목적</div>
+    <div class="section-desc">F&F 보충배분의 구조적 한계를 AI로 해결합니다</div>
+
+    <h3 style="font-size:16px; font-weight:650; color:var(--gray-800); margin-bottom:16px;">현재의 문제</h3>
+
+    <div class="problem-grid">
+      <div class="problem-card">
+        <div class="problem-num">1</div>
+        <h4>MD 개인 역량 의존</h4>
+        <p>담당자가 바뀌거나 SKU 수가 늘어날수록 배분 품질이 불안정해집니다. 동일한 상황에서도 MD마다 판단 기준이 달라 결과가 다르며, 이 기준이 조직 내에 명시적으로 문서화되어 있지 않습니다.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-num">2</div>
+        <h4>베스트셀러 대응 구조적 취약</h4>
+        <p>잘 팔리는 SC일수록 재고가 빠르게 소진되지만, 수기 배분으로는 판매 속도를 선제적으로 반영해 물량을 집중시키기 어렵습니다. 결과적으로 판매 기회 손실이 발생합니다.</p>
+      </div>
+      <div class="problem-card">
+        <div class="problem-num">3</div>
+        <h4>반복 작업 공수 과다</h4>
+        <p>스타일 수 x 매장 수 x 사이즈 수의 조합을 매주 반복 계산합니다. 단순 기준의 반복 판단에 MD가 시간을 쏟고 있어, 고부가가치 의사결정에 집중할 수 없습니다.</p>
+      </div>
+    </div>
+
+    <div class="highlight-box">
+      <strong>프로젝트 목적:</strong> AI 기반 수요 예측 + 정수 최적화(ILP)로 보충배분 의사결정을 자동화하여, MD의 판단은 예외 처리와 최종 확인에 집중할 수 있는 구조를 만든다.
+    </div>
+
+    <div class="stat-grid" style="margin-top:24px;">
+      <div class="stat-card">
+        <div class="stat-value" style="color:var(--navy-800);">MLB</div>
+        <div class="stat-label">초기 적용 브랜드</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="color:var(--navy-800);">5</div>
+        <div class="stat-label">확장 대상 브랜드</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="font-size:22px; color:var(--navy-800);">베스트셀러<br>재고 부족 방지</div>
+        <div class="stat-label">핵심 목표 #1</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" style="font-size:22px; color:var(--navy-800);">MD 배분<br>의사결정 효율화</div>
+        <div class="stat-label">핵심 목표 #2</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 2: Solution Approach -->
+<div class="section" id="sec2">
+  <div class="container">
+    <div class="section-label">Section 02</div>
+    <div class="section-title">솔루션 접근 방식</div>
+    <div class="section-desc">데이터 수집부터 MD 화면까지, 3단계 파이프라인</div>
+
+    <h3 style="font-size:16px; font-weight:650; color:var(--gray-800); margin-bottom:16px;">전체 흐름</h3>
+
+    <div class="pipeline">
+      <div class="pipe-step">
+        <div class="pipe-icon" style="font-size:24px;">&#9741;</div>
+        <div class="pipe-label">Snowflake</div>
+        <div class="pipe-detail">판매 이력 / 마스터<br>실시간 재고</div>
+      </div>
+      <div class="pipe-step active">
+        <div class="pipe-icon" style="font-size:24px;">&#9881;</div>
+        <div class="pipe-label">수요 예측 (ML)</div>
+        <div class="pipe-detail">SC-Total: LightGBM / TFT<br>SC-Shop: TSB</div>
+      </div>
+      <div class="pipe-step active">
+        <div class="pipe-icon" style="font-size:24px;">&#8853;</div>
+        <div class="pipe-label">정수 최적화 (ILP)</div>
+        <div class="pipe-detail">POST /optimize<br>매장별 최적 배분</div>
+      </div>
+      <div class="pipe-step">
+        <div class="pipe-icon" style="font-size:24px;">&#9000;</div>
+        <div class="pipe-label">유통MD 화면</div>
+        <div class="pipe-detail">매장 조정 &rarr; 배분 시뮬레이션<br>&rarr; 엑셀 다운로드</div>
+      </div>
+    </div>
+
+    <div class="model-grid">
+      <div class="model-card">
+        <div class="model-name">SC-Total 모델</div>
+        <div class="model-algo">LightGBM / TFT | PRED_SC_W</div>
+        <div class="model-desc">
+          "이번 주 이 SC는 전 매장 합쳐 몇 개 팔릴 것인가"<br>
+          스타일-컬러 x 주간 단위 절대 수량 예측
+        </div>
+      </div>
+      <div class="model-card">
+        <div class="model-name">SC-Shop 모델</div>
+        <div class="model-algo">TSB | PRED_SH_SCS_W</div>
+        <div class="model-desc">
+          "총 예측 물량을 매장별, 사이즈별로 어떤 비율로 배분할 것인가"<br>
+          매장 x 사이즈 정규화 분포값 산출
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top: 24px;">
+      <div class="card-header">
+        <div class="card-icon blue">&#9000;</div>
+        <div class="card-title">유통MD 화면 (Next.js) &mdash; 2단계 전환 구조</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>단계</th><th>화면</th><th>주요 기능</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="badge blue">1단계</span></td>
+              <td><strong>매장 조정</strong></td>
+              <td>예측 시각화 확인, 배분 대상 매장 추가/제거, 배분 시뮬레이션 실행</td>
+            </tr>
+            <tr>
+              <td><span class="badge blue">2단계</span></td>
+              <td><strong>피벗 상세</strong></td>
+              <td>AI 배분 결과 검토/수정, S-ERP 업로드용 엑셀 다운로드</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top:12px; font-size:13px; color:var(--gray-400);">기술 스택: Next.js 16 / React 19 / TypeScript / Tailwind CSS v4 / shadcn/ui / Recharts / Vercel 배포</p>
+    </div>
+  </div>
+</div>
+
+<!-- Section 3: Progress -->
+<div class="section" id="sec3">
+  <div class="container">
+    <div class="section-label">Section 03</div>
+    <div class="section-title">현재까지 개발 진행 상황</div>
+    <div class="section-desc">수요 예측 모델과 화면 개발 현황</div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon blue">&#9881;</div>
+        <div class="card-title">수요 예측 모델 진행 현황 (Colly)</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>브랜드</th><th>예측 단위</th><th>모델</th><th>완료 예정</th><th>상태</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>MLB</td><td>SC-Total</td><td>TFT</td><td>~5/22</td><td><span class="badge green">완료</span></td></tr>
+            <tr><td>MLB</td><td>SC-Shop</td><td>TSB</td><td>~5/29</td><td><span class="badge amber">진행 중</span></td></tr>
+            <tr><td>DX</td><td>SC-Total</td><td>LGBM</td><td>~6/5</td><td><span class="badge blue">예정</span></td></tr>
+            <tr><td>DX</td><td>SC-Shop</td><td>TSB</td><td>~6/5</td><td><span class="badge blue">예정</span></td></tr>
+            <tr><td>MK / DV / ST</td><td>Total + Shop</td><td>미정</td><td>~6/19</td><td><span class="badge gray">대기</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon green">&#9000;</div>
+        <div class="card-title">화면 개발 Phase 진행 현황 (하민)</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Phase</th><th>내용</th><th>상태</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Phase 1</td><td>프로젝트 기반 세팅 (타입 정의 / 폴더 구조 / 의존성)</td><td><span class="badge amber">부분 완료</span></td></tr>
+            <tr><td>Phase 2</td><td>데이터 레이어 (API Routes 6개 + 아카이빙 JSON)</td><td><span class="badge red">미착수</span></td></tr>
+            <tr><td>Phase 3</td><td>상태 머신 리팩터 (화면 A/B 전환 컨테이너화)</td><td><span class="badge red">미착수</span></td></tr>
+            <tr><td><strong>Phase 4</strong></td><td><strong>매장 조정 뷰 + 스타일 네비게이터 + 차트 3종</strong></td><td><span class="badge green">완료</span></td></tr>
+            <tr><td>Phase 5</td><td>피벗 유지 + ILP 결과 배분 컬럼 반영</td><td><span class="badge red">미착수</span></td></tr>
+            <tr><td>Phase 6</td><td>엑셀 다운로드 (API Route + 템플릿 주입)</td><td><span class="badge red">미착수</span></td></tr>
+            <tr><td>Phase 7</td><td>통합 테스트 + 에러 처리</td><td><span class="badge red">미착수</span></td></tr>
+            <tr><td>Phase 8</td><td>Vercel MVP 배포 + 문서 갱신</td><td><span class="badge red">미착수</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 4: Validation (Core) -->
+<div class="section" id="sec4" style="background: linear-gradient(180deg, white 0%, var(--gray-50) 100%);">
+  <div class="container">
+    <div class="section-label">Section 04 &mdash; Core</div>
+    <div class="section-title">결과물 효용성 검증</div>
+    <div class="section-desc">AIA가 실제 배분 업무에 효용성이 있는지를 정량 검증한 결과입니다. 단순히 시스템이 "동작"하는 수준을 넘어, 기존 수기 배분 대비 왜 AIA가 필요한지를 데이터로 보여줍니다.</div>
+
+    <!-- 4.1 Data Integrity -->
+    <div class="sub-section">
+      <div class="sub-title"><span class="sub-num">1</span> 데이터 정합성 검증</div>
+
+      <div class="key-message">
+        <div class="key-message-label">핵심 메시지</div>
+        <p>AIA 시스템은 Snowflake 분석계의 실시간 매장재고, 창고재고, 판매이력을 직접 연동합니다. MD가 수기로 확인하기 어려운 <strong>전체 매장의 재고 현황을 동시에 파악</strong>할 수 있으며, 분석 기반이 되는 데이터의 신뢰성이 확인되었습니다.</p>
+      </div>
+
+      <p class="narrative">
+        Discovery 의류 카테고리에 대해 3주간(W1~W3) 데이터 정합성을 검증했습니다.
+        매주 <strong>57,000~61,000건</strong>의 매장 x 스타일 재고 데이터가 정상 조회되었고,
+        창고에서는 주차당 <strong>529~575건</strong>의 스타일별 가용재고가 확인되었습니다.
+        <strong>268개 매장</strong>에 걸친 <strong>704개 스타일</strong>을 전수 커버하고 있어,
+        AIA가 보는 데이터는 MD가 일일이 확인할 수 없는 범위까지 포괄하고 있음이 입증되었습니다.
+      </p>
+
+      <div class="stat-grid">
+        <div class="stat-card highlight">
+          <div class="stat-value">268</div>
+          <div class="stat-label">분석 대상 매장 수</div>
+        </div>
+        <div class="stat-card highlight">
+          <div class="stat-value">704</div>
+          <div class="stat-label">분석 대상 스타일 수</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">~60K</div>
+          <div class="stat-label">주차당 매장 재고 데이터 건수</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">~550</div>
+          <div class="stat-label">주차당 창고 가용재고 건수</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4.2 Manual Allocation Limitations -->
+    <div class="sub-section">
+      <div class="sub-title"><span class="sub-num">2</span> 현행 수동 배분의 구조적 한계 발견</div>
+
+      <div class="key-message">
+        <div class="key-message-label">핵심 메시지</div>
+        <p>MD가 직접 배분할 때 발생하는 구조적 비효율을 데이터로 확인했습니다. 이는 MD 개인의 역량 문제가 아니라, <strong>수백 개 매장을 동시에 최적화하는 것이 인간의 인지 한계로는 불가능하다는 구조적 문제</strong>입니다.</p>
+      </div>
+
+      <h4 style="font-size:15px; font-weight:600; color:var(--gray-700); margin:20px 0 12px;">배분 방향성의 불일관성</h4>
+
+      <p class="narrative">
+        실제 배분 데이터의 Spearman 상관계수를 분석한 결과, 주차별로 <strong>완전히 다른 패턴</strong>이 나타났습니다.
+        W1에서는 +0.362(양의 상관), W2에서는 -0.242(음의 상관), W3에서는 +0.077(무상관)로,
+        매주 배분 판단의 방향성 자체가 일관되지 않았습니다.
+        이는 MD가 체계적인 기준 없이 주차마다 다른 판단 로직을 적용하고 있음을 시사하며,
+        <strong>시스템이 일관된 기준으로 배분을 제안해야 할 명확한 근거</strong>입니다.
+      </p>
+
+      <div class="stat-grid" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="stat-card">
+          <div class="stat-value" style="color: var(--green-600);">+0.362</div>
+          <div class="stat-label">W1 Spearman</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" style="color: var(--red-600);">-0.242</div>
+          <div class="stat-label">W2 Spearman</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" style="color: var(--gray-400);">+0.077</div>
+          <div class="stat-label">W3 Spearman</div>
+        </div>
+      </div>
+
+      <h4 style="font-size:15px; font-weight:600; color:var(--gray-700); margin:24px 0 12px;">Missed Pair &mdash; 놓친 배분 기회</h4>
+
+      <p class="narrative">
+        "Missed Pair"란, <strong>창고에 재고가 있고 매장 재고가 부족(3개 이하)한데도 배분되지 않은 매장-스타일 쌍</strong>을 말합니다.
+        분석 결과 매주 <strong>3,000~4,400쌍</strong>의 Missed Pair가 발견되었으며,
+        이 중 <strong>87~97%</strong>는 창고에 충분한 재고가 있었음에도 배분이 이루어지지 않았습니다.
+        이것은 MD가 수백 개 매장의 개별 재고 상황을 동시에 파악하는 것이 물리적으로 불가능하기 때문이며,
+        <strong>ILP의 전역 최적화가 가장 잘 발휘될 수 있는 영역</strong>입니다.
+      </p>
+
+      <div class="chart-container">
+        <h4>주차별 Missed Pair 현황</h4>
+        <div class="chart-desc">창고에 재고가 있고 매장이 부족한데 배분되지 않은 쌍 (배분가능 vs 배분불가)</div>
+        <div class="chart-wrap">
+          <canvas id="missedPairChart"></canvas>
+        </div>
+      </div>
+
+      <div class="insight">
+        <div class="insight-icon">!</div>
+        <p>W1 기준, 배분 가능했던 3,863쌍 중 상당수가 판매 기회를 놓쳤을 가능성이 높습니다. ILP는 이 전체 매장-스타일 매트릭스를 수학적으로 동시 최적화하여 이러한 누락을 체계적으로 해소합니다.</p>
+      </div>
+    </div>
+
+    <!-- 4.3 ILP Simulation -->
+    <div class="sub-section">
+      <div class="sub-title"><span class="sub-num">3</span> ILP 배분 시뮬레이션</div>
+
+      <div class="key-message">
+        <div class="key-message-label">핵심 메시지</div>
+        <p>W3 시즌(26S) 76건에 대해 ILP 서버를 실제 호출하여 소급 시뮬레이션을 수행했습니다. ILP는 <strong>75건 모두 OPTIMAL(최적해) 응답을 반환</strong>했으며(성공률 98.7%), 매장별 재고 수준과 예측 수요를 동시에 고려하여 합리적인 배분 판단을 내렸습니다.</p>
+      </div>
+
+      <p class="narrative">
+        특히 주목할 점은 ILP의 <strong>과잉배분 방지 로직</strong>입니다.
+        매장의 현재 재고가 예측 수요를 이미 충족하는 경우, ILP는 추가 배분을 자동으로 억제합니다.
+        이는 수기 배분에서 발생하기 쉬운 "안전 재고 과적" 문제를 구조적으로 해소하는 메커니즘입니다.
+      </p>
+
+      <div class="stat-grid">
+        <div class="stat-card highlight">
+          <div class="stat-value">98.7%</div>
+          <div class="stat-label">ILP OPTIMAL 성공률</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">75/76</div>
+          <div class="stat-label">정상 최적해 도출</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">4.3주</div>
+          <div class="stat-label">평균 재고 커버리지</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value">3.5주</div>
+          <div class="stat-label">중간값 재고 커버리지</div>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <h4>실판매 기준 매장 재고 커버리지 분포</h4>
+        <div class="chart-desc">ILP 배분 후 매장별 재고가 실판매 기준 몇 주를 커버하는지</div>
+        <div class="chart-wrap">
+          <canvas id="coverageChart"></canvas>
+        </div>
+      </div>
+
+      <div class="insight">
+        <div class="insight-icon">!</div>
+        <p>재고 커버리지 분포를 보면, 전체 매장의 약 <strong>64%</strong>가 2~8주 범위에 위치합니다. 이는 ILP가 과소배분도 과잉배분도 아닌, 적정 수준의 재고를 유지하는 방향으로 배분을 최적화하고 있음을 보여줍니다.</p>
+      </div>
+
+      <div class="two-col" style="margin-top:20px;">
+        <div class="card" style="margin-bottom:0;">
+          <h4 style="font-size:14px; font-weight:600; color:var(--gray-700); margin-bottom:8px;">시즌 구성 분석</h4>
+          <div class="chart-wrap" style="max-height:240px;">
+            <canvas id="seasonChart"></canvas>
+          </div>
+          <p style="margin-top:12px; font-size:13px; color:var(--gray-500);">분석 대상 중 이월 시즌(61.2%)이 당시즌(38.8%)보다 많아, 이월 재고의 효율적 배분이 특히 중요합니다.</p>
+        </div>
+        <div class="card" style="margin-bottom:0;">
+          <h4 style="font-size:14px; font-weight:600; color:var(--gray-700); margin-bottom:8px;">ILP 핵심 동작 원리</h4>
+          <ul style="padding-left:18px;">
+            <li style="margin-bottom:8px; font-size:13.5px; color:var(--gray-600);">창고 재고 한도 내에서 배분 (초과 불가)</li>
+            <li style="margin-bottom:8px; font-size:13.5px; color:var(--gray-600);">매장 재고가 예측 수요를 이미 충족 시 추가 배분 억제</li>
+            <li style="margin-bottom:8px; font-size:13.5px; color:var(--gray-600);">adjRank 기반 매장 우선순위 반영</li>
+            <li style="margin-bottom:8px; font-size:13.5px; color:var(--gray-600);">사이즈별 독립 최적화</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4.4 Forecast Accuracy -->
+    <div class="sub-section">
+      <div class="sub-title"><span class="sub-num">4</span> 수요 예측 정확도 &mdash; 현재 수준과 개선 방향</div>
+
+      <div class="key-message">
+        <div class="key-message-label">핵심 메시지</div>
+        <p>예측 모델의 수요 순위 파악 능력(Spearman 0.478)은 확인되었습니다. "어떤 SC가 더 많이 팔릴지"의 순위를 부분적으로 맞추고 있으며, 특히 <strong>판매 중간 구간(11~100개)에서 WAPE 31~32%의 양호한 정확도</strong>를 보입니다. 고판매 구간의 과소추정 경향은 향후 개선 과제입니다.</p>
+      </div>
+
+      <div class="chart-container">
+        <h4>판매 구간별 예측 정확도 (WAPE)</h4>
+        <div class="chart-desc">WAPE가 낮을수록 예측 정확도가 높음 &mdash; 중간 구간에서 안정적 성능</div>
+        <div class="chart-wrap">
+          <canvas id="wapeChart"></canvas>
+        </div>
+      </div>
+
+      <p class="narrative">
+        판매 구간별로 예측 정확도를 분석하면, <strong>11~50개 구간(WAPE 31.6%)</strong>과 <strong>51~100개 구간(WAPE 31.9%)</strong>에서
+        안정적인 예측 성능이 확인됩니다. 이 구간은 보충배분의 핵심 의사결정 영역으로, 실제 운영에서 가장 빈번하게 배분 판단이 필요한 구간입니다.
+      </p>
+
+      <div class="warning">
+        <div class="warning-icon">!</div>
+        <p><strong>개선 과제:</strong> 고판매 구간(100개 이상)에서 WAPE 52.9%로 과소추정 경향이 나타납니다. 베스트셀러 예측 강화를 위한 스케일 보정이 선결 과제이며, 보정 후 ILP 재시뮬레이션을 통해 효과를 검증할 예정입니다.</p>
+      </div>
+
+      <div class="stat-grid" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="stat-card">
+          <div class="stat-value" style="font-size:28px; color:var(--navy-800);">0.478</div>
+          <div class="stat-label">Spearman (예측 vs 실판매)<br>순위 파악 능력</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" style="font-size:28px; color:var(--green-600);">31~32%</div>
+          <div class="stat-label">중간 구간 WAPE<br>양호</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" style="font-size:28px; color:var(--amber-600);">52.9%</div>
+          <div class="stat-label">고판매 구간 WAPE<br>개선 필요</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4.5 Expected Benefits -->
+    <div class="sub-section">
+      <div class="sub-title"><span class="sub-num">5</span> 기대 효과 종합</div>
+
+      <p class="narrative" style="margin-bottom:24px;">
+        검증 결과를 종합하면, ILP 기반 자동 배분은 세 가지 구조적 장점을 통해 기존 수기 배분의 한계를 근본적으로 해소할 수 있습니다.
+        이는 단순한 자동화가 아니라, MD가 물리적으로 수행할 수 없었던 <strong>전역 최적화</strong>를 가능하게 하는 구조적 전환입니다.
+      </p>
+
+      <div class="benefit-grid">
+        <div class="benefit-card">
+          <div class="benefit-num">장점 1</div>
+          <h4>전역 최적화</h4>
+          <p>268개 매장 x 704개 스타일의 모든 조합을 동시에 최적화합니다. 주차당 3,000~4,400쌍에 달하는 Missed Pair를 체계적으로 해소합니다.</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-num">장점 2</div>
+          <h4>판단 일관성</h4>
+          <p>동일한 인풋에 동일한 결과를 보장합니다. Spearman 상관이 주차마다 +0.36 ~ -0.24로 흔들리는 수기 배분의 불안정성을 해소합니다.</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-num">장점 3</div>
+          <h4>다변수 동시 고려</h4>
+          <p>창고재고 + 매장재고 + 예측수요 + 매장 우선순위를 수학적으로 동시 최적화합니다. 과잉배분 방지 로직이 자동 작동합니다.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Section 5: Schedule -->
+<div class="section" id="sec5">
+  <div class="container">
+    <div class="section-label">Section 05</div>
+    <div class="section-title">추후 개발 예정 및 스케줄</div>
+    <div class="section-desc">예측 모델 적재 일정에 연동한 단계별 개발 계획</div>
+
+    <div class="timeline">
+      <div class="timeline-item done">
+        <div class="timeline-date">5월 4주차 (현재)</div>
+        <div class="timeline-title">MLB SC-Total 예측 모델 완료</div>
+        <div class="timeline-desc">CP66/CP77 용품 TFT 기반 수요 예측 완료. 화면 Phase 4(매장 조정 뷰) 완료.</div>
+      </div>
+      <div class="timeline-item active">
+        <div class="timeline-date">5월 5주차</div>
+        <div class="timeline-title">MLB SC-Shop 모델링 + 화면 Phase 2~3</div>
+        <div class="timeline-desc">[Colly] 매장별 예측 모델(TSB) 완성 및 DB 적재. [하민] API Routes 구현 + 상태 머신 리팩터.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-date">6월 1주차</div>
+        <div class="timeline-title">MLB 실 데이터 연동 + DX 모델링 시작</div>
+        <div class="timeline-desc">MLB SC-Shop 적재 완료 후 Mock에서 실 데이터로 전환. DX SC-Total + SC-Shop 모델링 착수.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-date">6월 2주차</div>
+        <div class="timeline-title">화면 Phase 5~7 (ILP + 엑셀 + 테스트)</div>
+        <div class="timeline-desc">ILP 결과 반영 + 엑셀 다운로드 구현 + 통합 테스트 및 에러 처리.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-date">6월 3주차</div>
+        <div class="timeline-title">DX 연동 + 나머지 브랜드 모델링</div>
+        <div class="timeline-desc">DX 실 데이터 연동. MK / DV / ST 예측 모델링 시작.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-date">6월 4주차</div>
+        <div class="timeline-title">Vercel MVP 배포</div>
+        <div class="timeline-desc">Phase 8 Production 배포. 전 브랜드 적재 완료 후 브랜드 확장 연동.</div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-date">7월 이후</div>
+        <div class="timeline-title">운영 안정화 + 추가 기능</div>
+        <div class="timeline-desc">효용성 검증 지속, 요일별 예측 분기, 다운로드 감사 로그 등 후속 개발.</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-icon blue">&#9776;</div>
+        <div class="card-title">MVP 이후 추가 과제</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>항목</th><th>내용</th><th>우선순위</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>요일별 예측 분기</td><td>금요일 배분 시 차주 예측치 사용 (현재 W1 고정)</td><td><span class="badge amber">중</span></td></tr>
+            <tr><td>colorCd='ALL' 처리</td><td>전체 컬러 조합 예측 단일 조회 방안 확정</td><td><span class="badge amber">중</span></td></tr>
+            <tr><td>Snowflake 배치 파이프라인</td><td>배분그룹/예측치 JSON 자동 갱신</td><td><span class="badge amber">중</span></td></tr>
+            <tr><td>스타일 일괄 업로드</td><td>스타일 네비게이터 엑셀 붙여넣기</td><td><span class="badge gray">저</span></td></tr>
+            <tr><td>다운로드 감사 로그</td><td>배분 실행 이력 기록</td><td><span class="badge gray">저</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<div class="footer">
+  <div class="container">
+    <p>보충배분 AIA &mdash; F&F DCS AI팀 &copy; 2026</p>
+  </div>
+</div>
+
+<script>
+// Chart.js defaults
+Chart.defaults.font.family = "'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif";
+Chart.defaults.font.size = 12;
+Chart.defaults.color = '#6b7280';
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+Chart.defaults.plugins.legend.labels.pointStyleWidth = 10;
+
+// 1. Missed Pair Chart
+const missedCtx = document.getElementById('missedPairChart').getContext('2d');
+new Chart(missedCtx, {
+  type: 'bar',
+  data: {
+    labels: ['W1', 'W2', 'W3'],
+    datasets: [
+      {
+        label: '배분 가능 (창고 재고 충분)',
+        data: [3863, 3848, 2983],
+        backgroundColor: '#1e3c72',
+        borderRadius: 4,
+        barPercentage: 0.6,
+      },
+      {
+        label: '배분 불가 (창고 재고 부족)',
+        data: [257, 551, 82],
+        backgroundColor: '#d1d5db',
+        borderRadius: 4,
+        barPercentage: 0.6,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    aspectRatio: 2.5,
+    plugins: {
+      legend: { position: 'top' },
+      tooltip: {
+        callbacks: {
+          afterBody: function(context) {
+            const idx = context[0].dataIndex;
+            const total = [4120, 4399, 3065];
+            const pct = [93.8, 87.5, 97.3];
+            return ['', '전체 Missed Pair: ' + total[idx].toLocaleString() + '쌍', '배분 가능 비율: ' + pct[idx] + '%'];
+          }
+        }
+      }
+    },
+    scales: {
+      x: { grid: { display: false } },
+      y: {
+        beginAtZero: true,
+        grid: { color: '#f3f4f6' },
+        ticks: { callback: v => v.toLocaleString() }
+      }
+    }
+  }
+});
+
+// 2. Coverage Distribution Chart
+const covCtx = document.getElementById('coverageChart').getContext('2d');
+new Chart(covCtx, {
+  type: 'bar',
+  data: {
+    labels: ['2주 미만', '2~4주', '4~8주', '8~12주', '12주 이상'],
+    datasets: [{
+      label: '매장 수',
+      data: [736, 1124, 1147, 420, 90],
+      backgroundColor: ['#dc2626', '#f59e0b', '#16a34a', '#2a5298', '#1e3c72'],
+      borderRadius: 4,
+      barPercentage: 0.65,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    aspectRatio: 2.5,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          afterLabel: function(context) {
+            const total = 3517;
+            const pct = (context.parsed.y / total * 100).toFixed(1);
+            return '전체 대비 ' + pct + '%';
+          }
+        }
+      }
+    },
+    scales: {
+      x: { grid: { display: false } },
+      y: {
+        beginAtZero: true,
+        grid: { color: '#f3f4f6' },
+        ticks: { callback: v => v.toLocaleString() }
+      }
+    }
+  }
+});
+
+// 3. Season Composition (Donut)
+const seasonCtx = document.getElementById('seasonChart').getContext('2d');
+new Chart(seasonCtx, {
+  type: 'doughnut',
+  data: {
+    labels: ['당시즌 (38.8%)', '이월 (61.2%)'],
+    datasets: [{
+      data: [2928, 4621],
+      backgroundColor: ['#1e3c72', '#93c5fd'],
+      borderWidth: 0,
+      hoverOffset: 6,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    aspectRatio: 1.3,
+    cutout: '55%',
+    plugins: {
+      legend: { position: 'bottom', labels: { padding: 16 } },
+    }
+  }
+});
+
+// 4. WAPE by Sales Segment
+const wapeCtx = document.getElementById('wapeChart').getContext('2d');
+new Chart(wapeCtx, {
+  type: 'bar',
+  data: {
+    labels: ['1~10개', '11~50개', '51~100개', '100개 이상'],
+    datasets: [{
+      label: 'WAPE (%)',
+      data: [50.4, 31.6, 31.9, 52.9],
+      backgroundColor: function(context) {
+        const v = context.parsed.y;
+        if (v <= 35) return '#16a34a';
+        if (v <= 45) return '#f59e0b';
+        return '#dc2626';
+      },
+      borderRadius: 4,
+      barPercentage: 0.55,
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    aspectRatio: 2.5,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: function(context) {
+            return 'WAPE: ' + context.parsed.y + '%';
+          },
+          afterLabel: function(context) {
+            const notes = [
+              '저판매 구간 - 소량 편차 영향',
+              '핵심 배분 구간 - 양호',
+              '핵심 배분 구간 - 양호',
+              '고판매 구간 - 과소추정 경향'
+            ];
+            return notes[context.dataIndex];
+          }
+        }
+      },
+      annotation: undefined
+    },
+    scales: {
+      x: { grid: { display: false } },
+      y: {
+        beginAtZero: true,
+        max: 70,
+        grid: { color: '#f3f4f6' },
+        ticks: { callback: v => v + '%' }
+      }
+    }
+  }
+});
+
+// Smooth scroll for nav
+document.querySelectorAll('.nav-bar a').forEach(a => {
+  a.addEventListener('click', function(e) {
+    e.preventDefault();
+    const target = document.querySelector(this.getAttribute('href'));
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+    document.querySelectorAll('.nav-bar a').forEach(x => x.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+// Update active nav on scroll
+const sections = document.querySelectorAll('.section[id]');
+const navLinks = document.querySelectorAll('.nav-bar a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    const top = s.offsetTop - 80;
+    if (window.scrollY >= top) current = s.getAttribute('id');
+  });
+  navLinks.forEach(a => {
+    a.classList.remove('active');
+    if (a.getAttribute('href') === '#' + current) a.classList.add('active');
+  });
+});
+</script>
+
+</body>
+</html>

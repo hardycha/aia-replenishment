@@ -1,0 +1,34 @@
+# Dependencies
+node_modules/
+
+# Next.js build
+.next/
+
+# Environment (credentials)
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Large data files (배치로 생성, 커밋 불필요)
+**/forecast_archive.json
+**/briefing_archive.json
+**/product_tree_archive.json
+**/product_tree_*.json
+src/service/validation/data/*.json
+src/service/validation/data/*.parquet
+
+# OMC / Claude internal
+.omc/
+.claude/settings.local.json
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# Vercel
+.vercel/
+doc/reference/배분보충AIA 화면 기획/aia-replenishment/

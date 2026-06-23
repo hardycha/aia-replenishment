@@ -1,0 +1,28 @@
+{
+  "analysis_date": "2026-06-09",
+  "target_scs": [
+    "DKSZ62063_LAS",
+    "DKRS64063_MUS",
+    "DMWJ31061_BKS",
+    "DXRS7R063_BKS",
+    "DXRS7R063_WHS",
+    "DWTR95063_KAD",
+    "DKRS73063_BKS",
+    "DMPT63063_BKS",
+    "DMTS81063_KAD",
+    "DWRS7F063_NYD"
+  ],
+  "target_shops": [
+    "50096",
+    "50137",
+    "50089",
+    "10050"
+  ],
+  "totals": {
+    "forecast_weekly": 3.4,
+    "actual_sales_weekly": 5.0,
+    "ilp_allocation": 1,
+    "shop_stock": 109,
+    "wh_stock": 1039
+  }
+}

@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>보충배분 MD vs AIA 검증 보고서</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: 'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif; background:#f5f6fa; color:#2d3436; line-height:1.6; }
+.container { max-width:1100px; margin:0 auto; padding:24px; }
+header { background:linear-gradient(135deg,#0c2461,#1e3c72); color:#fff; padding:40px 32px; border-radius:12px; margin-bottom:28px; }
+header h1 { font-size:26px; font-weight:700; margin-bottom:6px; }
+header p { font-size:14px; opacity:0.8; }
+.kpi-row { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:28px; }
+.kpi-card { background:#fff; border-radius:10px; padding:24px; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+.kpi-card .label { font-size:13px; color:#636e72; margin-bottom:4px; }
+.kpi-card .value { font-size:36px; font-weight:800; }
+.kpi-card .sub { font-size:12px; color:#b2bec3; margin-top:4px; }
+.kpi-card.red .value { color:#d63031; }
+.kpi-card.orange .value { color:#e17055; }
+.kpi-card.blue .value { color:#0984e3; }
+section { background:#fff; border-radius:10px; padding:28px; margin-bottom:20px; box-shadow:0 2px 8px rgba(0,0,0,0.06); }
+section h2 { font-size:18px; font-weight:700; color:#0c2461; margin-bottom:16px; padding-bottom:8px; border-bottom:2px solid #dfe6e9; }
+section h3 { font-size:15px; font-weight:600; color:#2d3436; margin:16px 0 8px; }
+table { width:100%; border-collapse:collapse; margin:12px 0; font-size:13px; }
+th { background:#f5f6fa; padding:10px 12px; text-align:left; font-weight:600; border-bottom:2px solid #dfe6e9; }
+td { padding:8px 12px; border-bottom:1px solid #f0f0f0; }
+tr:hover td { background:#f8f9ff; }
+.chart-wrap { max-width:500px; margin:16px auto; }
+.chart-wrap.wide { max-width:700px; }
+.highlight { background:#ffeaa7; padding:2px 6px; border-radius:3px; font-weight:600; }
+.callout { background:#f8f9ff; border-left:4px solid #0984e3; padding:16px; margin:16px 0; border-radius:0 8px 8px 0; font-size:13px; }
+.callout.warn { border-left-color:#e17055; background:#fff5f5; }
+.callout.info { border-left-color:#00b894; background:#f0fff4; }
+.tag { display:inline-block; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600; }
+.tag.red { background:#ffeaea; color:#d63031; }
+.tag.green { background:#eafff5; color:#00b894; }
+.tag.gray { background:#f0f0f0; color:#636e72; }
+footer { text-align:center; padding:20px; font-size:12px; color:#b2bec3; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>보충배분 MD vs AIA(ILP) 검증 보고서</h1>
+  <p>Discovery 의류 · W1~W3 (2026.04.27~05.17) · 분석일: 2026.05.26</p>
+</header>
+
+<!-- KPI Cards -->
+<div class="kpi-row">
+  <div class="kpi-card red">
+    <div class="label">MD 배분 소진율 (STR-capped)</div>
+    <div class="value">8.1%</div>
+    <div class="sub">W3 26S 배분 2,072개 중 167개 판매</div>
+  </div>
+  <div class="kpi-card orange">
+    <div class="label">예측 정확도 (WAPE)</div>
+    <div class="value">85%</div>
+    <div class="sub">과소추정 87% · 순위상관 0.478</div>
+  </div>
+  <div class="kpi-card blue">
+    <div class="label">실판매 기준 재고 커버리지</div>
+    <div class="value">4.3주</div>
+    <div class="sub">예측 기준 17.9주 → 실판매 기준 4.3주</div>
+  </div>
+</div>
+
+<!-- Section 1: 분석 개요 -->
+<section>
+  <h2>1. 분석 개요</h2>
+  <table>
+    <tr><th style="width:160px">분석 대상</th><td>Discovery(X) 의류 보충배분</td></tr>
+    <tr><th>분석 기간</th><td>W1 (04/27~05/03) · W2 (05/04~05/10) · W3 (05/11~05/17)</td></tr>
+    <tr><th>MD 배분 데이터</th><td>CSV 3파일 · 36,532행 (SKU) · 7,549쌍 (스타일×매장)</td></tr>
+    <tr><th>재고 데이터</th><td>Snowflake DW_SH_SCS_DACUM · 주차별 57K~61K행</td></tr>
+    <tr><th>ILP 시뮬레이션</th><td>W3 26S · 76건 호출 · 75건 OPTIMAL</td></tr>
+    <tr><th>실판매 데이터</th><td>BIM_SHOP_DD_STK · W3 17,642행 · 순판매 20,876개</td></tr>
+  </table>
+  <div class="callout">
+    <strong>분석 전제:</strong> 예측 정확도와 배분 품질은 별개 축으로 분리 평가합니다. ILP가 예측에 종속되므로, 예측이 틀리면 ILP도 틀린 방향으로 배분합니다. 이 보고서는 두 축을 독립적으로 검증합니다.
+  </div>
+</section>
+
+<!-- Section 2: 시즌 분류 -->
+<section>
+  <h2>2. 현행 수동 배분의 구조적 특성</h2>
+
+  <h3>2-1. 시즌 구성</h3>
+  <div class="kpi-row" style="grid-template-columns:1fr 1fr">
+    <div class="kpi-card">
+      <div class="label">당시즌 (26S/26N)</div>
+      <div class="value" style="color:#0984e3;font-size:28px">2,928쌍</div>
+      <div class="sub">배분수량 10,635개 · 38.8%</div>
+    </div>
+    <div class="kpi-card">
+      <div class="label">이월상품 (25F, 24N 등)</div>
+      <div class="value" style="color:#636e72;font-size:28px">4,621쌍</div>
+      <div class="sub">배분수량 52,224개 · 61.2%</div>
+    </div>
+  </div>
+  <div class="chart-wrap">
+    <canvas id="chartSeason"></canvas>
+  </div>
+
+  <h3>2-2. MD 배분 방향성 — Spearman 상관분석</h3>
+  <p style="font-size:13px;color:#636e72;margin-bottom:8px">이상적 보충배분: 재고가 적은 곳에 많이 배분 → rho &lt; 0</p>
+  <table>
+    <tr><th>주차</th><th>Spearman ρ</th><th>n</th><th>해석</th></tr>
+    <tr><td>W1</td><td><strong>+0.362</strong></td><td>1,477</td><td><span class=tag red>재고 많은 곳 우선</span></td></tr><tr><td>W2</td><td><strong>-0.242</strong></td><td>814</td><td><span class=tag green>재고 적은 곳 우선</span></td></tr><tr><td>W3</td><td><strong>+0.077</strong></td><td>1,824</td><td><span class=tag red>재고 많은 곳 우선</span></td></tr>
+  </table>
+  <div class="callout warn">
+    주차별 일관성 없음. W2만 음의 상관(적절), W1/W3는 양의 상관(비효율). MD의 배분 판단이 주차마다 불안정.
+  </div>
+
+  <h3>2-3. Missed Pair — 배분 가능했으나 누락된 매장</h3>
+  <p style="font-size:13px;color:#636e72;margin-bottom:8px">MD가 배분한 스타일인데, 재고 ≤3개이면서 배분을 못 받은 매장</p>
+  <table>
+    <tr><th>주차</th><th>Missed Pair</th><th>창고재고 있음 (배분 가능)</th><th>비율</th><th>창고재고 없음</th></tr>
+    <tr><td>W1</td><td>4,120</td><td><strong>3,863</strong></td><td><span class="highlight">94%</span></td><td>257</td></tr><tr><td>W2</td><td>4,399</td><td><strong>3,848</strong></td><td><span class="highlight">87%</span></td><td>551</td></tr><tr><td>W3</td><td>3,065</td><td><strong>2,983</strong></td><td><span class="highlight">97%</span></td><td>82</td></tr>
+  </table>
+  <div class="chart-wrap wide">
+    <canvas id="chartMissed"></canvas>
+  </div>
+  <div class="callout info">
+    창고에 재고가 있었는데도 배분되지 않은 매장이 87~97%. 이는 MD가 전체 매장을 동시에 최적화하기 어려운 구조적 한계를 보여줍니다. ILP의 전역 최적화가 가장 잘 발휘될 수 있는 영역입니다.
+  </div>
+</section>
+
+<!-- Section 3: 예측 정확도 -->
+<section>
+  <h2>3. AIA 예측(Forecast) 정확도 검증</h2>
+
+  <div class="kpi-row" style="grid-template-columns:repeat(4,1fr)">
+    <div class="kpi-card"><div class="label">WAPE</div><div class="value" style="font-size:24px;color:#d63031">85.1%</div></div>
+    <div class="kpi-card"><div class="label">Bias</div><div class="value" style="font-size:24px;color:#e17055">+10.6%</div></div>
+    <div class="kpi-card"><div class="label">Spearman</div><div class="value" style="font-size:24px;color:#0984e3">0.478</div></div>
+    <div class="kpi-card"><div class="label">과소추정률</div><div class="value" style="font-size:24px;color:#d63031">87%</div></div>
+  </div>
+
+  <h3>구간별 정확도</h3>
+  <table>
+    <tr><th>실판매 구간</th><th>건수</th><th>예측 합</th><th>실판매 합</th><th>WAPE</th></tr>
+    <tr><td>실판매=0</td><td>753</td><td>9,334</td><td>0</td><td>∞</td></tr>
+    <tr><td>1~10</td><td>182</td><td>1,027</td><td>930</td><td>50.4%</td></tr>
+    <tr><td>11~50</td><td>247</td><td>4,929</td><td>6,324</td><td>31.6%</td></tr>
+    <tr><td>51~100</td><td>88</td><td>4,206</td><td>6,059</td><td>31.9%</td></tr>
+    <tr><td>100+</td><td>44</td><td>3,535</td><td>7,513</td><td>52.9%</td></tr>
+  </table>
+
+  <div class="callout warn">
+    <strong>핵심 문제:</strong> 판매 활성 매장 기준으로 예측이 실수요의 <strong>13%만 반영</strong>. 이것이 ILP가 "배분 불필요"로 판단한 근본 원인입니다. 예측 스케일(단위) 확인이 필요합니다.
+  </div>
+</section>
+
+<!-- Section 4: ILP 시뮬레이션 -->
+<section>
+  <h2>4. AIA(ILP) vs MD 소급 시뮬레이션</h2>
+
+  <h3>4-1. 시뮬레이션 결과 (W3, 26S)</h3>
+  <table>
+    <tr><th style="width:200px">지표</th><th>MD</th><th>ILP</th></tr>
+    <tr><td>총 배분수량</td><td>2,072개</td><td><strong>7개</strong></td></tr>
+    <tr><td>배분 매장 수</td><td>360쌍</td><td>7쌍</td></tr>
+    <tr><td>ILP 판정</td><td>—</td><td>추가 배분 불필요</td></tr>
+  </table>
+
+  <h3>4-2. 재고 커버리지 비교</h3>
+  <table>
+    <tr><th>기준</th><th>평균 커버리지</th><th>해석</th></tr>
+    <tr><td>예측 기준 (ILP가 본 세계)</td><td><strong>17.9주</strong></td><td>과잉재고로 판단 → 배분 불필요</td></tr>
+    <tr><td><span class="highlight">실판매 기준 (현실)</span></td><td><strong>4.3주</strong></td><td>적정~약간 여유 수준</td></tr>
+  </table>
+  <div class="chart-wrap">
+    <canvas id="chartCoverage"></canvas>
+  </div>
+
+  <h3>4-3. MD 배분 소진율 (STR-capped)</h3>
+  <table>
+    <tr><th>지표</th><th>값</th></tr>
+    <tr><td>MD 배분수량</td><td>2,072개</td></tr>
+    <tr><td>W3 실판매</td><td>634개</td></tr>
+    <tr><td><strong>STR-capped</strong></td><td><strong>8.1%</strong></td></tr>
+    <tr><td>배분 후 미판매 매장</td><td>318쌍 (88.3%)</td></tr>
+  </table>
+
+  <div class="callout warn">
+    <strong>주의:</strong> STR 8.1%가 곧 MD 과잉배분을 의미하지는 않습니다. 배분→출고→매장입고 리드타임으로 인해 W3 배분 재고가 실제 매장에 도착한 것은 W4 이후일 수 있습니다. 또한 이월 소진, 시즌 사전 배치 등 전략적 의도가 반영되었을 가능성이 있어 사업부 확인이 필요합니다.
+  </div>
+</section>
+
+<!-- Section 5: 종합 판단 -->
+<section>
+  <h2>5. 종합 판단 및 향후 계획</h2>
+
+  <h3>5-1. 두 축 분리 판단</h3>
+  <table>
+    <tr><th>축</th><th>현재 상태</th><th>판단</th></tr>
+    <tr>
+      <td><strong>예측 정확도</strong></td>
+      <td>WAPE 85%, 과소추정 87%</td>
+      <td><span class="tag red">개선 필수</span> 현 상태에서 ILP는 과소배분</td>
+    </tr>
+    <tr>
+      <td><strong>배분 의사결정</strong></td>
+      <td>Missed Pair 87~97%, 주차별 불일관</td>
+      <td><span class="tag red">구조적 한계</span> MD 전역 최적화 불가</td>
+    </tr>
+  </table>
+
+  <h3>5-2. ILP 도입 시 기대 효과 (예측 개선 전제)</h3>
+  <table>
+    <tr><th>효과</th><th>근거</th></tr>
+    <tr><td><strong>전역 최적화</strong></td><td>Missed Pair 3,000~4,000쌍 해소 — 재고 부족 매장 자동 커버</td></tr>
+    <tr><td><strong>일관성</strong></td><td>Spearman ρ가 +0.362~-0.242로 불안정한 MD 대비, ILP는 동일 인풋 → 동일 결과</td></tr>
+    <tr><td><strong>다변수 동시 고려</strong></td><td>창고 가용재고 + 매장 현재고 + 예측 수요를 수학적 동시 최적화</td></tr>
+  </table>
+
+  <h3>5-3. 선결 과제 및 로드맵</h3>
+  <table>
+    <tr><th>단계</th><th>내용</th><th>시점</th></tr>
+    <tr><td><span class="tag red">선결</span></td><td>Forecast 과소추정 원인 파악 및 스케일 보정</td><td>즉시</td></tr>
+    <tr><td>1단계</td><td>보정된 예측으로 ILP 재시뮬레이션</td><td>예측 개선 후</td></tr>
+    <tr><td>2단계</td><td>Shadow Mode — MD 배분과 ILP 추천을 병행 기록</td><td>도입 후 1~2개월</td></tr>
+    <tr><td>3단계</td><td>Before/After 실적 비교</td><td>도입 후 3~6개월</td></tr>
+  </table>
+</section>
+
+<footer>
+  보충배분-AIA 검증 보고서 · DCS AI · 2026.05.26 · 이 보고서는 구조적 우위의 근거 제시이며, 완벽한 증명이 아닙니다.
+</footer>
+
+</div>
+
+<script>
+// 시즌 파이차트
+new Chart(document.getElementById('chartSeason'), {
+  type: 'doughnut',
+  data: {
+    labels: ['당시즌 (26S/26N)', '이월 (25F, 24N 등)'],
+    datasets: [{ data: [2928, 4621], backgroundColor: ['#0984e3','#b2bec3'], borderWidth: 0 }]
+  },
+  options: { plugins: { legend: { position: 'bottom' }, title: { display: true, text: 'MD 배분 시즌 구성 (스타일×매장 페어 기준)', font: { size: 13 } } } }
+});
+
+// Missed Pair 차트
+new Chart(document.getElementById('chartMissed'), {
+  type: 'bar',
+  data: {
+    labels: ["W1","W2","W3"],
+    datasets: [
+      { label: '배분 가능 (창고재고 있음)', data: [3863,3848,2983], backgroundColor: '#d63031' },
+      { label: '배분 불가 (창고재고 없음)', data: [257,551,82], backgroundColor: '#dfe6e9' }
+    ]
+  },
+  options: { responsive: true, plugins: { title: { display: true, text: 'Missed Pair — 재고 부족인데 배분 누락된 매장', font: { size: 13 } }, legend: { position: 'bottom' } }, scales: { x: { stacked: true }, y: { stacked: true, title: { display: true, text: '매장 수' } } } }
+});
+
+// 커버리지 분포 차트
+new Chart(document.getElementById('chartCoverage'), {
+  type: 'bar',
+  data: {
+    labels: ["<2주","2~4주","4~8주","8~12주","12주+"],
+    datasets: [{ label: '매장 수', data: [736,1124,1147,420,90], backgroundColor: ['#00b894','#00cec9','#0984e3','#e17055','#d63031'] }]
+  },
+  options: { responsive: true, plugins: { title: { display: true, text: '실판매 기준 재고 커버리지 분포 (판매 활성 매장)', font: { size: 13 } }, legend: { display: false } }, scales: { y: { title: { display: true, text: '매장 수' } } } }
+});
+</script>
+</body>
+</html>

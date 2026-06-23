@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F&F S-ERP | 보충배분-AIA v5</title>
+<style>
+  :root {
+    --primary:#1B3A5C; --accent:#00B4D8; --accent-bg:#E8F8FD;
+    --success:#28A745; --warning:#F5A623; --danger:#DC3545;
+    --bg:#F4F6F9; --card:#FFF; --border:#E0E4EA; --border-light:#F0F2F5;
+    --text:#2D3748; --text-light:#8492A6; --text-muted:#A0AEC0;
+    --ai:#7C3AED; --ai-bg:#F3EFFE;
+    --rt-minus:#E53E3E; --rt-minus-bg:#FFF5F5;
+    --rt-plus:#38A169; --rt-plus-bg:#F0FFF4;
+    --header-bg:#F7F8FA;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);font-size:13px;}
+
+  /* ===== PAGE TITLE ===== */
+  .page-title-bar{background:white;padding:14px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;}
+  .page-title-bar h1{font-size:16px;font-weight:700;color:var(--primary);}
+  .page-title-bar .icon-help{width:18px;height:18px;border-radius:50%;background:#EDF2F7;color:var(--text-light);display:inline-flex;align-items:center;justify-content:center;font-size:11px;cursor:help;}
+
+  /* ===== FILTER ROW (초도배분-AIA 스타일) ===== */
+  .filter-row{background:white;padding:12px 24px;display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;border-bottom:1px solid var(--border);}
+  .fg{display:flex;flex-direction:column;gap:3px;}
+  .fg label{font-size:11px;color:var(--text-light);font-weight:600;}
+  .fg label .req{color:var(--danger);}
+  .fg select,.fg input[type="date"],.fg input[type="text"]{border:1px solid var(--border);border-radius:4px;padding:7px 10px;font-size:12px;min-width:130px;background:white;color:var(--text);}
+  .fg select:focus,.fg input:focus{border-color:var(--accent);outline:none;}
+  .filter-row .spacer{flex:1;}
+
+  /* ===== BUTTONS ===== */
+  .btn{padding:7px 16px;border-radius:4px;border:1px solid var(--border);font-size:12px;cursor:pointer;display:inline-flex;align-items:center;gap:5px;font-weight:500;transition:all .15s;background:white;color:var(--text);}
+  .btn:hover{background:var(--bg);}
+  .btn-accent{background:var(--accent);color:white;border-color:var(--accent);}
+  .btn-accent:hover{opacity:.9;background:var(--accent);}
+  .btn-ai{background:linear-gradient(135deg,var(--ai),#9F7AEA);color:white;border:none;}
+  .btn-success{background:var(--success);color:white;border-color:var(--success);}
+  .btn-danger-outline{color:var(--danger);border-color:var(--danger);background:white;}
+  .btn-sm{padding:4px 10px;font-size:11px;}
+
+  /* ===== TABS (초도배분/선배분 스타일) ===== */
+  .sub-tabs{display:flex;gap:0;padding:0 24px;background:white;border-bottom:1px solid var(--border);}
+  .sub-tab{padding:10px 18px;font-size:13px;cursor:pointer;color:var(--text-light);border:1px solid transparent;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;font-weight:500;}
+  .sub-tab:hover{color:var(--text);}
+  .sub-tab.active{color:var(--accent);border-color:var(--accent) var(--accent) white var(--accent);border-radius:4px 4px 0 0;background:white;font-weight:600;}
+
+  /* ===== TOOLBAR (행 추가, 엑셀 업로드 등) ===== */
+  .toolbar{background:white;padding:10px 24px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border-light);}
+  .toolbar .sep{width:1px;height:20px;background:var(--border);}
+  .toolbar .file-placeholder{border:1px dashed var(--border);border-radius:4px;padding:5px 14px;font-size:11px;color:var(--text-muted);min-width:160px;}
+  .toolbar .right-actions{margin-left:auto;display:flex;gap:8px;}
+
+  /* ===== GRID TABLE ===== */
+  .grid-wrap{background:white;overflow-x:auto;}
+  .grid{width:100%;border-collapse:collapse;font-size:12px;}
+  .grid thead th{background:var(--header-bg);padding:9px 10px;text-align:left;font-weight:600;color:var(--text-light);border-bottom:2px solid var(--border);white-space:nowrap;font-size:11px;position:sticky;top:0;z-index:1;}
+  .grid thead th.num{text-align:right;}
+  .grid tbody td{padding:8px 10px;border-bottom:1px solid var(--border-light);white-space:nowrap;font-variant-numeric:tabular-nums;}
+  .grid tbody tr:hover{background:#F7FAFC;}
+  .grid .num{text-align:right;}
+  .grid .center{text-align:center;}
+  .grid tfoot td{background:var(--header-bg);padding:8px 10px;font-weight:600;border-top:2px solid var(--border);}
+
+  /* status pills */
+  .pill{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:500;display:inline-block;}
+  .pill-done{background:#E8F5E9;color:#2E7D32;}
+  .pill-error{background:#FFF3E0;color:#E65100;}
+  .pill-wait{background:var(--accent-bg);color:#0077B6;}
+  .pill-ai{background:var(--ai-bg);color:var(--ai);}
+  .pill-confirmed{background:#E8F5E9;color:#2E7D32;}
+  .pill-c{background:#EDF2F7;color:var(--text-muted);}
+
+  /* inline select / input */
+  .inline-sel{border:1px solid var(--border);border-radius:3px;padding:4px 6px;font-size:12px;background:white;min-width:100px;}
+  .inline-input{border:1px solid var(--border);border-radius:3px;padding:4px 6px;font-size:12px;text-align:right;width:56px;font-variant-numeric:tabular-nums;}
+  .inline-input:focus,.inline-sel:focus{border-color:var(--accent);outline:none;}
+
+  /* ===== DETAIL HEADER ===== */
+  .detail-header{background:white;border-bottom:1px solid var(--border);padding:14px 24px;}
+  .detail-header .meta-row{display:flex;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-top:10px;}
+  .detail-header .meta-cell{flex:1;padding:10px 14px;border-right:1px solid var(--border);font-size:12px;}
+  .detail-header .meta-cell:last-child{border-right:none;}
+  .detail-header .meta-cell .label{font-size:10px;color:var(--text-muted);margin-bottom:2px;}
+  .detail-header .meta-cell .val{font-weight:600;}
+
+  /* link button */
+  .link-btn{background:none;border:1px solid var(--accent);color:var(--accent);padding:4px 10px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:500;}
+  .link-btn:hover{background:var(--accent-bg);}
+
+  /* ===== VIEW SWITCHING ===== */
+  .view{display:none;}
+  .view.active{display:block;}
+
+  /* ===== BOTTOM BAR ===== */
+  .bottom-bar{background:white;border-top:1px solid var(--border);padding:8px 24px;font-size:11px;color:var(--text-muted);display:flex;justify-content:space-between;align-items:center;position:sticky;bottom:0;}
+
+  /* ===== AI BADGE ===== */
+  .ai-badge{background:var(--ai-bg);color:var(--ai);font-size:10px;padding:2px 7px;border-radius:8px;font-weight:600;margin-left:6px;}
+
+  /* checkbox */
+  .grid input[type="checkbox"]{width:15px;height:15px;accent-color:var(--accent);}
+
+  /* RT 음수 표시 */
+  .rt-neg{color:var(--rt-minus);font-weight:600;}
+  .rt-pos{color:var(--rt-plus);font-weight:600;}
+</style>
+</head>
+<body>
+
+<!-- ===== VIEW 1: 보충배분 목록 조회 ===== -->
+<div id="view-list" class="view active">
+
+  <div class="page-title-bar">
+    <h1>┃ 보충배분-AIA</h1>
+    <span class="icon-help">?</span>
+  </div>
+
+  <div class="filter-row">
+    <div class="fg">
+      <label><span class="req">*</span>브랜드</label>
+      <select><option>X: Discovery</option><option>M: MLB</option><option>I: MLB KIDS</option></select>
+    </div>
+    <div class="fg">
+      <label><span class="req">*</span>AP</label>
+      <select><option>오프라인 정상</option><option>온라인</option></select>
+    </div>
+    <div class="fg">
+      <label><span class="req">*</span>보충AIA 등록일</label>
+      <div style="display:flex;gap:4px;align-items:center;">
+        <input type="date" value="2026-03-20">
+        <span style="color:var(--text-muted);">~</span>
+        <input type="date" value="2026-03-27">
+      </div>
+    </div>
+    <span class="spacer"></span>
+    <button class="btn btn-accent" style="align-self:flex-end;">🔍 조회하기</button>
+    <button class="btn" style="align-self:flex-end;">↻ 선택 초기화</button>
+  </div>
+
+  <!-- 신규 등록 버튼 -->
+  <div style="background:white;padding:10px 24px;border-bottom:1px solid var(--border-light);text-align:right;">
+    <button class="btn btn-accent" onclick="showView('register')">신규 등록</button>
+  </div>
+
+  <!-- 목록 그리드 -->
+  <div class="grid-wrap">
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>AIA 번호</th>
+          <th>배분 구분</th>
+          <th>AP</th>
+          <th>실행 상태</th>
+          <th>등록자</th>
+          <th>등록일</th>
+          <th>실행일</th>
+          <th>출고예정일</th>
+          <th class="num">스타일 수</th>
+          <th class="num">총 보충 수량</th>
+          <th>상세보기</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="font-family:monospace;font-size:11px;">MREPLDIST20260327000000012</td>
+          <td>보충배분</td>
+          <td>오프라인 정상</td>
+          <td><span class="pill pill-done">완료</span></td>
+          <td>정윤성(YOONSEONG)</td>
+          <td>2026-03-27</td>
+          <td>2026-03-27</td>
+          <td>2026-03-29 ~ 2026-04-02</td>
+          <td class="num">8</td>
+          <td class="num" style="font-weight:600;">2,847</td>
+          <td><button class="link-btn" onclick="showView('detail')">상세보기</button></td>
+        </tr>
+        <tr>
+          <td style="font-family:monospace;font-size:11px;">MREPLDIST20260325000000011</td>
+          <td>보충배분</td>
+          <td>오프라인 정상</td>
+          <td><span class="pill pill-done">완료</span></td>
+          <td>정윤성(YOONSEONG)</td>
+          <td>2026-03-25</td>
+          <td>2026-03-25</td>
+          <td>2026-03-27 ~ 2026-03-31</td>
+          <td class="num">5</td>
+          <td class="num" style="font-weight:600;">1,562</td>
+          <td><button class="link-btn" onclick="showView('detail')">상세보기</button></td>
+        </tr>
+        <tr>
+          <td style="font-family:monospace;font-size:11px;">MREPLDIST20260324000000010</td>
+          <td>보충배분</td>
+          <td>오프라인 정상</td>
+          <td><span class="pill pill-error">오류 포함</span></td>
+          <td>우문홍(CHONG323)</td>
+          <td>2026-03-24</td>
+          <td>2026-03-24</td>
+          <td>-</td>
+          <td class="num">3</td>
+          <td class="num">0</td>
+          <td><button class="link-btn" onclick="showView('detail')">상세보기</button></td>
+        </tr>
+        <tr>
+          <td style="font-family:monospace;font-size:11px;">MREPLDIST20260320000000009</td>
+          <td>보충배분</td>
+          <td>오프라인 정상</td>
+          <td><span class="pill pill-done">완료</span></td>
+          <td>조아영(JOY0929)</td>
+          <td>2026-03-20</td>
+          <td>2026-03-20</td>
+          <td>2026-03-22 ~ 2026-03-26</td>
+          <td class="num">12</td>
+          <td class="num" style="font-weight:600;">4,215</td>
+          <td><button class="link-btn" onclick="showView('detail')">상세보기</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="bottom-bar">
+    <span>Rows: 4</span>
+    <span></span>
+  </div>
+</div>
+
+<!-- ===== VIEW 2: 신규 등록 (스타일 추가 → ILP 실행) ===== -->
+<div id="view-register" class="view">
+
+  <div class="page-title-bar">
+    <h1>┃ 보충배분-AIA</h1>
+    <span class="icon-help">?</span>
+  </div>
+
+  <!-- 상단 탭: 보충배분 (RT Off) / 보충배분 (RT On) -->
+  <div style="display:flex;align-items:center;background:white;border-bottom:1px solid var(--border);">
+    <div class="sub-tabs">
+      <div class="sub-tab active">보충배분</div>
+    </div>
+    <div style="margin-left:20px;display:flex;gap:12px;align-items:center;">
+      <div class="fg" style="flex-direction:row;align-items:center;gap:6px;">
+        <label style="margin:0;"><span class="req">*</span>브랜드</label>
+        <select style="border:1px solid var(--border);border-radius:4px;padding:5px 8px;font-size:12px;"><option>X: Discovery</option></select>
+      </div>
+      <div class="fg" style="flex-direction:row;align-items:center;gap:6px;">
+        <label style="margin:0;"><span class="req">*</span>AP</label>
+        <select style="border:1px solid var(--border);border-radius:4px;padding:5px 8px;font-size:12px;"><option>오프라인 정상</option></select>
+      </div>
+    </div>
+    <span class="spacer" style="flex:1;"></span>
+    <div style="padding-right:24px;display:flex;gap:8px;">
+      <button class="btn btn-accent">🔍 조회하기</button>
+      <button class="btn">↻ 선택 초기화</button>
+    </div>
+  </div>
+
+  <!-- 툴바 -->
+  <div class="toolbar">
+    <button class="btn btn-sm">▼ 필터/컬럼</button>
+    <span class="file-placeholder">파일을 등록하세요...</span>
+    <button class="btn btn-sm">엑셀 업로드</button>
+    <button class="btn btn-accent btn-sm" onclick="addStyleRow()">행 추가</button>
+    <button class="btn btn-sm">🗑</button>
+    <div class="toolbar .sep"></div>
+    <span style="font-size:12px;color:var(--ai);cursor:pointer;font-weight:500;">✦ 재고 구간별 SCS 배분율</span>
+    <div class="right-actions">
+      <button class="btn btn-danger-outline btn-sm">등급별 MAX 수량 수정</button>
+      <button class="btn btn-danger-outline btn-sm">SCS 배분율 수정</button>
+      <button class="btn btn-ai" onclick="runILP()">✦ 보충 실행</button>
+    </div>
+  </div>
+
+  <!-- 등록 그리드 -->
+  <div class="grid-wrap" style="min-height:400px;">
+    <table class="grid" id="register-grid">
+      <thead>
+        <tr>
+          <th style="width:30px;"><input type="checkbox"></th>
+          <th>상품시즌</th>
+          <th>ITEM</th>
+          <th style="min-width:200px;">스타일코드</th>
+          <th>스타일명</th>
+          <th>배분 그룹</th>
+          <th>배분 전략</th>
+          <th class="center">마지 적용 여부</th>
+          <th class="num">AP 가용재고</th>
+          <th class="num">AP입고</th>
+          <th class="num">AP재고</th>
+          <th class="num">배분예상수량</th>
+          <th class="num">평균배분율</th>
+          <th class="num">잔량</th>
+          <th>출고예정일</th>
+        </tr>
+      </thead>
+      <tbody id="register-body">
+        <!-- 기본 빈 행 1 -->
+        <tr>
+          <td><input type="checkbox"></td>
+          <td><select class="inline-sel" style="min-width:60px;"><option>26S</option><option>25F</option></select></td>
+          <td><select class="inline-sel" style="min-width:60px;"><option>-</option></select></td>
+          <td>
+            <div style="display:flex;gap:4px;align-items:center;">
+              <input type="text" class="inline-sel" placeholder="스타일코드를 입력해주세요" style="flex:1;min-width:140px;">
+              <button class="btn btn-sm" style="white-space:nowrap;">+ 스타일 선택</button>
+            </div>
+          </td>
+          <td style="color:var(--text-muted);">스타일을 먼저 선택해주세요</td>
+          <td><select class="inline-sel"><option>배분 전략 선택</option></select></td>
+          <td><select class="inline-sel"><option>배분 전략 선택</option></select></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="num" style="color:var(--text-muted);">0</td>
+          <td class="num" style="color:var(--text-muted);">0</td>
+          <td class="num" style="color:var(--text-muted);">0</td>
+          <td class="num" style="color:var(--text-muted);">0</td>
+          <td class="num" style="color:var(--text-muted);">-</td>
+          <td class="num" style="color:var(--text-muted);">0</td>
+          <td><input type="date" class="inline-sel" style="min-width:110px;"></td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td></td>
+          <td>합계</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td class="num">0</td>
+          <td class="num">0</td>
+          <td class="num">0</td>
+          <td class="num">0</td>
+          <td>-</td>
+          <td class="num">0</td>
+          <td>-</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="bottom-bar">
+    <span>Rows: 1 &nbsp;&nbsp; Selected Rows: 0</span>
+    <button class="btn btn-sm" onclick="showView('list')">← 목록으로</button>
+  </div>
+</div>
+
+<!-- ===== VIEW 2-1: 스타일 입력 완료 상태 (ILP 실행 전/후) ===== -->
+<div id="view-filled" class="view">
+
+  <div class="page-title-bar">
+    <h1>┃ 보충배분-AIA</h1>
+    <span class="icon-help">?</span>
+  </div>
+
+  <div style="display:flex;align-items:center;background:white;border-bottom:1px solid var(--border);">
+    <div class="sub-tabs">
+      <div class="sub-tab active">보충배분</div>
+    </div>
+    <div style="margin-left:20px;display:flex;gap:12px;align-items:center;">
+      <div class="fg" style="flex-direction:row;align-items:center;gap:6px;">
+        <label style="margin:0;"><span class="req">*</span>브랜드</label>
+        <select style="border:1px solid var(--border);border-radius:4px;padding:5px 8px;font-size:12px;"><option>X: Discovery</option></select>
+      </div>
+      <div class="fg" style="flex-direction:row;align-items:center;gap:6px;">
+        <label style="margin:0;"><span class="req">*</span>AP</label>
+        <select style="border:1px solid var(--border);border-radius:4px;padding:5px 8px;font-size:12px;"><option>오프라인 정상</option></select>
+      </div>
+    </div>
+    <span style="flex:1;"></span>
+    <div style="padding-right:24px;display:flex;gap:8px;">
+      <button class="btn btn-accent">🔍 조회하기</button>
+      <button class="btn">↻ 선택 초기화</button>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <button class="btn btn-sm">▼ 필터/컬럼</button>
+    <span class="file-placeholder">파일을 등록하세요...</span>
+    <button class="btn btn-sm">엑셀 업로드</button>
+    <button class="btn btn-accent btn-sm">행 추가</button>
+    <button class="btn btn-sm">🗑</button>
+    <span style="font-size:12px;color:var(--ai);cursor:pointer;font-weight:500;">✦ 재고 구간별 SCS 배분율</span>
+    <div class="right-actions">
+      <button class="btn btn-danger-outline btn-sm">등급별 MAX 수량 수정</button>
+      <button class="btn btn-danger-outline btn-sm">SCS 배분율 수정</button>
+      <button class="btn btn-ai" onclick="showView('detail')">✦ 보충 실행</button>
+    </div>
+  </div>
+
+  <div class="grid-wrap" style="min-height:400px;">
+    <table class="grid">
+      <thead>
+        <tr>
+          <th style="width:30px;"><input type="checkbox" checked></th>
+          <th>상품시즌</th>
+          <th>ITEM</th>
+          <th>스타일코드</th>
+          <th>스타일명</th>
+          <th>배분 그룹</th>
+          <th>배분 전략</th>
+          <th class="center">마지 적용 여부</th>
+          <th class="num">AP 가용재고</th>
+          <th class="num">AP입고</th>
+          <th class="num">AP재고</th>
+          <th class="num">배분예상수량</th>
+          <th class="num">평균배분율</th>
+          <th class="num">잔량</th>
+          <th>출고예정일</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><input type="checkbox" checked></td>
+          <td>26S</td>
+          <td>JK</td>
+          <td style="font-weight:600;">DXDJ73041</td>
+          <td>레저 바람막이 자켓</td>
+          <td><select class="inline-sel"><option>26S APP</option></select></td>
+          <td><select class="inline-sel"><option>ILP 최적화 전략</option></select></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="num">580</td>
+          <td class="num">0</td>
+          <td class="num">2,340</td>
+          <td class="num" style="font-weight:600;">0</td>
+          <td class="num">-</td>
+          <td class="num">-</td>
+          <td><input type="date" value="2026-03-29" class="inline-sel" style="min-width:110px;"></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" checked></td>
+          <td>26S</td>
+          <td>TS</td>
+          <td style="font-weight:600;">DXTS72031</td>
+          <td>에센셜 라운드 반팔티</td>
+          <td><select class="inline-sel"><option>26S APP</option></select></td>
+          <td><select class="inline-sel"><option>ILP 최적화 전략</option></select></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="num">320</td>
+          <td class="num">0</td>
+          <td class="num">1,850</td>
+          <td class="num" style="font-weight:600;">0</td>
+          <td class="num">-</td>
+          <td class="num">-</td>
+          <td><input type="date" value="2026-03-29" class="inline-sel" style="min-width:110px;"></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" checked></td>
+          <td>26S</td>
+          <td>PT</td>
+          <td style="font-weight:600;">DXPN72011</td>
+          <td>에센셜 조거 팬츠</td>
+          <td><select class="inline-sel"><option>26S APP</option></select></td>
+          <td><select class="inline-sel"><option>ILP 최적화 전략</option></select></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="num">290</td>
+          <td class="num">0</td>
+          <td class="num">1,420</td>
+          <td class="num" style="font-weight:600;">0</td>
+          <td class="num">-</td>
+          <td class="num">-</td>
+          <td><input type="date" value="2026-03-29" class="inline-sel" style="min-width:110px;"></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" checked></td>
+          <td>26S</td>
+          <td>JK</td>
+          <td style="font-weight:600;">DXDJ73055</td>
+          <td>레저 마운틴 자켓</td>
+          <td><select class="inline-sel"><option>26S APP</option></select></td>
+          <td><select class="inline-sel"><option>ILP 최적화 전략</option></select></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="num">245</td>
+          <td class="num">0</td>
+          <td class="num">980</td>
+          <td class="num" style="font-weight:600;">0</td>
+          <td class="num">-</td>
+          <td class="num">-</td>
+          <td><input type="date" value="2026-03-29" class="inline-sel" style="min-width:110px;"></td>
+        </tr>
+        <tr>
+          <td><input type="checkbox" checked></td>
+          <td>26S</td>
+          <td>CP</td>
+          <td style="font-weight:600;">DXCR72010</td>
+          <td>에센셜 볼캡</td>
+          <td><select class="inline-sel"><option>26S APP</option></select></td>
+          <td><select class="inline-sel"><option>ILP 최적화 전략</option></select></td>
+          <td class="center"><input type="checkbox"></td>
+          <td class="num">185</td>
+          <td class="num">0</td>
+          <td class="num">640</td>
+          <td class="num" style="font-weight:600;">0</td>
+          <td class="num">-</td>
+          <td class="num">-</td>
+          <td><input type="date" value="2026-03-29" class="inline-sel" style="min-width:110px;"></td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td></td>
+          <td>합계</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td>-</td>
+          <td class="num">1,620</td>
+          <td class="num">0</td>
+          <td class="num">7,230</td>
+          <td class="num">0</td>
+          <td>-</td>
+          <td class="num">0</td>
+          <td>-</td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <div class="bottom-bar">
+    <span>Rows: 5 &nbsp;&nbsp; Selected Rows: 5</span>
+    <div style="display:flex;gap:8px;">
+      <button class="btn btn-sm" onclick="showView('register')">← 뒤로</button>
+      <button class="btn btn-sm" onclick="showView('list')">목록으로</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== VIEW 3: 상세보기 (ILP 실행 결과) ===== -->
+<div id="view-detail" class="view">
+
+  <div class="page-title-bar">
+    <h1>┃ 보충배분-AIA</h1>
+    <span class="icon-help">?</span>
+  </div>
+
+  <!-- 상세 헤더 (AIA 번호 요약) -->
+  <div class="detail-header">
+    <div class="meta-row">
+      <div class="meta-cell">
+        <div class="label">AIA 번호</div>
+        <div class="val" style="font-family:monospace;font-size:11px;">MREPLDIST20260327000000012</div>
+      </div>
+      <div class="meta-cell">
+        <div class="label">배분 구분</div>
+        <div class="val">보충배분</div>
+      </div>
+      <div class="meta-cell">
+        <div class="label">AP</div>
+        <div class="val">오프라인 정상</div>
+      </div>
+      <div class="meta-cell">
+        <div class="label">실행 상태</div>
+        <div class="val"><span class="pill pill-done">완료</span></div>
+      </div>
+      <div class="meta-cell">
+        <div class="label">등록자</div>
+        <div class="val">정윤성(YOONSEONG)</div>
+      </div>
+      <div class="meta-cell">
+        <div class="label">등록일</div>
+        <div class="val">2026-03-27</div>
+      </div>
+      <div class="meta-cell">
+        <div class="label">실행일</div>
+        <div class="val">2026-03-27</div>
+      </div>
+      <div class="meta-cell">
+        <div class="label">출고예정일</div>
+        <div class="val">2026-03-29 ~ 2026-04-02</div>
+      </div>
+      <div class="meta-cell">
+        <div class="label">스타일 수</div>
+        <div class="val" style="font-size:16px;">5</div>
+      </div>
+      <div class="meta-cell">
+        <div class="label">총 보충 수량</div>
+        <div class="val" style="font-size:16px;color:var(--accent);">2,847</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 스타일별 결과 그리드 -->
+  <div class="grid-wrap">
+    <table class="grid">
+      <thead>
+        <tr>
+          <th>배분ID</th>
+          <th>상품시즌</th>
+          <th>ITEM</th>
+          <th>스타일코드</th>
+          <th>스타일명</th>
+          <th>배분그룹</th>
+          <th>배분전략</th>
+          <th class="center">마지적용여부</th>
+          <th class="num">AP 가용재고</th>
+          <th class="num">AP발주</th>
+          <th class="num">AP입고</th>
+          <th class="num">AP재고</th>
+          <th class="num">배분예상수량</th>
+          <th class="num">최종배분수량</th>
+          <th class="num">평균배분율</th>
+          <th>배분RT상태</th>
+          <th>출고예정일</th>
+          <th>수정하기</th>
+          <th>SCS 배분율</th>
+          <th>배분일시</th>
+          <th>수정일시</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style="font-family:monospace;font-size:10px;">MDIST2026032700...</td>
+          <td>26S</td>
+          <td>JK</td>
+          <td style="font-weight:600;">DXDJ73041</td>
+          <td>레저 바람막이 자켓</td>
+          <td>26S APP</td>
+          <td>ILP 최적화 전략<span class="ai-badge">AI</span></td>
+          <td class="center">N</td>
+          <td class="num">580</td>
+          <td class="num">0</td>
+          <td class="num">2,340</td>
+          <td class="num">45</td>
+          <td class="num">1,498</td>
+          <td class="num" style="font-weight:700;color:var(--accent);">1,498</td>
+          <td class="num">58%</td>
+          <td><span class="pill pill-confirmed">확정</span></td>
+          <td>2026-03-29</td>
+          <td></td>
+          <td><button class="link-btn">배분율 확인</button></td>
+          <td style="font-size:11px;">2026-03-27 14:42</td>
+          <td style="font-size:11px;">2026-03-27 15:49</td>
+        </tr>
+        <tr>
+          <td style="font-family:monospace;font-size:10px;">MDIST2026032700...</td>
+          <td>26S</td>
+          <td>TS</td>
+          <td style="font-weight:600;">DXTS72031</td>
+          <td>에센셜 라운드 반팔티</td>
+          <td>26S APP</td>
+          <td>ILP 최적화 전략<span class="ai-badge">AI</span></td>
+          <td class="center">N</td>
+          <td class="num">320</td>
+          <td class="num">0</td>
+          <td class="num">1,850</td>
+          <td class="num">17</td>
+          <td class="num">892</td>
+          <td class="num" style="font-weight:700;color:var(--accent);">892</td>
+          <td class="num">50%</td>
+          <td><span class="pill pill-confirmed">확정</span></td>
+          <td>2026-03-29</td>
+          <td></td>
+          <td><button class="link-btn">배분율 확인</button></td>
+          <td style="font-size:11px;">2026-03-27 14:42</td>
+          <td style="font-size:11px;">2026-03-27 15:49</td>
+        </tr>
+        <tr>
+          <td>-</td>
+          <td>26S</td>
+          <td>PT</td>
+          <td style="font-weight:600;">DXPN72011</td>
+          <td>에센셜 조거 팬츠</td>
+          <td>26S APP</td>
+          <td>ILP 최적화 전략<span class="ai-badge">AI</span></td>
+          <td class="center">N</td>
+          <td class="num">290</td>
+          <td class="num">0</td>
+          <td class="num">1,420</td>
+          <td class="num">40</td>
+          <td class="num">312</td>
+          <td class="num" style="font-weight:700;">0</td>
+          <td class="num">-</td>
+          <td><span class="pill pill-c">C</span></td>
+          <td>-</td>
+          <td></td>
+          <td><button class="link-btn">배분율 확인</button></td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>-</td>
+          <td>26S</td>
+          <td>JK</td>
+          <td style="font-weight:600;">DXDJ73055</td>
+          <td>레저 마운틴 자켓</td>
+          <td>26S APP</td>
+          <td>ILP 최적화 전략<span class="ai-badge">AI</span></td>
+          <td class="center">N</td>
+          <td class="num">245</td>
+          <td class="num">0</td>
+          <td class="num">980</td>
+          <td class="num">0</td>
+          <td class="num">145</td>
+          <td class="num" style="font-weight:700;">0</td>
+          <td class="num">-</td>
+          <td><span class="pill pill-c">C</span></td>
+          <td>-</td>
+          <td></td>
+          <td><button class="link-btn">배분율 확인</button></td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>-</td>
+          <td>26S</td>
+          <td>CP</td>
+          <td style="font-weight:600;">DXCR72010</td>
+          <td>에센셜 볼캡</td>
+          <td>26S APP</td>
+          <td>ILP 최적화 전략<span class="ai-badge">AI</span></td>
+          <td class="center">N</td>
+          <td class="num">185</td>
+          <td class="num">0</td>
+          <td class="num">640</td>
+          <td class="num">0</td>
+          <td class="num">0</td>
+          <td class="num" style="font-weight:700;">0</td>
+          <td class="num">-</td>
+          <td><span class="pill pill-c">C</span></td>
+          <td>-</td>
+          <td></td>
+          <td><button class="link-btn">배분율 확인</button></td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="bottom-bar">
+    <span>Rows: 5</span>
+    <button class="btn btn-sm" onclick="showView('list')">← 목록으로</button>
+  </div>
+</div>
+
+<script>
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-' + id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function addStyleRow() {
+  showView('filled');
+}
+
+function runILP() {
+  showView('detail');
+}
+</script>
+
+</body>
+</html>

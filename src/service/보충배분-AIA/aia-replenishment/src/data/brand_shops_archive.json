@@ -1,0 +1,3735 @@
+{
+  "shops": {
+    "I": [
+      {
+        "shopCd": "001",
+        "shopNm": "갤러리아진주(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "005",
+        "shopNm": "롯데센텀(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "006",
+        "shopNm": "롯데강남(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "007",
+        "shopNm": "롯데일산(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "008",
+        "shopNm": "AK분당(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "010",
+        "shopNm": "롯데건대(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "014",
+        "shopNm": "롯데분당(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "015",
+        "shopNm": "현대울산동구(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "016",
+        "shopNm": "롯데청량리(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "017",
+        "shopNm": "AK평택(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "019",
+        "shopNm": "신세계경기(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "021",
+        "shopNm": "롯데광복(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "022",
+        "shopNm": "신세계센텀(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "024",
+        "shopNm": "디큐브거제(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "025",
+        "shopNm": "현대킨텍스(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "027",
+        "shopNm": "갤러리아센터시티(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "031",
+        "shopNm": "현대대구(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "032",
+        "shopNm": "현대울산(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "034",
+        "shopNm": "롯데김포(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "035",
+        "shopNm": "롯데평촌(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "036",
+        "shopNm": "AK원주(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "037",
+        "shopNm": "신세계의정부(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "039",
+        "shopNm": "현대신촌(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "040",
+        "shopNm": "현대충청(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "042",
+        "shopNm": "롯데구리(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "043",
+        "shopNm": "롯데안산(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "044",
+        "shopNm": "롯데중동(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "045",
+        "shopNm": "롯데노원(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "048",
+        "shopNm": "롯데수원(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "080",
+        "shopNm": "신세계대구(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "084",
+        "shopNm": "롯데인천(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "091",
+        "shopNm": "에버세이브청주(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "093",
+        "shopNm": "엔터식스안양(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "096",
+        "shopNm": "모다아울렛천안(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10011",
+        "shopNm": "현대중동",
+        "region": "01"
+      },
+      {
+        "shopCd": "10015",
+        "shopNm": "롯데창원",
+        "region": "01"
+      },
+      {
+        "shopCd": "10016",
+        "shopNm": "롯데대구",
+        "region": "01"
+      },
+      {
+        "shopCd": "10017",
+        "shopNm": "롯데울산",
+        "region": "01"
+      },
+      {
+        "shopCd": "10018",
+        "shopNm": "롯데센텀",
+        "region": "01"
+      },
+      {
+        "shopCd": "10019",
+        "shopNm": "롯데동래",
+        "region": "01"
+      },
+      {
+        "shopCd": "10020",
+        "shopNm": "롯데전주",
+        "region": "01"
+      },
+      {
+        "shopCd": "10021",
+        "shopNm": "롯데포항",
+        "region": "01"
+      },
+      {
+        "shopCd": "10022",
+        "shopNm": "현대킨텍스",
+        "region": "01"
+      },
+      {
+        "shopCd": "10027",
+        "shopNm": "롯데영등포",
+        "region": "01"
+      },
+      {
+        "shopCd": "10028",
+        "shopNm": "롯데광주",
+        "region": "01"
+      },
+      {
+        "shopCd": "10029",
+        "shopNm": "롯데상인",
+        "region": "01"
+      },
+      {
+        "shopCd": "10030",
+        "shopNm": "롯데잠실",
+        "region": "01"
+      },
+      {
+        "shopCd": "10032",
+        "shopNm": "현대목동",
+        "region": "01"
+      },
+      {
+        "shopCd": "10033",
+        "shopNm": "신세계의정부",
+        "region": "01"
+      },
+      {
+        "shopCd": "10034",
+        "shopNm": "AK원주",
+        "region": "01"
+      },
+      {
+        "shopCd": "10035",
+        "shopNm": "롯데평촌",
+        "region": "01"
+      },
+      {
+        "shopCd": "10037",
+        "shopNm": "롯데청량리",
+        "region": "01"
+      },
+      {
+        "shopCd": "10051",
+        "shopNm": "현대미아",
+        "region": "01"
+      },
+      {
+        "shopCd": "10053",
+        "shopNm": "갤러리아대전",
+        "region": "01"
+      },
+      {
+        "shopCd": "10056",
+        "shopNm": "롯데부산",
+        "region": "01"
+      },
+      {
+        "shopCd": "10057",
+        "shopNm": "롯데광복",
+        "region": "01"
+      },
+      {
+        "shopCd": "10059",
+        "shopNm": "현대울산",
+        "region": "01"
+      },
+      {
+        "shopCd": "10060",
+        "shopNm": "AK분당",
+        "region": "01"
+      },
+      {
+        "shopCd": "10064",
+        "shopNm": "신세계마산",
+        "region": "01"
+      },
+      {
+        "shopCd": "10067",
+        "shopNm": "현대대구",
+        "region": "01"
+      },
+      {
+        "shopCd": "10069",
+        "shopNm": "AK수원",
+        "region": "01"
+      },
+      {
+        "shopCd": "10071",
+        "shopNm": "롯데일산",
+        "region": "01"
+      },
+      {
+        "shopCd": "10074",
+        "shopNm": "롯데강남",
+        "region": "01"
+      },
+      {
+        "shopCd": "10075",
+        "shopNm": "롯데본점",
+        "region": "03"
+      },
+      {
+        "shopCd": "10076",
+        "shopNm": "롯데구리",
+        "region": "01"
+      },
+      {
+        "shopCd": "10077",
+        "shopNm": "롯데건대",
+        "region": "01"
+      },
+      {
+        "shopCd": "10079",
+        "shopNm": "현대충청",
+        "region": "01"
+      },
+      {
+        "shopCd": "10080",
+        "shopNm": "현대울산동구",
+        "region": "01"
+      },
+      {
+        "shopCd": "10081",
+        "shopNm": "신세계경기",
+        "region": "01"
+      },
+      {
+        "shopCd": "10082",
+        "shopNm": "롯데안산",
+        "region": "01"
+      },
+      {
+        "shopCd": "10083",
+        "shopNm": "롯데중동",
+        "region": "01"
+      },
+      {
+        "shopCd": "10084",
+        "shopNm": "롯데노원",
+        "region": "01"
+      },
+      {
+        "shopCd": "10085",
+        "shopNm": "현대신촌",
+        "region": "01"
+      },
+      {
+        "shopCd": "10086",
+        "shopNm": "롯데김포",
+        "region": "01"
+      },
+      {
+        "shopCd": "10093",
+        "shopNm": "신세계천안아산",
+        "region": "01"
+      },
+      {
+        "shopCd": "10094",
+        "shopNm": "신세계센텀",
+        "region": "01"
+      },
+      {
+        "shopCd": "10095",
+        "shopNm": "갤러리아센터시티",
+        "region": "01"
+      },
+      {
+        "shopCd": "10096",
+        "shopNm": "롯데수원",
+        "region": "01"
+      },
+      {
+        "shopCd": "10097",
+        "shopNm": "신세계영등포",
+        "region": "01"
+      },
+      {
+        "shopCd": "10100",
+        "shopNm": "현대판교",
+        "region": "01"
+      },
+      {
+        "shopCd": "10102",
+        "shopNm": "신세계강남",
+        "region": "01"
+      },
+      {
+        "shopCd": "10104",
+        "shopNm": "신세계김해",
+        "region": "01"
+      },
+      {
+        "shopCd": "10109",
+        "shopNm": "롯데인천",
+        "region": "01"
+      },
+      {
+        "shopCd": "10110",
+        "shopNm": "갤러리아광교",
+        "region": "01"
+      },
+      {
+        "shopCd": "10111",
+        "shopNm": "AK평택",
+        "region": "01"
+      },
+      {
+        "shopCd": "10113",
+        "shopNm": "신세계광주",
+        "region": "01"
+      },
+      {
+        "shopCd": "10114",
+        "shopNm": "신세계대전",
+        "region": "01"
+      },
+      {
+        "shopCd": "10115",
+        "shopNm": "롯데동탄",
+        "region": "01"
+      },
+      {
+        "shopCd": "112",
+        "shopNm": "롯데광주(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "113",
+        "shopNm": "신세계광주(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "114",
+        "shopNm": "현대천호(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "118",
+        "shopNm": "롯데잠실(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "129",
+        "shopNm": "롯데대전(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "146",
+        "shopNm": "롯데울산(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "147",
+        "shopNm": "현대미아(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "155",
+        "shopNm": "롯데본점(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "159",
+        "shopNm": "AK수원(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "161",
+        "shopNm": "롯데영등포(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "164",
+        "shopNm": "현대중동(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "165",
+        "shopNm": "신세계천안아산(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "167",
+        "shopNm": "롯데창원(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "168",
+        "shopNm": "롯데대구(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "169",
+        "shopNm": "롯데상인(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "170",
+        "shopNm": "롯데전주(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "172",
+        "shopNm": "현대부산(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "174",
+        "shopNm": "롯데포항(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "175",
+        "shopNm": "롯데동래(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "177",
+        "shopNm": "갤러리아대전(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "179",
+        "shopNm": "현대목동(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "180",
+        "shopNm": "신세계마산(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "193",
+        "shopNm": "아이파크용산(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "195",
+        "shopNm": "롯데미아(M)",
+        "region": "01"
+      },
+      {
+        "shopCd": "20001",
+        "shopNm": "김포장기(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "40001",
+        "shopNm": "신세계면세명동(M)",
+        "region": "02"
+      },
+      {
+        "shopCd": "40003",
+        "shopNm": "신라면세장충",
+        "region": "02"
+      },
+      {
+        "shopCd": "40004",
+        "shopNm": "롯데면세소공",
+        "region": "02"
+      },
+      {
+        "shopCd": "40007",
+        "shopNm": "롯데면세제주(M)",
+        "region": "02"
+      },
+      {
+        "shopCd": "40011",
+        "shopNm": "신라면세용산",
+        "region": "02"
+      },
+      {
+        "shopCd": "40015",
+        "shopNm": "신라면세제주(M)",
+        "region": "02"
+      },
+      {
+        "shopCd": "50006",
+        "shopNm": "스타필드고양(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50008",
+        "shopNm": "롯데월드(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50009",
+        "shopNm": "스타필드하남(직영)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50011",
+        "shopNm": "스타필드수원(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50012",
+        "shopNm": "스타필드일산(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50013",
+        "shopNm": "스타필드빌리지운정(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50014",
+        "shopNm": "스타필드부천(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "509",
+        "shopNm": "타임스퀘어영등포(직)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "513",
+        "shopNm": "충장로(직)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "521",
+        "shopNm": "동성로(직)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "524",
+        "shopNm": "가로수길(직)M",
+        "region": "03"
+      },
+      {
+        "shopCd": "526",
+        "shopNm": "홍대(직)M",
+        "region": "03"
+      },
+      {
+        "shopCd": "527",
+        "shopNm": "명동중앙(직)M",
+        "region": "03"
+      },
+      {
+        "shopCd": "529",
+        "shopNm": "강남사옥(직)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "532",
+        "shopNm": "롯데아울렛의왕(직)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "534",
+        "shopNm": "타임테라스동탄(직)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "535",
+        "shopNm": "스타필드하남(직)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "536",
+        "shopNm": "스타필드수원(직)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6003",
+        "shopNm": "원주(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6004",
+        "shopNm": "오산(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6005",
+        "shopNm": "통영(대-위)Mclose",
+        "region": "01"
+      },
+      {
+        "shopCd": "6007",
+        "shopNm": "익산(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6008",
+        "shopNm": "목포하당(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6009",
+        "shopNm": "전주송천(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6011",
+        "shopNm": "보령(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6013",
+        "shopNm": "충주(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6015",
+        "shopNm": "대구성서(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6016",
+        "shopNm": "안산시화(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6017",
+        "shopNm": "화성봉담(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6019",
+        "shopNm": "안산중앙(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6020",
+        "shopNm": "제천(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6021",
+        "shopNm": "스퀘어원인천(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6022",
+        "shopNm": "영주(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6023",
+        "shopNm": "상주(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6024",
+        "shopNm": "아이즈빌부평(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6025",
+        "shopNm": "정읍(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6028",
+        "shopNm": "부천(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6030",
+        "shopNm": "홍성(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6031",
+        "shopNm": "성남신흥(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6033",
+        "shopNm": "광명(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6035",
+        "shopNm": "해남(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6036",
+        "shopNm": "대구칠곡(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6037",
+        "shopNm": "안성(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6039",
+        "shopNm": "경기광주(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6040",
+        "shopNm": "대전은행(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6042",
+        "shopNm": "속초(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6043",
+        "shopNm": "당진(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6044",
+        "shopNm": "나주(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6045",
+        "shopNm": "마산합성(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6046",
+        "shopNm": "춘천(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6047",
+        "shopNm": "포천(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "6048",
+        "shopNm": "두타(대-위)M",
+        "region": "03"
+      },
+      {
+        "shopCd": "6049",
+        "shopNm": "남양주삼패(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "630",
+        "shopNm": "포항(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "643",
+        "shopNm": "인천(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "649",
+        "shopNm": "부산광복(대-위)M",
+        "region": "03"
+      },
+      {
+        "shopCd": "661",
+        "shopNm": "여수(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "676",
+        "shopNm": "제주(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "685",
+        "shopNm": "전주중앙(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "688",
+        "shopNm": "서산(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "694",
+        "shopNm": "안동(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "696",
+        "shopNm": "안산한대(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "718",
+        "shopNm": "여천(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "729",
+        "shopNm": "청주(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "733",
+        "shopNm": "서귀포(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "735",
+        "shopNm": "거제(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "736",
+        "shopNm": "구미(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "737",
+        "shopNm": "동해(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "738",
+        "shopNm": "강릉(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "740",
+        "shopNm": "순천연향(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "744",
+        "shopNm": "신제주(대-위)M",
+        "region": "03"
+      },
+      {
+        "shopCd": "745",
+        "shopNm": "구미인동(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "746",
+        "shopNm": "퍼스트빌리지(대-위)M",
+        "region": "01"
+      },
+      {
+        "shopCd": "749",
+        "shopNm": "경산(대-위)M",
+        "region": "01"
+      }
+    ],
+    "M": [
+      {
+        "shopCd": "001",
+        "shopNm": "갤러리아진주",
+        "region": "01"
+      },
+      {
+        "shopCd": "006",
+        "shopNm": "롯데강남",
+        "region": "01"
+      },
+      {
+        "shopCd": "007",
+        "shopNm": "롯데일산",
+        "region": "01"
+      },
+      {
+        "shopCd": "010",
+        "shopNm": "롯데건대",
+        "region": "01"
+      },
+      {
+        "shopCd": "015",
+        "shopNm": "현대울산동구",
+        "region": "01"
+      },
+      {
+        "shopCd": "016",
+        "shopNm": "롯데청량리",
+        "region": "01"
+      },
+      {
+        "shopCd": "019",
+        "shopNm": "신세계경기",
+        "region": "01"
+      },
+      {
+        "shopCd": "021",
+        "shopNm": "롯데광복",
+        "region": "01"
+      },
+      {
+        "shopCd": "022",
+        "shopNm": "신세계센텀",
+        "region": "01"
+      },
+      {
+        "shopCd": "025",
+        "shopNm": "현대킨텍스",
+        "region": "01"
+      },
+      {
+        "shopCd": "027",
+        "shopNm": "갤러리아센터시티",
+        "region": "01"
+      },
+      {
+        "shopCd": "031",
+        "shopNm": "현대대구",
+        "region": "01"
+      },
+      {
+        "shopCd": "032",
+        "shopNm": "현대울산",
+        "region": "01"
+      },
+      {
+        "shopCd": "034",
+        "shopNm": "롯데김포",
+        "region": "01"
+      },
+      {
+        "shopCd": "035",
+        "shopNm": "롯데평촌",
+        "region": "01"
+      },
+      {
+        "shopCd": "036",
+        "shopNm": "AK원주",
+        "region": "01"
+      },
+      {
+        "shopCd": "037",
+        "shopNm": "신세계의정부",
+        "region": "01"
+      },
+      {
+        "shopCd": "039",
+        "shopNm": "현대신촌",
+        "region": "01"
+      },
+      {
+        "shopCd": "040",
+        "shopNm": "현대충청",
+        "region": "01"
+      },
+      {
+        "shopCd": "042",
+        "shopNm": "롯데구리",
+        "region": "01"
+      },
+      {
+        "shopCd": "043",
+        "shopNm": "롯데안산",
+        "region": "01"
+      },
+      {
+        "shopCd": "044",
+        "shopNm": "롯데중동",
+        "region": "01"
+      },
+      {
+        "shopCd": "045",
+        "shopNm": "롯데노원",
+        "region": "01"
+      },
+      {
+        "shopCd": "048",
+        "shopNm": "롯데수원",
+        "region": "01"
+      },
+      {
+        "shopCd": "052",
+        "shopNm": "신세계하남",
+        "region": "01"
+      },
+      {
+        "shopCd": "053",
+        "shopNm": "더현대서울",
+        "region": "01"
+      },
+      {
+        "shopCd": "054",
+        "shopNm": "엔터식스왕십리",
+        "region": "01"
+      },
+      {
+        "shopCd": "078",
+        "shopNm": "현대판교",
+        "region": "01"
+      },
+      {
+        "shopCd": "079",
+        "shopNm": "신세계강남",
+        "region": "01"
+      },
+      {
+        "shopCd": "080",
+        "shopNm": "신세계대구",
+        "region": "01"
+      },
+      {
+        "shopCd": "081",
+        "shopNm": "신세계김해",
+        "region": "01"
+      },
+      {
+        "shopCd": "082",
+        "shopNm": "신세계본점",
+        "region": "03"
+      },
+      {
+        "shopCd": "084",
+        "shopNm": "롯데인천",
+        "region": "01"
+      },
+      {
+        "shopCd": "085",
+        "shopNm": "갤러리아광교",
+        "region": "01"
+      },
+      {
+        "shopCd": "086",
+        "shopNm": "AK평택",
+        "region": "01"
+      },
+      {
+        "shopCd": "088",
+        "shopNm": "신세계대전",
+        "region": "01"
+      },
+      {
+        "shopCd": "089",
+        "shopNm": "롯데동탄",
+        "region": "01"
+      },
+      {
+        "shopCd": "091",
+        "shopNm": "에버세이브청주",
+        "region": "01"
+      },
+      {
+        "shopCd": "093",
+        "shopNm": "엔터식스안양",
+        "region": "01"
+      },
+      {
+        "shopCd": "094",
+        "shopNm": "신세계영등포",
+        "region": "01"
+      },
+      {
+        "shopCd": "096",
+        "shopNm": "모다아울렛천안",
+        "region": "01"
+      },
+      {
+        "shopCd": "097",
+        "shopNm": "신세계광주",
+        "region": "01"
+      },
+      {
+        "shopCd": "10011",
+        "shopNm": "현대중동(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10015",
+        "shopNm": "롯데창원(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10016",
+        "shopNm": "롯데대구(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10017",
+        "shopNm": "롯데울산(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10018",
+        "shopNm": "롯데센텀(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10019",
+        "shopNm": "롯데동래(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10020",
+        "shopNm": "롯데전주(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10021",
+        "shopNm": "롯데포항(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10022",
+        "shopNm": "현대킨텍스(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10027",
+        "shopNm": "롯데영등포(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10028",
+        "shopNm": "롯데광주(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10029",
+        "shopNm": "롯데상인(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10030",
+        "shopNm": "롯데잠실(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10032",
+        "shopNm": "현대목동(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10033",
+        "shopNm": "신세계의정부(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10034",
+        "shopNm": "AK원주(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10035",
+        "shopNm": "롯데평촌(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10037",
+        "shopNm": "롯데청량리(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10051",
+        "shopNm": "현대미아(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10053",
+        "shopNm": "갤러리아대전(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10056",
+        "shopNm": "롯데부산(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10057",
+        "shopNm": "롯데광복(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10059",
+        "shopNm": "현대울산(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10060",
+        "shopNm": "AK분당(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10064",
+        "shopNm": "신세계마산(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10067",
+        "shopNm": "현대대구(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10069",
+        "shopNm": "AK수원(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10071",
+        "shopNm": "롯데일산(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10072",
+        "shopNm": "아이파크용산(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10074",
+        "shopNm": "롯데강남(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10075",
+        "shopNm": "롯데본점(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10076",
+        "shopNm": "롯데구리(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10077",
+        "shopNm": "롯데건대(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10079",
+        "shopNm": "현대충청(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10080",
+        "shopNm": "현대울산동구(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10081",
+        "shopNm": "신세계경기(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10082",
+        "shopNm": "롯데안산(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10083",
+        "shopNm": "롯데중동(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10084",
+        "shopNm": "롯데노원(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10085",
+        "shopNm": "현대신촌(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10086",
+        "shopNm": "롯데김포(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10093",
+        "shopNm": "신세계천안아산(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10094",
+        "shopNm": "신세계센텀(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10095",
+        "shopNm": "갤러리아센터시티(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10096",
+        "shopNm": "롯데수원(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10097",
+        "shopNm": "신세계영등포(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10100",
+        "shopNm": "현대판교(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10102",
+        "shopNm": "신세계강남(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10104",
+        "shopNm": "신세계김해(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10108",
+        "shopNm": "롯데마산(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10109",
+        "shopNm": "롯데인천(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10110",
+        "shopNm": "갤러리아광교(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10111",
+        "shopNm": "AK평택(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10113",
+        "shopNm": "신세계광주(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10114",
+        "shopNm": "신세계대전(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10115",
+        "shopNm": "롯데동탄(I)",
+        "region": "01"
+      },
+      {
+        "shopCd": "112",
+        "shopNm": "롯데광주",
+        "region": "01"
+      },
+      {
+        "shopCd": "114",
+        "shopNm": "현대천호",
+        "region": "01"
+      },
+      {
+        "shopCd": "118",
+        "shopNm": "롯데잠실",
+        "region": "01"
+      },
+      {
+        "shopCd": "120",
+        "shopNm": "롯데부산",
+        "region": "01"
+      },
+      {
+        "shopCd": "129",
+        "shopNm": "롯데대전",
+        "region": "01"
+      },
+      {
+        "shopCd": "146",
+        "shopNm": "롯데울산",
+        "region": "01"
+      },
+      {
+        "shopCd": "147",
+        "shopNm": "현대미아",
+        "region": "01"
+      },
+      {
+        "shopCd": "155",
+        "shopNm": "롯데본점",
+        "region": "03"
+      },
+      {
+        "shopCd": "159",
+        "shopNm": "AK수원",
+        "region": "01"
+      },
+      {
+        "shopCd": "161",
+        "shopNm": "롯데영등포",
+        "region": "01"
+      },
+      {
+        "shopCd": "164",
+        "shopNm": "현대중동",
+        "region": "01"
+      },
+      {
+        "shopCd": "165",
+        "shopNm": "신세계천안아산",
+        "region": "01"
+      },
+      {
+        "shopCd": "167",
+        "shopNm": "롯데창원",
+        "region": "01"
+      },
+      {
+        "shopCd": "168",
+        "shopNm": "롯데대구",
+        "region": "01"
+      },
+      {
+        "shopCd": "169",
+        "shopNm": "롯데상인",
+        "region": "01"
+      },
+      {
+        "shopCd": "170",
+        "shopNm": "롯데전주",
+        "region": "01"
+      },
+      {
+        "shopCd": "174",
+        "shopNm": "롯데포항",
+        "region": "01"
+      },
+      {
+        "shopCd": "175",
+        "shopNm": "롯데동래",
+        "region": "01"
+      },
+      {
+        "shopCd": "177",
+        "shopNm": "갤러리아대전",
+        "region": "01"
+      },
+      {
+        "shopCd": "180",
+        "shopNm": "신세계마산",
+        "region": "01"
+      },
+      {
+        "shopCd": "193",
+        "shopNm": "아이파크용산",
+        "region": "01"
+      },
+      {
+        "shopCd": "195",
+        "shopNm": "롯데미아",
+        "region": "01"
+      },
+      {
+        "shopCd": "3000",
+        "shopNm": "현대아울렛대전(아)",
+        "region": "01"
+      },
+      {
+        "shopCd": "40003",
+        "shopNm": "신라면세장충(I)",
+        "region": "02"
+      },
+      {
+        "shopCd": "40004",
+        "shopNm": "롯데면세소공(I)",
+        "region": "02"
+      },
+      {
+        "shopCd": "40011",
+        "shopNm": "신라면세용산(I)",
+        "region": "02"
+      },
+      {
+        "shopCd": "40017",
+        "shopNm": "현대면세동대문(I)",
+        "region": "02"
+      },
+      {
+        "shopCd": "421",
+        "shopNm": "롯데면세제주",
+        "region": "02"
+      },
+      {
+        "shopCd": "422",
+        "shopNm": "신라면세용산",
+        "region": "02"
+      },
+      {
+        "shopCd": "426",
+        "shopNm": "신라면세제주",
+        "region": "02"
+      },
+      {
+        "shopCd": "427",
+        "shopNm": "롯데면세월드",
+        "region": "02"
+      },
+      {
+        "shopCd": "428",
+        "shopNm": "신라면세장충",
+        "region": "02"
+      },
+      {
+        "shopCd": "429",
+        "shopNm": "롯데면세소공",
+        "region": "02"
+      },
+      {
+        "shopCd": "431",
+        "shopNm": "신세계면세명동",
+        "region": "02"
+      },
+      {
+        "shopCd": "443",
+        "shopNm": "현대면세무역",
+        "region": "02"
+      },
+      {
+        "shopCd": "50006",
+        "shopNm": "스타필드고양(직)I",
+        "region": "01"
+      },
+      {
+        "shopCd": "50008",
+        "shopNm": "롯데월드(직)I",
+        "region": "01"
+      },
+      {
+        "shopCd": "50009",
+        "shopNm": "스타필드하남(직)I",
+        "region": "01"
+      },
+      {
+        "shopCd": "50010",
+        "shopNm": "타임테라스동탄(직)Iclose",
+        "region": "01"
+      },
+      {
+        "shopCd": "50011",
+        "shopNm": "스타필드수원(직)I",
+        "region": "01"
+      },
+      {
+        "shopCd": "50012",
+        "shopNm": "스타필드일산(직)I",
+        "region": "01"
+      },
+      {
+        "shopCd": "50013",
+        "shopNm": "스타필드빌리지운정(직)I",
+        "region": "01"
+      },
+      {
+        "shopCd": "50014",
+        "shopNm": "스타필드부천(직)I",
+        "region": "01"
+      },
+      {
+        "shopCd": "509",
+        "shopNm": "타임스퀘어영등포(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "513",
+        "shopNm": "충장로(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "521",
+        "shopNm": "동성로(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "524",
+        "shopNm": "가로수길(직)",
+        "region": "03"
+      },
+      {
+        "shopCd": "526",
+        "shopNm": "홍대(직)",
+        "region": "03"
+      },
+      {
+        "shopCd": "527",
+        "shopNm": "명동중앙(직)",
+        "region": "03"
+      },
+      {
+        "shopCd": "529",
+        "shopNm": "강남사옥(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "531",
+        "shopNm": "스타필드안성(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "532",
+        "shopNm": "롯데아울렛의왕(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "533",
+        "shopNm": "타임스트림신림(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "534",
+        "shopNm": "타임테라스동탄(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "535",
+        "shopNm": "스타필드하남(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "536",
+        "shopNm": "스타필드수원(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "537",
+        "shopNm": "한남(직)",
+        "region": "03"
+      },
+      {
+        "shopCd": "540",
+        "shopNm": "성수(직)",
+        "region": "03"
+      },
+      {
+        "shopCd": "549",
+        "shopNm": "북촌(직)",
+        "region": "03"
+      },
+      {
+        "shopCd": "550",
+        "shopNm": "엔터식스안양(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "551",
+        "shopNm": "엔터식스왕십리(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6001",
+        "shopNm": "세정광주(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6003",
+        "shopNm": "원주(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6004",
+        "shopNm": "오산(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6005",
+        "shopNm": "통영(대-위)close",
+        "region": "01"
+      },
+      {
+        "shopCd": "6007",
+        "shopNm": "익산(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6008",
+        "shopNm": "목포하당(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6009",
+        "shopNm": "전주송천(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6011",
+        "shopNm": "보령(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6013",
+        "shopNm": "충주(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6015",
+        "shopNm": "대구성서(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6016",
+        "shopNm": "안산시화(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6017",
+        "shopNm": "화성봉담(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6019",
+        "shopNm": "안산중앙(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6020",
+        "shopNm": "제천(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6021",
+        "shopNm": "스퀘어원인천(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6022",
+        "shopNm": "영주(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6023",
+        "shopNm": "상주(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6024",
+        "shopNm": "아이즈빌부평(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6025",
+        "shopNm": "정읍(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6028",
+        "shopNm": "부천(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6030",
+        "shopNm": "홍성(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6031",
+        "shopNm": "성남신흥(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6033",
+        "shopNm": "광명(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6035",
+        "shopNm": "해남(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6036",
+        "shopNm": "대구칠곡(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6037",
+        "shopNm": "안성(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6038",
+        "shopNm": "울산무거(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6039",
+        "shopNm": "경기광주(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6040",
+        "shopNm": "대전은행(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6042",
+        "shopNm": "속초(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6043",
+        "shopNm": "당진(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6044",
+        "shopNm": "나주(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6045",
+        "shopNm": "마산합성(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6046",
+        "shopNm": "춘천(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6047",
+        "shopNm": "포천(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "6048",
+        "shopNm": "두타(대-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "6049",
+        "shopNm": "남양주삼패(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "630",
+        "shopNm": "포항(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "643",
+        "shopNm": "인천(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "649",
+        "shopNm": "부산광복(대-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "661",
+        "shopNm": "여수(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "676",
+        "shopNm": "제주(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "685",
+        "shopNm": "전주중앙(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "688",
+        "shopNm": "서산(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "694",
+        "shopNm": "안동(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "696",
+        "shopNm": "안산한대(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "717",
+        "shopNm": "김포장기(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "718",
+        "shopNm": "여천(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "729",
+        "shopNm": "청주(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "733",
+        "shopNm": "서귀포(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "735",
+        "shopNm": "거제(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "736",
+        "shopNm": "구미(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "737",
+        "shopNm": "동해(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "738",
+        "shopNm": "강릉(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "740",
+        "shopNm": "순천연향(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "744",
+        "shopNm": "신제주(대-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "745",
+        "shopNm": "구미인동(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "746",
+        "shopNm": "퍼스트빌리지(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "749",
+        "shopNm": "경산(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "7500",
+        "shopNm": "롯데아울렛수완(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "7503",
+        "shopNm": "롯데아울렛동부산(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "7504",
+        "shopNm": "롯데아울렛봉무(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "7505",
+        "shopNm": "롯데아울렛부여(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "7508",
+        "shopNm": "현대아울렛동대문(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "7509",
+        "shopNm": "현대아울렛가든5(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "7510",
+        "shopNm": "NC강서(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "7513",
+        "shopNm": "NC송파(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "7515",
+        "shopNm": "신세계아울렛시흥(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "7516",
+        "shopNm": "신세계아울렛여주(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "7517",
+        "shopNm": "마리오(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "7518",
+        "shopNm": "신세계아울렛파주(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "7519",
+        "shopNm": "현대아울렛가산(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "7520",
+        "shopNm": "콜렉티드(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "7521",
+        "shopNm": "롯데아울렛김해(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "7522",
+        "shopNm": "신세계아울렛기장(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "7523",
+        "shopNm": "모다경주(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "7525",
+        "shopNm": "롯데아울렛진주(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "7526",
+        "shopNm": "LF스퀘어광양(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "7530",
+        "shopNm": "롯데아울렛이천(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "7532",
+        "shopNm": "현대아울렛대구(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "7533",
+        "shopNm": "현대아울렛김포(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "7534",
+        "shopNm": "롯데아울렛율하(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "7535",
+        "shopNm": "롯데아울렛기흥(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "7536",
+        "shopNm": "롯데아울렛파주(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "7537",
+        "shopNm": "롯데아울렛군산(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "7538",
+        "shopNm": "롯데아울렛청주(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "7539",
+        "shopNm": "LF스퀘어양주(상-위)",
+        "region": "03"
+      }
+    ],
+    "ST": [
+      {
+        "shopCd": "10005",
+        "shopNm": "롯데관악close",
+        "region": "01"
+      },
+      {
+        "shopCd": "10007",
+        "shopNm": "롯데중동close",
+        "region": "01"
+      },
+      {
+        "shopCd": "10021",
+        "shopNm": "현대아울렛대전(미입점)V",
+        "region": "01"
+      },
+      {
+        "shopCd": "10022",
+        "shopNm": "현대아울렛김포(특판)_V",
+        "region": "01"
+      },
+      {
+        "shopCd": "30002",
+        "shopNm": "롯데월드(직)close",
+        "region": "01"
+      },
+      {
+        "shopCd": "30003",
+        "shopNm": "스타필드수원(직)close",
+        "region": "01"
+      },
+      {
+        "shopCd": "30004",
+        "shopNm": "스타필드코엑스(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30005",
+        "shopNm": "롯데아울렛기흥(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30006",
+        "shopNm": "강남사옥(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30007",
+        "shopNm": "현대아울렛김포(직)_특판V",
+        "region": "01"
+      },
+      {
+        "shopCd": "30008",
+        "shopNm": "롯데아울렛고양(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30009",
+        "shopNm": "롯데아울렛이천(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30010",
+        "shopNm": "한남점(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "40001",
+        "shopNm": "신라면세용산",
+        "region": "02"
+      }
+    ],
+    "V": [
+      {
+        "shopCd": "10002",
+        "shopNm": "롯데에비뉴엘잠실",
+        "region": "01"
+      },
+      {
+        "shopCd": "10013",
+        "shopNm": "롯데에비뉴엘부산",
+        "region": "01"
+      },
+      {
+        "shopCd": "10028",
+        "shopNm": "롯데에비뉴엘본점",
+        "region": "01"
+      },
+      {
+        "shopCd": "10034",
+        "shopNm": "롯데대구",
+        "region": "01"
+      },
+      {
+        "shopCd": "10038",
+        "shopNm": "더현대서울",
+        "region": "01"
+      },
+      {
+        "shopCd": "10042",
+        "shopNm": "현대천호",
+        "region": "01"
+      },
+      {
+        "shopCd": "10043",
+        "shopNm": "현대목동",
+        "region": "01"
+      },
+      {
+        "shopCd": "10044",
+        "shopNm": "현대중동",
+        "region": "01"
+      },
+      {
+        "shopCd": "10045",
+        "shopNm": "신세계아트앤사이언스",
+        "region": "01"
+      },
+      {
+        "shopCd": "10046",
+        "shopNm": "현대신촌",
+        "region": "01"
+      },
+      {
+        "shopCd": "10050",
+        "shopNm": "현대울산",
+        "region": "01"
+      },
+      {
+        "shopCd": "10054",
+        "shopNm": "현대본점",
+        "region": "01"
+      },
+      {
+        "shopCd": "10058",
+        "shopNm": "더현대서울(특판)",
+        "region": "01"
+      },
+      {
+        "shopCd": "10061",
+        "shopNm": "신세계타임스퀘어",
+        "region": "01"
+      },
+      {
+        "shopCd": "10063",
+        "shopNm": "신세계사우스시티",
+        "region": "01"
+      },
+      {
+        "shopCd": "10065",
+        "shopNm": "신세계센텀시티",
+        "region": "01"
+      },
+      {
+        "shopCd": "10068",
+        "shopNm": "현대아울렛김포(특판)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30003",
+        "shopNm": "스타필드하남(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30013",
+        "shopNm": "스타필드수원(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30015",
+        "shopNm": "현대아울렛김포(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30016",
+        "shopNm": "롯데아울렛기흥(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30017",
+        "shopNm": "강남사옥(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30018",
+        "shopNm": "커넥트현대청주(직)",
+        "region": "01"
+      }
+    ],
+    "X": [
+      {
+        "shopCd": "10003",
+        "shopNm": "롯데광복",
+        "region": "01"
+      },
+      {
+        "shopCd": "10004",
+        "shopNm": "롯데영등포",
+        "region": "01"
+      },
+      {
+        "shopCd": "10005",
+        "shopNm": "롯데대전",
+        "region": "01"
+      },
+      {
+        "shopCd": "10006",
+        "shopNm": "AK분당",
+        "region": "01"
+      },
+      {
+        "shopCd": "10007",
+        "shopNm": "롯데부산",
+        "region": "01"
+      },
+      {
+        "shopCd": "10008",
+        "shopNm": "롯데건대",
+        "region": "01"
+      },
+      {
+        "shopCd": "10009",
+        "shopNm": "현대신촌",
+        "region": "01"
+      },
+      {
+        "shopCd": "10011",
+        "shopNm": "롯데미아",
+        "region": "01"
+      },
+      {
+        "shopCd": "10014",
+        "shopNm": "롯데중동",
+        "region": "01"
+      },
+      {
+        "shopCd": "10015",
+        "shopNm": "롯데포항",
+        "region": "01"
+      },
+      {
+        "shopCd": "10016",
+        "shopNm": "롯데동래",
+        "region": "01"
+      },
+      {
+        "shopCd": "10018",
+        "shopNm": "롯데잠실",
+        "region": "01"
+      },
+      {
+        "shopCd": "10019",
+        "shopNm": "롯데대구",
+        "region": "01"
+      },
+      {
+        "shopCd": "10020",
+        "shopNm": "롯데청량리",
+        "region": "01"
+      },
+      {
+        "shopCd": "10021",
+        "shopNm": "신세계천안아산",
+        "region": "01"
+      },
+      {
+        "shopCd": "10022",
+        "shopNm": "롯데광주",
+        "region": "01"
+      },
+      {
+        "shopCd": "10023",
+        "shopNm": "갤러리아대전",
+        "region": "01"
+      },
+      {
+        "shopCd": "10025",
+        "shopNm": "롯데노원",
+        "region": "01"
+      },
+      {
+        "shopCd": "10026",
+        "shopNm": "롯데김포",
+        "region": "01"
+      },
+      {
+        "shopCd": "10027",
+        "shopNm": "롯데평촌",
+        "region": "01"
+      },
+      {
+        "shopCd": "10028",
+        "shopNm": "롯데일산",
+        "region": "01"
+      },
+      {
+        "shopCd": "10029",
+        "shopNm": "롯데상인",
+        "region": "01"
+      },
+      {
+        "shopCd": "10030",
+        "shopNm": "롯데센텀",
+        "region": "01"
+      },
+      {
+        "shopCd": "10032",
+        "shopNm": "롯데수원",
+        "region": "01"
+      },
+      {
+        "shopCd": "10033",
+        "shopNm": "현대중동",
+        "region": "01"
+      },
+      {
+        "shopCd": "10035",
+        "shopNm": "신세계의정부",
+        "region": "01"
+      },
+      {
+        "shopCd": "10038",
+        "shopNm": "롯데창원",
+        "region": "01"
+      },
+      {
+        "shopCd": "10039",
+        "shopNm": "AK원주",
+        "region": "01"
+      },
+      {
+        "shopCd": "10041",
+        "shopNm": "현대충청",
+        "region": "01"
+      },
+      {
+        "shopCd": "10043",
+        "shopNm": "롯데울산",
+        "region": "01"
+      },
+      {
+        "shopCd": "10044",
+        "shopNm": "롯데구리",
+        "region": "01"
+      },
+      {
+        "shopCd": "10045",
+        "shopNm": "롯데관악",
+        "region": "01"
+      },
+      {
+        "shopCd": "10046",
+        "shopNm": "갤러리아센터시티",
+        "region": "01"
+      },
+      {
+        "shopCd": "10047",
+        "shopNm": "마리오구로",
+        "region": "01"
+      },
+      {
+        "shopCd": "10048",
+        "shopNm": "아이파크용산",
+        "region": "01"
+      },
+      {
+        "shopCd": "10050",
+        "shopNm": "롯데본점",
+        "region": "01"
+      },
+      {
+        "shopCd": "10051",
+        "shopNm": "롯데안산",
+        "region": "01"
+      },
+      {
+        "shopCd": "10052",
+        "shopNm": "롯데강남",
+        "region": "01"
+      },
+      {
+        "shopCd": "10053",
+        "shopNm": "신세계경기",
+        "region": "01"
+      },
+      {
+        "shopCd": "10055",
+        "shopNm": "신세계광주",
+        "region": "01"
+      },
+      {
+        "shopCd": "10056",
+        "shopNm": "갤러리아진주",
+        "region": "01"
+      },
+      {
+        "shopCd": "10058",
+        "shopNm": "현대울산",
+        "region": "01"
+      },
+      {
+        "shopCd": "10059",
+        "shopNm": "현대대구",
+        "region": "01"
+      },
+      {
+        "shopCd": "10060",
+        "shopNm": "AK수원",
+        "region": "01"
+      },
+      {
+        "shopCd": "10061",
+        "shopNm": "신세계대구",
+        "region": "01"
+      },
+      {
+        "shopCd": "10063",
+        "shopNm": "롯데전주",
+        "region": "01"
+      },
+      {
+        "shopCd": "10064",
+        "shopNm": "현대천호",
+        "region": "01"
+      },
+      {
+        "shopCd": "10067",
+        "shopNm": "현대울산동구",
+        "region": "01"
+      },
+      {
+        "shopCd": "10068",
+        "shopNm": "현대판교",
+        "region": "01"
+      },
+      {
+        "shopCd": "10069",
+        "shopNm": "현대킨텍스",
+        "region": "01"
+      },
+      {
+        "shopCd": "10070",
+        "shopNm": "신세계강남",
+        "region": "01"
+      },
+      {
+        "shopCd": "10073",
+        "shopNm": "신세계마산",
+        "region": "01"
+      },
+      {
+        "shopCd": "10075",
+        "shopNm": "신세계본점",
+        "region": "01"
+      },
+      {
+        "shopCd": "10076",
+        "shopNm": "현대미아",
+        "region": "01"
+      },
+      {
+        "shopCd": "10077",
+        "shopNm": "신세계센텀",
+        "region": "01"
+      },
+      {
+        "shopCd": "10078",
+        "shopNm": "신세계김해",
+        "region": "01"
+      },
+      {
+        "shopCd": "10079",
+        "shopNm": "신세계하남",
+        "region": "01"
+      },
+      {
+        "shopCd": "10080",
+        "shopNm": "엔터식스왕십리",
+        "region": "01"
+      },
+      {
+        "shopCd": "10081",
+        "shopNm": "신세계스타일마켓",
+        "region": "01"
+      },
+      {
+        "shopCd": "10087",
+        "shopNm": "롯데인천",
+        "region": "01"
+      },
+      {
+        "shopCd": "10090",
+        "shopNm": "신세계영등포",
+        "region": "01"
+      },
+      {
+        "shopCd": "10091",
+        "shopNm": "갤러리아광교",
+        "region": "01"
+      },
+      {
+        "shopCd": "10092",
+        "shopNm": "엔터식스안양",
+        "region": "01"
+      },
+      {
+        "shopCd": "10093",
+        "shopNm": "AK평택",
+        "region": "01"
+      },
+      {
+        "shopCd": "10095",
+        "shopNm": "NC강남",
+        "region": "01"
+      },
+      {
+        "shopCd": "10096",
+        "shopNm": "롯데동탄",
+        "region": "01"
+      },
+      {
+        "shopCd": "10097",
+        "shopNm": "신세계대전",
+        "region": "01"
+      },
+      {
+        "shopCd": "10099",
+        "shopNm": "NC대전유성",
+        "region": "01"
+      },
+      {
+        "shopCd": "11002",
+        "shopNm": "K_롯데수원",
+        "region": "01"
+      },
+      {
+        "shopCd": "11003",
+        "shopNm": "K_롯데평촌",
+        "region": "01"
+      },
+      {
+        "shopCd": "11005",
+        "shopNm": "K_신세계의정부",
+        "region": "01"
+      },
+      {
+        "shopCd": "11007",
+        "shopNm": "K_신세계천안아산",
+        "region": "01"
+      },
+      {
+        "shopCd": "11008",
+        "shopNm": "K_AK수원",
+        "region": "01"
+      },
+      {
+        "shopCd": "11010",
+        "shopNm": "K_신세계김해",
+        "region": "01"
+      },
+      {
+        "shopCd": "11011",
+        "shopNm": "K_롯데건대",
+        "region": "01"
+      },
+      {
+        "shopCd": "11012",
+        "shopNm": "K_롯데인천",
+        "region": "01"
+      },
+      {
+        "shopCd": "11013",
+        "shopNm": "K_롯데대구",
+        "region": "01"
+      },
+      {
+        "shopCd": "11014",
+        "shopNm": "K_롯데울산",
+        "region": "01"
+      },
+      {
+        "shopCd": "11015",
+        "shopNm": "K_롯데부산",
+        "region": "01"
+      },
+      {
+        "shopCd": "11016",
+        "shopNm": "K_현대울산",
+        "region": "01"
+      },
+      {
+        "shopCd": "11017",
+        "shopNm": "K_롯데광복",
+        "region": "01"
+      },
+      {
+        "shopCd": "11018",
+        "shopNm": "K_LF스퀘어광양",
+        "region": "01"
+      },
+      {
+        "shopCd": "11019",
+        "shopNm": "K_신세계대전",
+        "region": "01"
+      },
+      {
+        "shopCd": "11020",
+        "shopNm": "K_신세계영등포",
+        "region": "01"
+      },
+      {
+        "shopCd": "11022",
+        "shopNm": "K_갤러리아센터시티",
+        "region": "01"
+      },
+      {
+        "shopCd": "11023",
+        "shopNm": "K_신세계마산",
+        "region": "01"
+      },
+      {
+        "shopCd": "11024",
+        "shopNm": "K_롯데잠실",
+        "region": "01"
+      },
+      {
+        "shopCd": "11025",
+        "shopNm": "K_현대천호",
+        "region": "01"
+      },
+      {
+        "shopCd": "30007",
+        "shopNm": "롯데아울렛이천(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30010",
+        "shopNm": "롯데아울렛봉무(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30011",
+        "shopNm": "롯데아울렛수완(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30012",
+        "shopNm": "롯데아울렛고양(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30013",
+        "shopNm": "롯데아울렛광명(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30015",
+        "shopNm": "타임스퀘어영등포(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30016",
+        "shopNm": "롯데아울렛동부산(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30019",
+        "shopNm": "롯데아울렛김해(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30020",
+        "shopNm": "롯데아울렛청주(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30021",
+        "shopNm": "롯데아울렛광교(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30022",
+        "shopNm": "롯데아울렛진주(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30023",
+        "shopNm": "롯데아울렛파주(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30024",
+        "shopNm": "롯데아울렛부여(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30025",
+        "shopNm": "신세계아울렛시흥(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30028",
+        "shopNm": "광주상무(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30030",
+        "shopNm": "스타필드고양(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30031",
+        "shopNm": "롯데아울렛원흥(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30032",
+        "shopNm": "신세계아울렛파주(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30033",
+        "shopNm": "롯데아울렛군산(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30034",
+        "shopNm": "현대아울렛가산(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30035",
+        "shopNm": "현대아울렛김포(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30037",
+        "shopNm": "롯데아울렛율하(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30038",
+        "shopNm": "롯데아울렛기흥(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30039",
+        "shopNm": "신세계아울렛기장(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30040",
+        "shopNm": "팩토리이천(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30041",
+        "shopNm": "팩토리죽전(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30042",
+        "shopNm": "현대아울렛대전(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30043",
+        "shopNm": "스타필드안성(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30044",
+        "shopNm": "현대아울렛송도(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30045",
+        "shopNm": "현대아울렛스페이스원(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30046",
+        "shopNm": "LF스퀘어광양(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30047",
+        "shopNm": "스타필드하남(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30049",
+        "shopNm": "롯데아울렛의왕(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30050",
+        "shopNm": "타임스트림신림(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30051",
+        "shopNm": "신세계아울렛여주(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30052",
+        "shopNm": "스타필드수원(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30053",
+        "shopNm": "롯데아울렛남악(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30054",
+        "shopNm": "롯데아울렛광주(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30055",
+        "shopNm": "커넥트현대부산(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30056",
+        "shopNm": "롯데아울렛은평(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30057",
+        "shopNm": "엔터식스안양(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "30058",
+        "shopNm": "엔터식스왕십리(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "31001",
+        "shopNm": "K_롯데아울렛수완(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "31003",
+        "shopNm": "K_롯데아울렛파주(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "31004",
+        "shopNm": "K_신세계아울렛파주(직)close",
+        "region": "01"
+      },
+      {
+        "shopCd": "31005",
+        "shopNm": "강남사옥(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "31006",
+        "shopNm": "명동점(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "31007",
+        "shopNm": "커넥트현대청주(직)",
+        "region": "01"
+      },
+      {
+        "shopCd": "40001",
+        "shopNm": "신라면세용산",
+        "region": "02"
+      },
+      {
+        "shopCd": "40002",
+        "shopNm": "신라면세장충",
+        "region": "02"
+      },
+      {
+        "shopCd": "40004",
+        "shopNm": "신세계면세명동",
+        "region": "02"
+      },
+      {
+        "shopCd": "40006",
+        "shopNm": "현대면세무역",
+        "region": "02"
+      },
+      {
+        "shopCd": "50001",
+        "shopNm": "목포하당(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50005",
+        "shopNm": "여수(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50006",
+        "shopNm": "제주(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50007",
+        "shopNm": "에버세이브청주(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50015",
+        "shopNm": "군산수송(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50019",
+        "shopNm": "경주(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50020",
+        "shopNm": "안동(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50023",
+        "shopNm": "순천연향(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50028",
+        "shopNm": "광주첨단(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50037",
+        "shopNm": "구미인동(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50041",
+        "shopNm": "홍성점(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50042",
+        "shopNm": "대구성서(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50047",
+        "shopNm": "순천중앙(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50052",
+        "shopNm": "동해(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50053",
+        "shopNm": "전주송천(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50055",
+        "shopNm": "창원중앙(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50057",
+        "shopNm": "여천(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50058",
+        "shopNm": "모다대전(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50059",
+        "shopNm": "신제주(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50063",
+        "shopNm": "스퀘어원(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50064",
+        "shopNm": "포천송우(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50065",
+        "shopNm": "화성봉담(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50069",
+        "shopNm": "신포(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50073",
+        "shopNm": "거제고현(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50074",
+        "shopNm": "모다인천(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50077",
+        "shopNm": "서수원(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50088",
+        "shopNm": "진접(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50089",
+        "shopNm": "퍼스트빌리지(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50090",
+        "shopNm": "아산(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50092",
+        "shopNm": "모다울산(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50095",
+        "shopNm": "진주정촌(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50096",
+        "shopNm": "LF스퀘어양주(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50098",
+        "shopNm": "울산무거(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50099",
+        "shopNm": "안양(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50101",
+        "shopNm": "김포(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50102",
+        "shopNm": "일산덕이(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50103",
+        "shopNm": "광주흑석(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50104",
+        "shopNm": "애플사상(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50106",
+        "shopNm": "세정광주(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50111",
+        "shopNm": "패션아일랜드(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50114",
+        "shopNm": "원주중앙(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50115",
+        "shopNm": "부천(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50116",
+        "shopNm": "오산(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50117",
+        "shopNm": "아이즈빌부평(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50118",
+        "shopNm": "서산(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50119",
+        "shopNm": "보령(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50120",
+        "shopNm": "춘천(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50122",
+        "shopNm": "상주(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50123",
+        "shopNm": "포항중앙(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50125",
+        "shopNm": "엔터식스상봉(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50126",
+        "shopNm": "강릉(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50127",
+        "shopNm": "전주중앙(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50130",
+        "shopNm": "NC야탑(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50131",
+        "shopNm": "시화(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50134",
+        "shopNm": "광명점(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50135",
+        "shopNm": "현대시티대구(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50137",
+        "shopNm": "NC송파(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50138",
+        "shopNm": "현대시티동대문(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50139",
+        "shopNm": "대구칠곡(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50140",
+        "shopNm": "에버랜드용인(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50141",
+        "shopNm": "모다천안(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50143",
+        "shopNm": "통영(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50144",
+        "shopNm": "당진(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50145",
+        "shopNm": "성남신흥(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50146",
+        "shopNm": "안산사동(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50147",
+        "shopNm": "경기시흥(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50148",
+        "shopNm": "김천(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50149",
+        "shopNm": "NC불광(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50151",
+        "shopNm": "속초(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50152",
+        "shopNm": "부산덕천(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50153",
+        "shopNm": "부평중앙(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50154",
+        "shopNm": "LF스퀘어연수(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50156",
+        "shopNm": "익산영등(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50157",
+        "shopNm": "충주(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50158",
+        "shopNm": "대구동성로(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50159",
+        "shopNm": "용인(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50160",
+        "shopNm": "정읍(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50162",
+        "shopNm": "영주(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50165",
+        "shopNm": "청주율량(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50166",
+        "shopNm": "진영(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50167",
+        "shopNm": "부산광복(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50168",
+        "shopNm": "모다김제(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50172",
+        "shopNm": "안성(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50174",
+        "shopNm": "구미중앙(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50175",
+        "shopNm": "공주(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50177",
+        "shopNm": "남원(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50178",
+        "shopNm": "태백(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50179",
+        "shopNm": "나주(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50180",
+        "shopNm": "동광양(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50181",
+        "shopNm": "경산(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50182",
+        "shopNm": "금왕(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50183",
+        "shopNm": "대전은행(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50184",
+        "shopNm": "천안쌍용(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50185",
+        "shopNm": "모다경주(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50186",
+        "shopNm": "영광(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50187",
+        "shopNm": "인천계산(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50188",
+        "shopNm": "논산(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50189",
+        "shopNm": "양산(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50190",
+        "shopNm": "아트몰링하단(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50191",
+        "shopNm": "타임테라스동탄(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50193",
+        "shopNm": "화순(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50195",
+        "shopNm": "수원남문(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50198",
+        "shopNm": "세종(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50199",
+        "shopNm": "거창(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50200",
+        "shopNm": "홍천(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50201",
+        "shopNm": "문경(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50202",
+        "shopNm": "NC부천(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50204",
+        "shopNm": "인천만수(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50205",
+        "shopNm": "NC강서(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50206",
+        "shopNm": "부산녹산(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50207",
+        "shopNm": "전주평화점(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50208",
+        "shopNm": "전주신도시(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50209",
+        "shopNm": "서귀포(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50210",
+        "shopNm": "해남(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50211",
+        "shopNm": "청주성안(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "50212",
+        "shopNm": "구리삼패(대-위)",
+        "region": "01"
+      },
+      {
+        "shopCd": "70014",
+        "shopNm": "2001중계(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "70015",
+        "shopNm": "뉴코아일산(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "70019",
+        "shopNm": "뉴코아동수원(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "70020",
+        "shopNm": "모다행담도(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "70022",
+        "shopNm": "NC구로(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "70023",
+        "shopNm": "현대가든파이브(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "70025",
+        "shopNm": "세이브존성남(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "70027",
+        "shopNm": "세이브존대전(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "70028",
+        "shopNm": "한성몰남양주(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "70029",
+        "shopNm": "NC부산대(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "70030",
+        "shopNm": "더팩토리아울렛(상-위)",
+        "region": "03"
+      },
+      {
+        "shopCd": "70031",
+        "shopNm": "롯데피트인산본(상-위)",
+        "region": "03"
+      }
+    ]
+  },
+  "generatedAt": "2026-06-15T04:27:37.906463+00:00"
+}

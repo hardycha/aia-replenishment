@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>보충배분-AIA</title>
+
+  <!-- AG Grid Community (무료) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@32.0.2/styles/ag-grid.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ag-grid-community@32.0.2/styles/ag-theme-alpine.css">
+  <script src="https://cdn.jsdelivr.net/npm/ag-grid-community@32.0.2/dist/ag-grid-community.min.noStyle.js"></script>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, 'Noto Sans KR', sans-serif; background: #F5F7FA; color: #1B3A5C; font-size: 13px; }
+
+    /* 헤더 */
+    .header { background: linear-gradient(135deg, #1B3A5C, #00A3E0); color: white; padding: 16px 24px; }
+    .header h1 { font-size: 1.4rem; margin-bottom: 4px; }
+    .header p { font-size: 0.8rem; opacity: 0.8; }
+
+    /* 필터바 */
+    .filter-bar { display: flex; gap: 12px; padding: 16px 24px; background: white; border-bottom: 1px solid #E2E8F0; flex-wrap: wrap; align-items: end; }
+    .filter-group { display: flex; flex-direction: column; gap: 4px; }
+    .filter-group label { font-size: 11px; color: #718096; font-weight: 600; }
+    .filter-group select { padding: 6px 10px; border: 1px solid #CBD5E0; border-radius: 6px; font-size: 13px; background: white; min-width: 120px; }
+
+    /* KPI 카드 */
+    .kpi-row { display: flex; gap: 12px; padding: 16px 24px; }
+    .kpi-card { flex: 1; background: white; border-radius: 8px; padding: 14px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+    .kpi-value { font-size: 1.6rem; font-weight: 700; color: #1B3A5C; }
+    .kpi-value.ai { color: #7C3AED; }
+    .kpi-label { font-size: 11px; color: #718096; margin-top: 2px; }
+
+    /* 액션 바 */
+    .action-bar { display: flex; gap: 12px; padding: 0 24px 12px; align-items: center; }
+    .btn { padding: 8px 16px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-primary { background: #7C3AED; color: white; }
+    .btn-primary:hover { background: #6D28D9; }
+    .btn-secondary { background: white; color: #1B3A5C; border: 1px solid #CBD5E0; }
+    .btn-secondary:hover { background: #F7FAFC; }
+    .view-toggle { display: flex; background: #EDF2F7; border-radius: 6px; overflow: hidden; }
+    .view-toggle button { padding: 6px 14px; border: none; background: transparent; font-size: 12px; cursor: pointer; font-weight: 500; }
+    .view-toggle button.active { background: #1B3A5C; color: white; }
+    .spacer { flex: 1; }
+    .hint { font-size: 11px; color: #A0AEC0; }
+
+    /* 그리드 */
+    .grid-wrap { padding: 0 24px 24px; }
+    #grid { height: 500px; width: 100%; }
+    .ag-header-cell-label { font-size: 11px; }
+
+    /* 푸터 */
+    .footer { padding: 12px 24px; text-align: center; color: #A0AEC0; font-size: 11px; border-top: 1px solid #E2E8F0; }
+
+    /* 로딩 */
+    .loading { text-align: center; padding: 40px; color: #718096; }
+    .spinner { display: inline-block; width: 24px; height: 24px; border: 3px solid #E2E8F0; border-top-color: #7C3AED; border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <!-- 헤더 -->
+  <div class="header">
+    <h1>📦 보충배분-AIA</h1>
+    <p>AI 기반 보충배분 시뮬레이션 · <span id="version">v11.0</span></p>
+  </div>
+
+  <!-- 필터바 -->
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label>브랜드</label>
+      <select id="f-brand"></select>
+    </div>
+    <div class="filter-group">
+      <label>AP</label>
+      <select id="f-ap"></select>
+    </div>
+    <div class="filter-group">
+      <label>시즌</label>
+      <select id="f-season"></select>
+    </div>
+    <div class="filter-group">
+      <label>스타일</label>
+      <select id="f-style"><option value="전체">전체</option></select>
+    </div>
+    <div class="filter-group">
+      <label>컬러</label>
+      <select id="f-color"><option value="전체">전체</option></select>
+    </div>
+    <div class="filter-group">
+      <label>매장등급</label>
+      <select id="f-grade"><option value="전체">전체</option></select>
+    </div>
+    <div class="filter-group">
+      <label>&nbsp;</label>
+      <button class="btn btn-secondary" onclick="loadData()">🔍 조회</button>
+    </div>
+  </div>
+
+  <!-- KPI -->
+  <div class="kpi-row">
+    <div class="kpi-card"><div class="kpi-value" id="kpi-scs">-</div><div class="kpi-label">SCS 수</div></div>
+    <div class="kpi-card"><div class="kpi-value ai" id="kpi-alloc">-</div><div class="kpi-label">총 배분</div></div>
+    <div class="kpi-card"><div class="kpi-value" id="kpi-rows">-</div><div class="kpi-label">데이터 행</div></div>
+    <div class="kpi-card"><div class="kpi-value" id="kpi-shops">-</div><div class="kpi-label">매장 수</div></div>
+  </div>
+
+  <!-- 액션바 -->
+  <div class="action-bar">
+    <div class="view-toggle">
+      <button id="btn-shop" class="active" onclick="switchView('shop')">매장별 보기</button>
+      <button id="btn-style" onclick="switchView('style')">스타일별 보기</button>
+    </div>
+    <button class="btn btn-primary" onclick="runSimulation()">🤖 AI 배분 시뮬레이션</button>
+    <button class="btn btn-secondary" onclick="exportExcel()">📥 엑셀 다운로드</button>
+    <span class="spacer"></span>
+    <span class="hint">💡 셀 클릭 → 직접 편집 | Ctrl+C/V 복붙 | Ctrl+Z 되돌리기</span>
+  </div>
+
+  <!-- AG Grid -->
+  <div class="grid-wrap">
+    <div id="grid" class="ag-theme-alpine"></div>
+  </div>
+
+  <!-- 푸터 -->
+  <div class="footer">
+    보충배분-AIA <span id="footer-version">v11.0</span> · 데이터: Python API · 화면: AG Grid
+  </div>
+
+<script>
+// ============================================================
+// 상태
+// ============================================================
+let currentView = 'shop';
+let gridApi = null;
+let currentData = [];
+let meta = {};
+
+// ============================================================
+// 데이터 로드
+// ============================================================
+async function loadData() {
+  const style = document.getElementById('f-style').value;
+  const color = document.getElementById('f-color').value;
+  const grade = document.getElementById('f-grade').value;
+
+  const params = new URLSearchParams({ style, color, grade, view: currentView });
+
+  try {
+    const res = await fetch(`/api/data?${params}`);
+    const json = await res.json();
+
+    document.getElementById('version').textContent = 'v' + json.version;
+    document.getElementById('footer-version').textContent = 'v' + json.version;
+
+    meta = json.meta;
+    currentData = json.pivot;
+
+    updateFilters(json.meta);
+    updateKpi(json);
+    renderGrid(json.pivot);
+  } catch (e) {
+    console.error('데이터 로드 실패:', e);
+  }
+}
+
+// ============================================================
+// 필터 옵션 채우기
+// ============================================================
+function updateFilters(m) {
+  fillSelect('f-brand', m.brands.map(b => ({ v: b.code, t: `${b.code}-${b.name}` })));
+  fillSelect('f-ap', m.ap_options.map(a => ({ v: a.value, t: a.label })));
+  fillSelect('f-season', m.seasons.map(s => ({ v: s, t: s })));
+
+  const styleOpts = [{ v: '전체', t: '전체' }].concat(m.styles.map(s => ({ v: s.code, t: `${s.code} ${s.name}` })));
+  fillSelect('f-style', styleOpts);
+
+  const colorOpts = [{ v: '전체', t: '전체' }].concat(m.colors.map(c => ({ v: c, t: c })));
+  fillSelect('f-color', colorOpts);
+
+  fillSelect('f-grade', m.grades.map(g => ({ v: g, t: g })));
+}
+
+function fillSelect(id, options) {
+  const sel = document.getElementById(id);
+  const curVal = sel.value;
+  sel.innerHTML = options.map(o => `<option value="${o.v}">${o.t}</option>`).join('');
+  if (options.find(o => o.v === curVal)) sel.value = curVal;
+}
+
+// ============================================================
+// KPI 업데이트
+// ============================================================
+function updateKpi(json) {
+  const pivot = json.pivot;
+  const totalAlloc = pivot.reduce((s, r) => s + (r['합계'] || 0), 0);
+  const numericCols = Object.keys(pivot[0] || {}).filter(k => !['shop_id','shop_name','shop_grade','style_code','style_name','color','합계'].includes(k));
+
+  document.getElementById('kpi-scs').textContent = numericCols.length.toLocaleString();
+  document.getElementById('kpi-alloc').textContent = totalAlloc.toLocaleString();
+  document.getElementById('kpi-rows').textContent = json.total_rows.toLocaleString();
+  document.getElementById('kpi-shops').textContent = pivot.length.toLocaleString();
+}
+
+// ============================================================
+// AG Grid 렌더링
+// ============================================================
+function renderGrid(data) {
+  if (!data || data.length === 0) return;
+
+  const firstRow = data[0];
+  const fixedCols = currentView === 'shop'
+    ? ['shop_id', 'shop_name', 'shop_grade']
+    : ['style_code', 'style_name', 'color'];
+
+  const columnDefs = [];
+
+  // 고정 열
+  fixedCols.forEach(key => {
+    const names = {
+      shop_id: '매장코드', shop_name: '매장명', shop_grade: '등급',
+      style_code: '스타일', style_name: '스타일명', color: '컬러'
+    };
+    columnDefs.push({
+      field: key, headerName: names[key] || key,
+      pinned: 'left', editable: false,
+      width: key.includes('name') ? 130 : 80,
+      cellStyle: { backgroundColor: '#F7FAFC' }
+    });
+  });
+
+  // 데이터 열 (편집 가능)
+  const dataCols = Object.keys(firstRow).filter(k => !fixedCols.includes(k) && k !== '합계');
+  dataCols.forEach(key => {
+    columnDefs.push({
+      field: key,
+      headerName: key.replace(/_/g, '\n'),
+      editable: true,
+      width: 65,
+      type: 'numericColumn',
+      valueParser: params => Number(params.newValue) || 0,
+      cellStyle: params => {
+        if (params.value > 0) return { color: '#7C3AED', fontWeight: '600' };
+        return { color: '#CBD5E0' };
+      }
+    });
+  });
+
+  // 합계 열
+  columnDefs.push({
+    field: '합계', headerName: '합계',
+    pinned: 'right', editable: false, width: 80,
+    cellStyle: { fontWeight: 'bold', backgroundColor: '#EBF5FB' },
+  });
+
+  const gridOptions = {
+    columnDefs: columnDefs,
+    rowData: data,
+    defaultColDef: {
+      sortable: true,
+      filter: true,
+      resizable: true,
+    },
+    enableRangeSelection: false,    // Community 버전 제한
+    undoRedoCellEditing: true,
+    undoRedoCellEditingLimit: 20,
+    enterNavigatesVertically: true,
+    enterNavigatesVerticallyAfterEdit: true,
+    onCellValueChanged: onCellChanged,
+    getRowId: params => {
+      if (currentView === 'shop') return params.data.shop_id;
+      return params.data.style_code + '_' + params.data.color;
+    }
+  };
+
+  // 기존 그리드 제거 후 새로 생성
+  const gridDiv = document.getElementById('grid');
+  gridDiv.innerHTML = '';
+
+  gridApi = agGrid.createGrid(gridDiv, gridOptions);
+}
+
+// 셀 변경 시 합계 재계산
+function onCellChanged(params) {
+  const row = params.data;
+  const fixedKeys = ['shop_id','shop_name','shop_grade','style_code','style_name','color','합계'];
+  let total = 0;
+  for (const [k, v] of Object.entries(row)) {
+    if (!fixedKeys.includes(k) && typeof v === 'number') total += v;
+  }
+  row['합계'] = total;
+  params.api.refreshCells({ rowNodes: [params.node], columns: ['합계'] });
+}
+
+// ============================================================
+// 뷰 전환
+// ============================================================
+function switchView(view) {
+  currentView = view;
+  document.getElementById('btn-shop').className = view === 'shop' ? 'active' : '';
+  document.getElementById('btn-style').className = view === 'style' ? 'active' : '';
+  loadData();
+}
+
+// ============================================================
+// AI 시뮬레이션
+// ============================================================
+async function runSimulation() {
+  const btn = event.target;
+  btn.textContent = '⏳ 시뮬레이션 중...';
+  btn.disabled = true;
+
+  try {
+    const res = await fetch('/api/simulate', { method: 'POST' });
+    const json = await res.json();
+
+    if (json.success) {
+      currentData = json.pivot;
+      renderGrid(json.pivot);
+
+      const diff = json.after_alloc - json.before_alloc;
+      const sign = diff >= 0 ? '+' : '';
+      alert(`✅ AI 배분 완료!\n\n변경 전: ${json.before_alloc.toLocaleString()}\n변경 후: ${json.after_alloc.toLocaleString()} (${sign}${diff.toLocaleString()})`);
+    }
+  } catch (e) {
+    alert('시뮬레이션 실패: ' + e.message);
+  } finally {
+    btn.textContent = '🤖 AI 배분 시뮬레이션';
+    btn.disabled = false;
+  }
+}
+
+// ============================================================
+// 엑셀 다운로드 (CSV)
+// ============================================================
+function exportExcel() {
+  if (!currentData || currentData.length === 0) return;
+
+  const headers = Object.keys(currentData[0]);
+  const csvRows = [headers.join(',')];
+
+  currentData.forEach(row => {
+    csvRows.push(headers.map(h => {
+      const val = row[h] ?? '';
+      return typeof val === 'string' && val.includes(',') ? `"${val}"` : val;
+    }).join(','));
+  });
+
+  const BOM = '\uFEFF';
+  const blob = new Blob([BOM + csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '보충배분_AIA_결과.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ============================================================
+// 초기 로드
+// ============================================================
+window.addEventListener('DOMContentLoaded', loadData);
+</script>
+</body>
+</html>

@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PRED_SC_W 예측 정확도 검증</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        font-family: 'Malgun Gothic', Arial, sans-serif;
+        background: #FAFAFC;
+        color: #2D2D2D;
+        line-height: 1.6;
+        padding: 0;
+    }
+    .report-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 24px 32px;
+        position: relative;
+    }
+    .report-container::before {
+        content: '';
+        position: fixed;
+        left: 0; top: 0;
+        width: 6px; height: 100%;
+        background: #006AE6;
+        z-index: 100;
+    }
+    .hero {
+        padding: 48px 0 32px;
+        border-bottom: 1px solid #E8EAEE;
+        margin-bottom: 32px;
+    }
+    .hero .brand {
+        font-size: 13px; font-weight: 700;
+        color: #8A8A9A; letter-spacing: 1px;
+        margin-bottom: 8px;
+    }
+    .hero h1 {
+        font-size: 32px; font-weight: 700;
+        color: #2D2D2D; margin-bottom: 8px;
+    }
+    .hero .subtitle {
+        font-size: 14px; color: #8A8A9A;
+    }
+    .hero .key-metrics {
+        float: right; background: #E3F0FF;
+        border-radius: 8px; padding: 16px 20px;
+        margin-top: -80px; min-width: 280px;
+    }
+    .hero .key-metrics h4 {
+        font-size: 11px; font-weight: 700;
+        color: #006AE6; margin-bottom: 6px;
+    }
+    .hero .key-metrics p {
+        font-size: 12px; color: #2D2D2D;
+        margin: 2px 0; line-height: 1.5;
+    }
+    .section {
+        margin-bottom: 40px;
+    }
+    .section-header {
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #E8EAEE;
+    }
+    .section-header h2 {
+        font-size: 22px; font-weight: 700;
+        color: #2D2D2D; margin-bottom: 4px;
+    }
+    .section-header .sub {
+        font-size: 12px; color: #8A8A9A;
+    }
+    .kpi-row {
+        display: flex; gap: 16px;
+        margin-bottom: 24px; flex-wrap: wrap;
+    }
+    .kpi-card {
+        flex: 1; min-width: 200px;
+        border-radius: 10px; padding: 18px 20px;
+        position: relative;
+    }
+    .kpi-card .accent-bar {
+        position: absolute; top: 10px; left: 16px;
+        width: 40px; height: 4px; border-radius: 2px;
+    }
+    .kpi-card .label {
+        font-size: 11px; color: #8A8A9A;
+        margin-top: 14px; margin-bottom: 4px;
+    }
+    .kpi-card .value {
+        font-size: 26px; font-weight: 700;
+        color: #2D2D2D; margin-bottom: 4px;
+    }
+    .kpi-card .sub-text {
+        font-size: 11px; font-weight: 600;
+    }
+    .styled-table {
+        width: 100%; border-collapse: collapse;
+        font-size: 13px; border-radius: 8px;
+        overflow: hidden;
+    }
+    .styled-table thead th {
+        background: #006AE6;
+        color: #FFFFFF; padding: 10px 14px;
+        text-align: center; font-weight: 600;
+        font-size: 12px;
+    }
+    .styled-table thead th:first-child { text-align: left; }
+    .styled-table tbody td {
+        padding: 8px 14px; text-align: center;
+        border-bottom: 1px solid #E8EAEE;
+    }
+    .styled-table tbody td:first-child { text-align: left; font-weight: 500; }
+    .styled-table tbody tr:nth-child(odd) { background: #FFFFFF; }
+    .styled-table tbody tr:nth-child(even) { background: #F0F2F5; }
+    .styled-table tbody tr:hover { background: #E3F0FF; }
+    .chart-container {
+        background: #FFFFFF;
+        border-radius: 10px; padding: 20px;
+        margin-bottom: 16px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .flex-row {
+        display: flex; gap: 24px; align-items: flex-start;
+        flex-wrap: wrap;
+    }
+    .flex-row .chart-col { flex: 3; min-width: 400px; }
+    .flex-row .table-col { flex: 2; min-width: 280px; }
+    .insight-box {
+        border-radius: 10px; padding: 20px 24px;
+        position: relative; margin-bottom: 16px;
+    }
+    .insight-box::before {
+        content: '';
+        position: absolute; left: 0; top: 0;
+        width: 5px; height: 100%;
+        border-radius: 10px 0 0 10px;
+    }
+    .insight-box.positive { background: #E3F8F0; }
+    .insight-box.positive::before { background: #00B894; }
+    .insight-box.watch { background: #FFF3E0; }
+    .insight-box.watch::before { background: #FF6352; }
+    .insight-box h3 {
+        font-size: 14px; font-weight: 700;
+        margin-bottom: 10px;
+    }
+    .insight-box.positive h3 { color: #00B894; }
+    .insight-box.watch h3 { color: #FF6352; }
+    .insight-box ul {
+        list-style: none; padding: 0;
+    }
+    .insight-box ul li {
+        font-size: 13px; color: #2D2D2D;
+        padding: 4px 0; padding-left: 16px;
+        position: relative;
+    }
+    .insight-box ul li::before {
+        content: '\2022';
+        position: absolute; left: 0;
+        font-weight: 700;
+    }
+    .insight-box.positive ul li::before { color: #00B894; }
+    .insight-box.watch ul li::before { color: #FF6352; }
+    .footer {
+        text-align: center; padding: 24px 0;
+        font-size: 11px; color: #8A8A9A;
+        border-top: 1px solid #E8EAEE;
+        margin-top: 40px;
+    }
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 16px;
+        margin-top: 16px;
+    }
+    .product-card {
+        background: #FFFFFF;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+        transition: transform 0.15s, box-shadow 0.15s;
+        position: relative;
+    }
+    .product-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.12);
+    }
+    .product-card .rank-badge {
+        position: absolute; top: 10px; left: 10px;
+        width: 30px; height: 30px;
+        border-radius: 50%;
+        background: #006AE6;
+        color: #FFFFFF;
+        font-size: 13px; font-weight: 700;
+        display: flex; align-items: center; justify-content: center;
+        z-index: 2;
+    }
+    .product-card .rank-badge.top3 {
+        background: #FFA000;
+        width: 34px; height: 34px;
+        font-size: 15px;
+    }
+    .product-card .img-wrap {
+        width: 100%; aspect-ratio: 1;
+        background: #F0F2F5;
+        display: flex; align-items: center; justify-content: center;
+        overflow: hidden;
+    }
+    .product-card .img-wrap img {
+        width: 85%; height: 85%;
+        object-fit: contain;
+    }
+    .product-card .info {
+        padding: 12px 14px;
+    }
+    .product-card .category-tag {
+        display: inline-block;
+        font-size: 10px; font-weight: 600;
+        color: #006AE6;
+        background: #E3F0FF;
+        border-radius: 4px;
+        padding: 2px 8px;
+        margin-bottom: 6px;
+    }
+    .product-card .prdt-name {
+        font-size: 13px; font-weight: 600;
+        color: #2D2D2D;
+        line-height: 1.4;
+        margin-bottom: 4px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .product-card .prdt-code {
+        font-size: 10px; color: #8A8A9A;
+        margin-bottom: 8px;
+    }
+    .product-card .metrics {
+        display: flex; justify-content: space-between;
+        border-top: 1px solid #E8EAEE;
+        padding-top: 8px; margin-top: 4px;
+    }
+    .product-card .metric {
+        text-align: center; flex: 1;
+    }
+    .product-card .metric .m-label {
+        font-size: 9px; color: #8A8A9A;
+        margin-bottom: 2px;
+    }
+    .product-card .metric .m-value {
+        font-size: 12px; font-weight: 700;
+        color: #2D2D2D;
+    }
+    .product-card .price-tag {
+        font-size: 14px; font-weight: 700;
+        color: #2D2D2D; margin-bottom: 2px;
+    }
+    @media (max-width: 768px) {
+        .hero .key-metrics { float: none; margin-top: 16px; }
+        .flex-row { flex-direction: column; }
+        .kpi-card { min-width: 140px; }
+        .product-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+    }
+    </style>
+</head>
+<body>
+    <div class="report-container">
+
+    <div class="hero">
+        <div class="brand">DCS AI · ML_DIST.PRED_SC_W 검증</div>
+        <h1>주간 판매 예측 정확도 검증 리포트</h1>
+        <p style="color:#8A8A9A">
+            대상: Discovery(X) · METHOD_CD=lgbm · 분석 주차: 2026-04-27, 2026-05-04
+        </p>
+    </div>
+
+    <div class="section-header">
+        <h2>Executive Summary</h2>
+        <div class="sub">전체 기간 핵심 지표</div>
+    </div>
+<div class="flex-row">
+
+    <div class="kpi-card" style="background:#E3F0FF">
+        <div class="accent-bar" style="background:#FFA000"></div>
+        <div class="label">WAPE</div>
+        <div class="value">41.3%</div>
+        <div class="sub-text" style="color:#FFA000">보통</div>
+    </div>
+
+    <div class="kpi-card" style="background:#E3F0FF">
+        <div class="accent-bar" style="background:#006AE6"></div>
+        <div class="label">MAE</div>
+        <div class="value">10.03</div>
+        <div class="sub-text" style="color:#006AE6">SC당 평균 절대 오차</div>
+    </div>
+
+    <div class="kpi-card" style="background:#FFF3E0">
+        <div class="accent-bar" style="background:#FF6352"></div>
+        <div class="label">Bias (예측/실적)</div>
+        <div class="value">0.652</div>
+        <div class="sub-text" style="color:#FF6352">과소예측</div>
+    </div>
+
+    <div class="kpi-card" style="background:#E3F0FF">
+        <div class="accent-bar" style="background:#6C5CE7"></div>
+        <div class="label">총 예측 수량</div>
+        <div class="value">40,571</div>
+        <div class="sub-text" style="color:#6C5CE7">총 실적: 62,224</div>
+    </div>
+
+    <div class="kpi-card" style="background:#FFF3E0">
+        <div class="accent-bar" style="background:#FFA000"></div>
+        <div class="label">과예측 비율</div>
+        <div class="value">32.5%</div>
+        <div class="sub-text" style="color:#FFA000">과소예측: 67.5%</div>
+    </div>
+
+    <div class="kpi-card" style="background:#F0F2F5">
+        <div class="accent-bar" style="background:#8A8A9A"></div>
+        <div class="label">실판매 없음</div>
+        <div class="value">176</div>
+        <div class="sub-text" style="color:#8A8A9A">전체 2,565 SC 중</div>
+    </div>
+</div>
+
+    <div class="section-header">
+        <h2>주차별 상세 지표</h2>
+        <div class="sub">완결 주차 기준</div>
+    </div>
+
+    <table class="styled-table">
+        <thead><tr><th>주차</th><th>SC 수</th><th>총예측</th><th>총실적</th><th>차이</th><th>WAPE</th><th>MAE</th><th>Bias</th><th>과예측</th><th>과소예측</th><th>실적없음</th></tr></thead>
+        <tbody><tr><td>2026-04-27</td><td>1,266</td><td>18,719</td><td>32,021</td><td>-13,302</td><td>0.472</td><td>11.94</td><td>0.585</td><td>378</td><td>888</td><td>81</td></tr>
+<tr><td>2026-05-04</td><td>1,299</td><td>21,851</td><td>30,203</td><td>-8,352</td><td>0.351</td><td>8.16</td><td>0.723</td><td>456</td><td>843</td><td>95</td></tr>
+</tbody>
+    </table>
+
+    <div class="section-header">
+        <h2>주차별 WAPE 추이</h2>
+        
+    </div>
+
+    <div class="chart-container">
+        <canvas id="wapeChart" style="width:100%;height:320px"></canvas>
+    </div>
+
+    <div class="section-header">
+        <h2>실판매 구간별 예측 성능</h2>
+        <div class="sub">구간별 예측/실적 비율 및 MAE</div>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="bucketChart" style="width:100%;height:360px"></canvas>
+    </div>
+
+    <table class="styled-table">
+        <thead><tr><th>구간</th><th>SC 수</th><th>예측합계</th><th>실적합계</th><th>예측/실적</th><th>평균예측</th><th>평균실적</th><th>MAE</th></tr></thead>
+        <tbody><tr><td>01_to_10</td><td>952</td><td>4,749</td><td>4,644</td><td>1.023</td><td>5.00</td><td>4.90</td><td>2.00</td></tr>
+<tr><td>0_NoSales</td><td>176</td><td>309</td><td>0</td><td>-</td><td>1.80</td><td>0.00</td><td>1.80</td></tr>
+<tr><td>101_to_200</td><td>64</td><td>4,672</td><td>8,229</td><td>0.568</td><td>73.00</td><td>128.60</td><td>56.70</td></tr>
+<tr><td>11_to_30</td><td>793</td><td>11,307</td><td>14,908</td><td>0.758</td><td>14.30</td><td>18.80</td><td>5.90</td></tr>
+<tr><td>200_plus</td><td>29</td><td>706</td><td>5,658</td><td>0.125</td><td>24.30</td><td>195.10</td><td>175.20</td></tr>
+<tr><td>31_to_60</td><td>400</td><td>11,488</td><td>17,113</td><td>0.671</td><td>28.70</td><td>42.80</td><td>14.40</td></tr>
+<tr><td>61_to_100</td><td>151</td><td>7,341</td><td>11,672</td><td>0.629</td><td>48.60</td><td>77.30</td><td>29.00</td></tr>
+</tbody>
+    </table>
+
+    <div class="section-header">
+        <h2>예측 vs 실적 산점도</h2>
+        <div class="sub">기준 주차: 2026-05-04</div>
+    </div>
+
+    <div class="chart-container">
+        <canvas id="scatterChart" style="width:100%;height:400px"></canvas>
+    </div>
+
+    <div class="section-header">
+        <h2>TOP 10 케이스</h2>
+        <div class="sub">기준 주차: 2026-05-04</div>
+    </div>
+<h3 style="margin:24px 0 8px;color:#2D2D2D">실판매 TOP 10 — 가장 많이 팔린 SC</h3>
+
+    <table class="styled-table">
+        <thead><tr><th>PART_CD</th><th>COLOR_CD</th><th>SESN</th><th>예측</th><th>실적</th><th>차이</th></tr></thead>
+        <tbody><tr><td>DMTS71063</td><td>BKS</td><td>26S</td><td>85</td><td>621</td><td>-536</td></tr>
+<tr><td>DWTS72063</td><td>BKS</td><td>26S</td><td>36</td><td>304</td><td>-268</td></tr>
+<tr><td>DXRS75063</td><td>WHS</td><td>26S</td><td>148</td><td>204</td><td>-56</td></tr>
+<tr><td>DXRS75063</td><td>BKS</td><td>26S</td><td>203</td><td>197</td><td>6</td></tr>
+<tr><td>DMTP63063</td><td>BKS</td><td>26S</td><td>115</td><td>178</td><td>-63</td></tr>
+<tr><td>DMTS71063</td><td>MGS</td><td>26S</td><td>78</td><td>178</td><td>-100</td></tr>
+<tr><td>DMRS63063</td><td>WHS</td><td>26S</td><td>199</td><td>169</td><td>30</td></tr>
+<tr><td>DMRS73063</td><td>BKS</td><td>26S</td><td>128</td><td>161</td><td>-33</td></tr>
+<tr><td>DMWJ7K063</td><td>GRD</td><td>26S</td><td>97</td><td>151</td><td>-54</td></tr>
+<tr><td>DWRS94063</td><td>WHS</td><td>26S</td><td>106</td><td>146</td><td>-40</td></tr>
+</tbody>
+    </table>
+<h3 style="margin:24px 0 8px;color:#2D2D2D">과소예측 TOP 10 — 실제보다 가장 적게 예측한 SC</h3>
+
+    <table class="styled-table">
+        <thead><tr><th>PART_CD</th><th>COLOR_CD</th><th>SESN</th><th>예측</th><th>실적</th><th>차이</th></tr></thead>
+        <tbody><tr><td>DMTS71063</td><td>BKS</td><td>26S</td><td>85</td><td>621</td><td>-536</td></tr>
+<tr><td>DWTS72063</td><td>BKS</td><td>26S</td><td>36</td><td>304</td><td>-268</td></tr>
+<tr><td>DMWJ31061</td><td>BKS</td><td>26S</td><td>11</td><td>124</td><td>-113</td></tr>
+<tr><td>DMTS71063</td><td>MGS</td><td>26S</td><td>78</td><td>178</td><td>-100</td></tr>
+<tr><td>DMTS81063</td><td>BGL</td><td>26S</td><td>55</td><td>145</td><td>-90</td></tr>
+<tr><td>DMWJ31061</td><td>BGL</td><td>26S</td><td>6</td><td>94</td><td>-88</td></tr>
+<tr><td>DMTS6A063</td><td>NYM</td><td>26S</td><td>52</td><td>122</td><td>-70</td></tr>
+<tr><td>DXRS75063</td><td>KAD</td><td>26S</td><td>23</td><td>91</td><td>-68</td></tr>
+<tr><td>DMTP63063</td><td>BKS</td><td>26S</td><td>115</td><td>178</td><td>-63</td></tr>
+<tr><td>DXRS7R063</td><td>WHS</td><td>26S</td><td>50</td><td>113</td><td>-63</td></tr>
+</tbody>
+    </table>
+<h3 style="margin:24px 0 8px;color:#2D2D2D">과예측 TOP 10 — 실제보다 가장 많이 예측한 SC</h3>
+
+    <table class="styled-table">
+        <thead><tr><th>PART_CD</th><th>COLOR_CD</th><th>SESN</th><th>예측</th><th>실적</th><th>차이</th></tr></thead>
+        <tbody><tr><td>DMTS81063</td><td>KAD</td><td>26S</td><td>65</td><td>30</td><td>35</td></tr>
+<tr><td>DMRS63063</td><td>WHS</td><td>26S</td><td>199</td><td>169</td><td>30</td></tr>
+<tr><td>DMTR6B063</td><td>BKS</td><td>26S</td><td>30</td><td>16</td><td>14</td></tr>
+<tr><td>DXTR7A063</td><td>BKS</td><td>26S</td><td>56</td><td>43</td><td>13</td></tr>
+<tr><td>DWTP43061</td><td>BKS</td><td>26S</td><td>17</td><td>6</td><td>11</td></tr>
+<tr><td>DMTS7C063</td><td>MGS</td><td>26S</td><td>24</td><td>13</td><td>11</td></tr>
+<tr><td>DWKT91063</td><td>BKS</td><td>26S</td><td>11</td><td>0</td><td>11</td></tr>
+<tr><td>DMWJ6G063</td><td>BKS</td><td>26S</td><td>75</td><td>65</td><td>10</td></tr>
+<tr><td>DXRS59063</td><td>NYD</td><td>26S</td><td>32</td><td>22</td><td>10</td></tr>
+<tr><td>DMSP79063</td><td>BKS</td><td>26S</td><td>17</td><td>7</td><td>10</td></tr>
+</tbody>
+    </table>
+<h3 style="margin:24px 0 8px;color:#2D2D2D">정확 매칭 TOP 10 — 실판매 ≥ 10 중 가장 정확한 SC</h3>
+
+    <table class="styled-table">
+        <thead><tr><th>PART_CD</th><th>COLOR_CD</th><th>SESN</th><th>예측</th><th>실적</th><th>차이</th></tr></thead>
+        <tbody><tr><td>DWTB92063</td><td>PCS</td><td>26S</td><td>13</td><td>13</td><td>0</td></tr>
+<tr><td>DXRS5M063</td><td>KAD</td><td>26S</td><td>17</td><td>17</td><td>0</td></tr>
+<tr><td>DWRS91063</td><td>BKS</td><td>26S</td><td>33</td><td>33</td><td>0</td></tr>
+<tr><td>DWTB92063</td><td>MTL</td><td>26S</td><td>13</td><td>13</td><td>0</td></tr>
+<tr><td>DMPT33061</td><td>BKS</td><td>26S</td><td>15</td><td>15</td><td>0</td></tr>
+<tr><td>DMPT77063</td><td>BKM</td><td>26S</td><td>33</td><td>33</td><td>0</td></tr>
+<tr><td>DWRS9R063</td><td>IVD</td><td>26S</td><td>24</td><td>24</td><td>0</td></tr>
+<tr><td>DMRS81063</td><td>IVD</td><td>26S</td><td>30</td><td>30</td><td>0</td></tr>
+<tr><td>DKTB51063</td><td>IND</td><td>26S</td><td>13</td><td>13</td><td>0</td></tr>
+<tr><td>DWRS92063</td><td>BKS</td><td>26S</td><td>22</td><td>22</td><td>0</td></tr>
+</tbody>
+    </table>
+
+    <div class="section-header">
+        <h2>교차검증 결과</h2>
+        
+    </div>
+
+    <div class="insight-box positive">
+        <h3>교차검증 통과</h3>
+        <ul><li>주차별 합계 = 전체 합계: 일치 확인</li><li>구간별 합계 = 전체 합계: 일치 확인</li></ul>
+    </div>
+
+    <div class="section-header">
+        <h2>Appendix</h2>
+        <div class="sub">분석 조건</div>
+    </div>
+
+    <div class="insight-box positive">
+        <h3>분석 조건 상세</h3>
+        <ul><li>검증 대상: FNF.ML_DIST.PRED_SC_W (METHOD_CD=&#x27;lgbm&#x27;)</li><li>실판매 정의: DW_SH_SCS_D.SALE_NML_QTY_SH + SALE_RET_QTY_SH (오프라인 매장 SH 전용)</li><li>반품(RET)은 음수로 저장 → 합산으로 순판매 산출</li><li>소량단체/온라인/백화점온라인 필터: 미적용 (SH 컬럼 자체가 오프라인 매장 채널)</li><li>분석 주차: 2026-04-27, 2026-05-04</li><li>미완결 주차 제외: 2026-05-11</li><li>브랜드: X (Discovery)</li><li>1차 지표: WAPE = SUM(|예측-실적|) / SUM(실적)</li></ul>
+    </div>
+    </div>
+    <script>
+new Chart(document.getElementById('wapeChart'), {"type": "line", "data": {"labels": ["2026-04-27", "2026-05-04"], "datasets": [{"label": "WAPE (%)", "data": [47.2, 35.1], "borderColor": "#006AE6", "backgroundColor": "#006AE633", "fill": true, "tension": 0.3, "yAxisID": "y"}, {"label": "Bias", "data": [0.585, 0.723], "borderColor": "#FFA000", "borderDash": [5, 5], "fill": false, "tension": 0.3, "yAxisID": "y1"}]}, "options": {"responsive": true, "scales": {"y": {"type": "linear", "position": "left", "title": {"display": true, "text": "WAPE (%)"}}, "y1": {"type": "linear", "position": "right", "title": {"display": true, "text": "Bias (예측/실적)"}, "grid": {"drawOnChartArea": false}}}, "plugins": {"title": {"display": false}}}});
+new Chart(document.getElementById('bucketChart'), {"type": "bar", "data": {"labels": ["01_to_10", "0_NoSales", "101_to_200", "11_to_30", "200_plus", "31_to_60", "61_to_100"], "datasets": [{"label": "예측/실적 비율", "data": [1.023, 0, 0.568, 0.758, 0.125, 0.671, 0.629], "backgroundColor": "#006AE6AA", "yAxisID": "y", "order": 2}, {"label": "MAE", "data": [2.0, 1.8, 56.7, 5.9, 175.2, 14.4, 29.0], "type": "line", "borderColor": "#6C5CE7", "fill": false, "tension": 0.3, "yAxisID": "y1", "order": 1}]}, "options": {"responsive": true, "scales": {"y": {"type": "linear", "position": "left", "title": {"display": true, "text": "예측/실적 비율"}, "suggestedMin": 0, "suggestedMax": 3}, "y1": {"type": "linear", "position": "right", "title": {"display": true, "text": "MAE"}, "grid": {"drawOnChartArea": false}}}}});
+new Chart(document.getElementById('scatterChart'), {"type": "scatter", "data": {"datasets": [{"label": "SC (예측 vs 실적)", "data": [{"x": 9.6, "y": 9.0}, {"x": 8.1, "y": 10.0}, {"x": 3.5, "y": 5.0}, {"x": 4.7, "y": 7.0}, {"x": 7.1, "y": 12.0}, {"x": 4.3, "y": 4.0}, {"x": 5.1, "y": 6.0}, {"x": 5.5, "y": 8.0}, {"x": 6.2, "y": 3.0}, {"x": 7.6, "y": 9.0}, {"x": 5.5, "y": 6.0}, {"x": 3.3, "y": 3.0}, {"x": 11.7, "y": 8.0}, {"x": 5.3, "y": 11.0}, {"x": 10.1, "y": 5.0}, {"x": 2.8, "y": 6.0}, {"x": 7.6, "y": 6.0}, {"x": 4.4, "y": 9.0}, {"x": 8.3, "y": 7.0}, {"x": 14.6, "y": 18.0}, {"x": 8.4, "y": 12.0}, {"x": 5.7, "y": 10.0}, {"x": 3.9, "y": 1.0}, {"x": 1.5, "y": 1.0}, {"x": 1.4, "y": 2.0}, {"x": 6.6, "y": 6.0}, {"x": 11.5, "y": 13.0}, {"x": 13.1, "y": 7.0}, {"x": 11.3, "y": 10.0}, {"x": 26.8, "y": 28.0}, {"x": 19.5, "y": 16.0}, {"x": 15.0, "y": 8.0}, {"x": 13.1, "y": 25.0}, {"x": 15.9, "y": 22.0}, {"x": 13.7, "y": 25.0}, {"x": 7.2, "y": 24.0}, {"x": 0.5, "y": 1.0}, {"x": 0.7, "y": 2.0}, {"x": 0.3, "y": 1.0}, {"x": 0.4, "y": 1.0}, {"x": 5.7, "y": 7.0}, {"x": 6.7, "y": 11.0}, {"x": 4.1, "y": 25.0}, {"x": 8.3, "y": 9.0}, {"x": 4.5, "y": 9.0}, {"x": 14.1, "y": 26.0}, {"x": 5.9, "y": 14.0}, {"x": 2.3, "y": 4.0}, {"x": 3.4, "y": 2.0}, {"x": 18.2, "y": 29.0}, {"x": 3.2, "y": 3.0}, {"x": 9.5, "y": 7.0}, {"x": 5.8, "y": 2.0}, {"x": 1.6, "y": 2.0}, {"x": 4.0, "y": 7.0}, {"x": 0.8, "y": 1.0}, {"x": 11.3, "y": 17.0}, {"x": 2.2, "y": 2.0}, {"x": 12.8, "y": 19.0}, {"x": 10.1, "y": 24.0}, {"x": 2.9, "y": 7.0}, {"x": 2.6, "y": 5.0}, {"x": 6.3, "y": 17.0}, {"x": 9.3, "y": 10.0}, {"x": 17.4, "y": 30.0}, {"x": 11.1, "y": 16.0}, {"x": 3.8, "y": 4.0}, {"x": 10.0, "y": 13.0}, {"x": 4.0, "y": 54.0}, {"x": 12.5, "y": 25.0}, {"x": 13.4, "y": 26.0}, {"x": 9.7, "y": 3.0}, {"x": 6.8, "y": 15.0}, {"x": 5.2, "y": 4.0}, {"x": 12.6, "y": 18.0}, {"x": 6.9, "y": 10.0}, {"x": 15.2, "y": 15.0}, {"x": 5.3, "y": 13.0}, {"x": 9.8, "y": 15.0}, {"x": 13.4, "y": 7.0}, {"x": 11.5, "y": 12.0}, {"x": 5.8, "y": 4.0}, {"x": 4.4, "y": 6.0}, {"x": 3.8, "y": 1.0}, {"x": 3.9, "y": 3.0}, {"x": 4.8, "y": 5.0}, {"x": 4.8, "y": 6.0}, {"x": 12.9, "y": 30.0}, {"x": 9.4, "y": 12.0}, {"x": 9.3, "y": 8.0}, {"x": 6.3, "y": 10.0}, {"x": 3.2, "y": 3.0}, {"x": 8.3, "y": 13.0}, {"x": 8.6, "y": 13.0}, {"x": 4.8, "y": 3.0}, {"x": 7.3, "y": 12.0}, {"x": 8.4, "y": 14.0}, {"x": 7.3, "y": 5.0}, {"x": 10.1, "y": 6.0}, {"x": 5.9, "y": 1.0}, {"x": 3.9, "y": 5.0}, {"x": 6.2, "y": 11.0}, {"x": 10.7, "y": 14.0}, {"x": 11.5, "y": 24.0}, {"x": 8.6, "y": 11.0}, {"x": 6.0, "y": 6.0}, {"x": 5.3, "y": 9.0}, {"x": 6.9, "y": 15.0}, {"x": 7.1, "y": 5.0}, {"x": 2.2, "y": 8.0}, {"x": 2.8, "y": 8.0}, {"x": 4.8, "y": 6.0}, {"x": 2.9, "y": 4.0}, {"x": 3.5, "y": 3.0}, {"x": 2.5, "y": 5.0}, {"x": 7.3, "y": 7.0}, {"x": 3.8, "y": 5.0}, {"x": 7.4, "y": 24.0}, {"x": 6.5, "y": 7.0}, {"x": 4.9, "y": 9.0}, {"x": 7.8, "y": 17.0}, {"x": 9.0, "y": 9.0}, {"x": 4.9, "y": 10.0}, {"x": 5.9, "y": 5.0}, {"x": 11.3, "y": 15.0}, {"x": 6.2, "y": 15.0}, {"x": 4.9, "y": 14.0}, {"x": 4.1, "y": 6.0}, {"x": 23.9, "y": 28.0}, {"x": 18.7, "y": 30.0}, {"x": 16.7, "y": 37.0}, {"x": 22.9, "y": 54.0}, {"x": 22.8, "y": 41.0}, {"x": 24.0, "y": 44.0}, {"x": 2.5, "y": 3.0}, {"x": 1.6, "y": 5.0}, {"x": 2.3, "y": 3.0}, {"x": 1.7, "y": 4.0}, {"x": 2.0, "y": 2.0}, {"x": 3.7, "y": 1.0}, {"x": 0.8, "y": 1.0}, {"x": 2.0, "y": 3.0}, {"x": 4.3, "y": 4.0}, {"x": 1.5, "y": 1.0}, {"x": 2.1, "y": 3.0}, {"x": 1.9, "y": 3.0}, {"x": 1.8, "y": 1.0}, {"x": 3.0, "y": 5.0}, {"x": 3.7, "y": 2.0}, {"x": 2.4, "y": 2.0}, {"x": 2.1, "y": 2.0}, {"x": 4.3, "y": 6.0}, {"x": 4.7, "y": 6.0}, {"x": 9.6, "y": 18.0}, {"x": 13.9, "y": 26.0}, {"x": 5.0, "y": 6.0}, {"x": 14.0, "y": 25.0}, {"x": 7.2, "y": 18.0}, {"x": 9.2, "y": 10.0}, {"x": 20.8, "y": 20.0}, {"x": 25.7, "y": 20.0}, {"x": 10.9, "y": 9.0}, {"x": 19.8, "y": 30.0}, {"x": 11.4, "y": 22.0}, {"x": 29.6, "y": 46.0}, {"x": 16.3, "y": 9.0}, {"x": 12.9, "y": 13.0}, {"x": 10.8, "y": 13.0}, {"x": 5.0, "y": 2.0}, {"x": 8.0, "y": 6.0}, {"x": 4.4, "y": 6.0}, {"x": 5.1, "y": 3.0}, {"x": 2.5, "y": 1.0}, {"x": 2.3, "y": 2.0}, {"x": 1.4, "y": 2.0}, {"x": 0.8, "y": 1.0}, {"x": 1.0, "y": 1.0}, {"x": 0.5, "y": 1.0}, {"x": 2.1, "y": 2.0}, {"x": 3.7, "y": 1.0}, {"x": 2.2, "y": 1.0}, {"x": 15.5, "y": 10.0}, {"x": 5.0, "y": 4.0}, {"x": 5.8, "y": 4.0}, {"x": 5.3, "y": 6.0}, {"x": 9.5, "y": 10.0}, {"x": 2.6, "y": 2.0}, {"x": 3.5, "y": 1.0}, {"x": 7.1, "y": 7.0}, {"x": 13.4, "y": 22.0}, {"x": 6.1, "y": 8.0}, {"x": 15.3, "y": 22.0}, {"x": 8.3, "y": 15.0}, {"x": 9.3, "y": 16.0}, {"x": 14.5, "y": 13.0}, {"x": 27.4, "y": 24.0}, {"x": 11.0, "y": 9.0}, {"x": 21.0, "y": 30.0}, {"x": 18.2, "y": 26.0}, {"x": 12.1, "y": 18.0}, {"x": 15.2, "y": 27.0}, {"x": 0.5, "y": 3.0}, {"x": 1.1, "y": 3.0}, {"x": 0.3, "y": 1.0}, {"x": 2.4, "y": 5.0}, {"x": 0.3, "y": 1.0}, {"x": 1.5, "y": 1.0}, {"x": 16.4, "y": 10.0}, {"x": 12.2, "y": 17.0}, {"x": 2.2, "y": 1.0}, {"x": 11.4, "y": 21.0}, {"x": 6.3, "y": 17.0}, {"x": 10.4, "y": 19.0}, {"x": 15.8, "y": 20.0}, {"x": 15.8, "y": 22.0}, {"x": 10.6, "y": 19.0}, {"x": 6.4, "y": 5.0}, {"x": 6.5, "y": 8.0}, {"x": 3.8, "y": 9.0}, {"x": 5.0, "y": 8.0}, {"x": 3.9, "y": 1.0}, {"x": 7.5, "y": 4.0}, {"x": 2.5, "y": 1.0}, {"x": 1.6, "y": 2.0}, {"x": 9.9, "y": 5.0}, {"x": 1.5, "y": 3.0}, {"x": 18.6, "y": 12.0}, {"x": 8.5, "y": 8.0}, {"x": 5.7, "y": 11.0}, {"x": 2.6, "y": 2.0}, {"x": 2.3, "y": 1.0}, {"x": 4.9, "y": 8.0}, {"x": 16.8, "y": 27.0}, {"x": 1.5, "y": 1.0}, {"x": 1.8, "y": 1.0}, {"x": 3.3, "y": 2.0}, {"x": 0.8, "y": 1.0}, {"x": 17.9, "y": 12.0}, {"x": 8.3, "y": 2.0}, {"x": 1.8, "y": 3.0}, {"x": 1.2, "y": 1.0}, {"x": 15.4, "y": 22.0}, {"x": 7.5, "y": 10.0}, {"x": 5.1, "y": 3.0}, {"x": 2.3, "y": 3.0}, {"x": 5.1, "y": 6.0}, {"x": 1.9, "y": 4.0}, {"x": 16.8, "y": 14.0}, {"x": 15.0, "y": 15.0}, {"x": 14.2, "y": 11.0}, {"x": 16.1, "y": 22.0}, {"x": 22.1, "y": 20.0}, {"x": 31.5, "y": 60.0}, {"x": 17.3, "y": 38.0}, {"x": 13.9, "y": 17.0}, {"x": 13.7, "y": 20.0}, {"x": 23.4, "y": 32.0}, {"x": 16.7, "y": 21.0}, {"x": 37.3, "y": 36.0}, {"x": 9.2, "y": 13.0}, {"x": 27.2, "y": 24.0}, {"x": 10.5, "y": 16.0}, {"x": 9.3, "y": 19.0}, {"x": 6.4, "y": 12.0}, {"x": 48.4, "y": 63.0}, {"x": 21.6, "y": 26.0}, {"x": 33.0, "y": 33.0}, {"x": 76.6, "y": 102.0}, {"x": 64.1, "y": 95.0}, {"x": 16.9, "y": 14.0}, {"x": 3.4, "y": 1.0}, {"x": 12.0, "y": 23.0}, {"x": 14.3, "y": 8.0}, {"x": 34.4, "y": 36.0}, {"x": 13.1, "y": 15.0}, {"x": 14.0, "y": 10.0}, {"x": 35.3, "y": 44.0}, {"x": 3.6, "y": 2.0}, {"x": 74.1, "y": 74.0}, {"x": 32.3, "y": 36.0}, {"x": 6.6, "y": 6.0}, {"x": 31.4, "y": 64.0}, {"x": 58.5, "y": 64.0}, {"x": 9.9, "y": 16.0}, {"x": 5.9, "y": 12.0}, {"x": 3.7, "y": 8.0}, {"x": 6.9, "y": 14.0}, {"x": 4.1, "y": 11.0}, {"x": 25.2, "y": 19.0}, {"x": 8.0, "y": 7.0}, {"x": 12.9, "y": 15.0}, {"x": 14.4, "y": 21.0}, {"x": 10.0, "y": 18.0}, {"x": 7.9, "y": 15.0}, {"x": 1.8, "y": 5.0}, {"x": 5.5, "y": 4.0}, {"x": 4.6, "y": 6.0}, {"x": 7.5, "y": 5.0}, {"x": 8.9, "y": 5.0}, {"x": 5.3, "y": 1.0}, {"x": 19.6, "y": 28.0}, {"x": 21.1, "y": 25.0}, {"x": 7.2, "y": 13.0}, {"x": 18.3, "y": 38.0}, {"x": 63.6, "y": 99.0}, {"x": 34.3, "y": 68.0}, {"x": 58.5, "y": 77.0}, {"x": 114.0, "y": 132.0}, {"x": 85.3, "y": 119.0}, {"x": 68.2, "y": 79.0}, {"x": 40.4, "y": 48.0}, {"x": 199.3, "y": 169.0}, {"x": 52.2, "y": 85.0}, {"x": 47.0, "y": 74.0}, {"x": 39.4, "y": 58.0}, {"x": 45.2, "y": 46.0}, {"x": 8.5, "y": 11.0}, {"x": 29.3, "y": 22.0}, {"x": 26.6, "y": 43.0}, {"x": 13.5, "y": 16.0}, {"x": 13.1, "y": 22.0}, {"x": 29.2, "y": 66.0}, {"x": 24.4, "y": 34.0}, {"x": 14.5, "y": 50.0}, {"x": 6.0, "y": 6.0}, {"x": 25.1, "y": 39.0}, {"x": 10.6, "y": 31.0}, {"x": 46.3, "y": 63.0}, {"x": 16.2, "y": 26.0}, {"x": 25.7, "y": 43.0}, {"x": 17.3, "y": 22.0}, {"x": 64.1, "y": 100.0}, {"x": 15.9, "y": 29.0}, {"x": 10.0, "y": 54.0}, {"x": 34.9, "y": 58.0}, {"x": 60.1, "y": 65.0}, {"x": 33.7, "y": 45.0}, {"x": 127.7, "y": 161.0}, {"x": 51.9, "y": 71.0}, {"x": 45.3, "y": 56.0}, {"x": 106.4, "y": 125.0}, {"x": 28.6, "y": 49.0}, {"x": 29.1, "y": 42.0}, {"x": 19.8, "y": 45.0}, {"x": 25.8, "y": 47.0}, {"x": 35.5, "y": 43.0}, {"x": 26.2, "y": 33.0}, {"x": 12.7, "y": 21.0}, {"x": 30.1, "y": 30.0}, {"x": 12.3, "y": 30.0}, {"x": 38.4, "y": 52.0}, {"x": 5.3, "y": 8.0}, {"x": 45.5, "y": 47.0}, {"x": 14.9, "y": 17.0}, {"x": 4.2, "y": 4.0}, {"x": 7.6, "y": 5.0}, {"x": 38.6, "y": 56.0}, {"x": 19.5, "y": 33.0}, {"x": 24.2, "y": 28.0}, {"x": 13.6, "y": 25.0}, {"x": 9.3, "y": 4.0}, {"x": 8.2, "y": 9.0}, {"x": 2.8, "y": 1.0}, {"x": 3.2, "y": 2.0}, {"x": 6.3, "y": 13.0}, {"x": 3.5, "y": 3.0}, {"x": 4.0, "y": 3.0}, {"x": 5.8, "y": 7.0}, {"x": 3.8, "y": 5.0}, {"x": 6.2, "y": 11.0}, {"x": 6.5, "y": 11.0}, {"x": 14.2, "y": 15.0}, {"x": 16.2, "y": 11.0}, {"x": 4.8, "y": 15.0}, {"x": 7.1, "y": 5.0}, {"x": 23.1, "y": 20.0}, {"x": 7.0, "y": 4.0}, {"x": 11.7, "y": 9.0}, {"x": 4.5, "y": 1.0}, {"x": 42.0, "y": 41.0}, {"x": 7.5, "y": 12.0}, {"x": 6.1, "y": 12.0}, {"x": 5.6, "y": 11.0}, {"x": 5.6, "y": 9.0}, {"x": 10.4, "y": 8.0}, {"x": 11.7, "y": 12.0}, {"x": 21.6, "y": 16.0}, {"x": 36.5, "y": 41.0}, {"x": 10.9, "y": 15.0}, {"x": 6.7, "y": 5.0}, {"x": 5.0, "y": 7.0}, {"x": 3.9, "y": 5.0}, {"x": 18.8, "y": 34.0}, {"x": 21.8, "y": 21.0}, {"x": 15.0, "y": 17.0}, {"x": 6.9, "y": 1.0}, {"x": 16.8, "y": 7.0}, {"x": 4.2, "y": 2.0}, {"x": 18.5, "y": 30.0}, {"x": 34.1, "y": 36.0}, {"x": 12.2, "y": 6.0}, {"x": 25.8, "y": 19.0}, {"x": 13.4, "y": 10.0}, {"x": 8.9, "y": 9.0}, {"x": 3.8, "y": 1.0}, {"x": 2.5, "y": 1.0}, {"x": 10.5, "y": 6.0}, {"x": 18.3, "y": 18.0}, {"x": 12.7, "y": 10.0}, {"x": 7.2, "y": 6.0}, {"x": 13.3, "y": 25.0}, {"x": 10.3, "y": 26.0}, {"x": 27.0, "y": 18.0}, {"x": 5.7, "y": 6.0}, {"x": 10.3, "y": 7.0}, {"x": 3.3, "y": 4.0}, {"x": 5.7, "y": 2.0}, {"x": 6.4, "y": 7.0}, {"x": 3.2, "y": 3.0}, {"x": 5.1, "y": 5.0}, {"x": 4.2, "y": 7.0}, {"x": 4.2, "y": 6.0}, {"x": 12.0, "y": 14.0}, {"x": 41.8, "y": 45.0}, {"x": 5.0, "y": 8.0}, {"x": 30.9, "y": 27.0}, {"x": 9.8, "y": 13.0}, {"x": 46.1, "y": 68.0}, {"x": 60.9, "y": 62.0}, {"x": 29.9, "y": 34.0}, {"x": 15.3, "y": 18.0}, {"x": 3.3, "y": 1.0}, {"x": 12.3, "y": 9.0}, {"x": 2.3, "y": 1.0}, {"x": 14.8, "y": 20.0}, {"x": 6.2, "y": 4.0}, {"x": 7.7, "y": 8.0}, {"x": 13.8, "y": 24.0}, {"x": 8.6, "y": 20.0}, {"x": 3.3, "y": 3.0}, {"x": 18.3, "y": 19.0}, {"x": 7.8, "y": 14.0}, {"x": 18.0, "y": 37.0}, {"x": 4.3, "y": 4.0}, {"x": 7.7, "y": 4.0}, {"x": 15.6, "y": 24.0}, {"x": 3.8, "y": 4.0}, {"x": 6.4, "y": 5.0}, {"x": 9.9, "y": 11.0}, {"x": 2.2, "y": 4.0}, {"x": 6.9, "y": 6.0}, {"x": 6.5, "y": 4.0}, {"x": 115.1, "y": 178.0}, {"x": 45.4, "y": 48.0}, {"x": 66.8, "y": 77.0}, {"x": 28.7, "y": 35.0}, {"x": 79.2, "y": 103.0}, {"x": 43.2, "y": 66.0}, {"x": 13.2, "y": 13.0}, {"x": 2.5, "y": 7.0}, {"x": 8.2, "y": 37.0}, {"x": 17.3, "y": 51.0}, {"x": 5.5, "y": 10.0}, {"x": 2.9, "y": 5.0}, {"x": 2.4, "y": 1.0}, {"x": 5.9, "y": 4.0}, {"x": 2.2, "y": 1.0}, {"x": 2.0, "y": 1.0}, {"x": 2.9, "y": 2.0}, {"x": 8.2, "y": 9.0}, {"x": 33.0, "y": 41.0}, {"x": 11.0, "y": 4.0}, {"x": 12.1, "y": 11.0}, {"x": 11.3, "y": 20.0}, {"x": 3.4, "y": 4.0}, {"x": 4.1, "y": 7.0}, {"x": 6.6, "y": 15.0}, {"x": 3.7, "y": 11.0}, {"x": 10.7, "y": 12.0}, {"x": 15.4, "y": 13.0}, {"x": 18.5, "y": 20.0}, {"x": 5.3, "y": 5.0}, {"x": 30.2, "y": 16.0}, {"x": 10.0, "y": 12.0}, {"x": 59.1, "y": 94.0}, {"x": 56.4, "y": 66.0}, {"x": 45.7, "y": 40.0}, {"x": 27.0, "y": 28.0}, {"x": 64.5, "y": 61.0}, {"x": 26.3, "y": 43.0}, {"x": 7.1, "y": 10.0}, {"x": 18.8, "y": 23.0}, {"x": 15.8, "y": 19.0}, {"x": 24.6, "y": 25.0}, {"x": 27.9, "y": 47.0}, {"x": 29.6, "y": 44.0}, {"x": 36.5, "y": 36.0}, {"x": 46.3, "y": 62.0}, {"x": 32.8, "y": 49.0}, {"x": 62.3, "y": 77.0}, {"x": 15.5, "y": 23.0}, {"x": 13.2, "y": 21.0}, {"x": 22.0, "y": 29.0}, {"x": 20.8, "y": 42.0}, {"x": 12.5, "y": 32.0}, {"x": 24.8, "y": 36.0}, {"x": 25.7, "y": 39.0}, {"x": 26.0, "y": 45.0}, {"x": 65.1, "y": 125.0}, {"x": 67.6, "y": 107.0}, {"x": 51.7, "y": 122.0}, {"x": 16.4, "y": 22.0}, {"x": 33.8, "y": 73.0}, {"x": 36.0, "y": 59.0}, {"x": 58.3, "y": 70.0}, {"x": 38.0, "y": 66.0}, {"x": 53.8, "y": 52.0}, {"x": 36.8, "y": 46.0}, {"x": 104.1, "y": 105.0}, {"x": 85.2, "y": 621.0}, {"x": 49.6, "y": 84.0}, {"x": 77.2, "y": 107.0}, {"x": 27.8, "y": 33.0}, {"x": 78.0, "y": 178.0}, {"x": 85.4, "y": 101.0}, {"x": 60.5, "y": 55.0}, {"x": 85.0, "y": 112.0}, {"x": 44.1, "y": 56.0}, {"x": 37.8, "y": 66.0}, {"x": 49.3, "y": 70.0}, {"x": 24.7, "y": 24.0}, {"x": 23.8, "y": 13.0}, {"x": 17.6, "y": 30.0}, {"x": 27.4, "y": 36.0}, {"x": 19.8, "y": 30.0}, {"x": 14.0, "y": 24.0}, {"x": 29.3, "y": 37.0}, {"x": 52.4, "y": 69.0}, {"x": 13.8, "y": 13.0}, {"x": 32.8, "y": 40.0}, {"x": 54.6, "y": 145.0}, {"x": 64.8, "y": 30.0}, {"x": 37.0, "y": 39.0}, {"x": 1.1, "y": 1.0}, {"x": 5.4, "y": 6.0}, {"x": 10.5, "y": 7.0}, {"x": 8.0, "y": 8.0}, {"x": 5.9, "y": 94.0}, {"x": 11.4, "y": 124.0}, {"x": 7.5, "y": 59.0}, {"x": 3.9, "y": 2.0}, {"x": 4.8, "y": 3.0}, {"x": 2.0, "y": 4.0}, {"x": 1.7, "y": 1.0}, {"x": 3.2, "y": 3.0}, {"x": 2.3, "y": 1.0}, {"x": 4.3, "y": 1.0}, {"x": 1.2, "y": 1.0}, {"x": 2.6, "y": 2.0}, {"x": 1.8, "y": 3.0}, {"x": 2.6, "y": 5.0}, {"x": 11.1, "y": 14.0}, {"x": 17.7, "y": 29.0}, {"x": 5.5, "y": 6.0}, {"x": 6.2, "y": 14.0}, {"x": 11.0, "y": 7.0}, {"x": 1.8, "y": 5.0}, {"x": 3.8, "y": 4.0}, {"x": 8.5, "y": 12.0}, {"x": 0.9, "y": 1.0}, {"x": 28.5, "y": 35.0}, {"x": 75.3, "y": 65.0}, {"x": 26.4, "y": 29.0}, {"x": 48.4, "y": 71.0}, {"x": 14.7, "y": 21.0}, {"x": 13.2, "y": 19.0}, {"x": 20.6, "y": 16.0}, {"x": 5.1, "y": 7.0}, {"x": 26.8, "y": 44.0}, {"x": 24.3, "y": 30.0}, {"x": 16.2, "y": 31.0}, {"x": 74.8, "y": 100.0}, {"x": 32.7, "y": 26.0}, {"x": 26.8, "y": 35.0}, {"x": 48.5, "y": 68.0}, {"x": 29.8, "y": 22.0}, {"x": 8.6, "y": 8.0}, {"x": 14.9, "y": 10.0}, {"x": 4.6, "y": 6.0}, {"x": 4.0, "y": 5.0}, {"x": 88.4, "y": 114.0}, {"x": 53.1, "y": 70.0}, {"x": 23.3, "y": 29.0}, {"x": 103.9, "y": 116.0}, {"x": 96.9, "y": 151.0}, {"x": 41.4, "y": 88.0}, {"x": 45.8, "y": 100.0}, {"x": 57.3, "y": 79.0}, {"x": 67.3, "y": 103.0}, {"x": 9.5, "y": 23.0}, {"x": 10.6, "y": 12.0}, {"x": 18.5, "y": 37.0}, {"x": 37.9, "y": 57.0}, {"x": 17.9, "y": 30.0}, {"x": 2.0, "y": 3.0}, {"x": 69.4, "y": 101.0}, {"x": 33.5, "y": 44.0}, {"x": 29.6, "y": 43.0}, {"x": 40.8, "y": 74.0}, {"x": 16.4, "y": 21.0}, {"x": 7.1, "y": 4.0}, {"x": 26.7, "y": 41.0}, {"x": 34.5, "y": 41.0}, {"x": 20.8, "y": 22.0}, {"x": 13.9, "y": 22.0}, {"x": 3.2, "y": 4.0}, {"x": 1.4, "y": 1.0}, {"x": 2.4, "y": 4.0}, {"x": 5.1, "y": 8.0}, {"x": 3.9, "y": 7.0}, {"x": 4.3, "y": 6.0}, {"x": 3.8, "y": 2.0}, {"x": 2.8, "y": 2.0}, {"x": 2.1, "y": 3.0}, {"x": 3.1, "y": 1.0}, {"x": 2.0, "y": 3.0}, {"x": 1.0, "y": 1.0}, {"x": 1.3, "y": 1.0}, {"x": 0.7, "y": 2.0}, {"x": 2.4, "y": 1.0}, {"x": 0.4, "y": 1.0}, {"x": 7.5, "y": 12.0}, {"x": 3.4, "y": 3.0}, {"x": 6.1, "y": 13.0}, {"x": 9.0, "y": 20.0}, {"x": 10.7, "y": 7.0}, {"x": 12.5, "y": 17.0}, {"x": 2.3, "y": 1.0}, {"x": 6.4, "y": 9.0}, {"x": 2.6, "y": 3.0}, {"x": 2.0, "y": 3.0}, {"x": 1.5, "y": 1.0}, {"x": 1.7, "y": 1.0}, {"x": 3.4, "y": 2.0}, {"x": 2.6, "y": 3.0}, {"x": 19.3, "y": 18.0}, {"x": 9.6, "y": 16.0}, {"x": 9.0, "y": 4.0}, {"x": 7.4, "y": 12.0}, {"x": 8.2, "y": 10.0}, {"x": 8.6, "y": 15.0}, {"x": 22.8, "y": 26.0}, {"x": 3.4, "y": 13.0}, {"x": 22.5, "y": 49.0}, {"x": 4.3, "y": 9.0}, {"x": 21.1, "y": 42.0}, {"x": 34.5, "y": 35.0}, {"x": 26.9, "y": 48.0}, {"x": 9.0, "y": 11.0}, {"x": 15.5, "y": 17.0}, {"x": 1.1, "y": 2.0}, {"x": 1.9, "y": 1.0}, {"x": 1.9, "y": 4.0}, {"x": 1.9, "y": 3.0}, {"x": 1.2, "y": 1.0}, {"x": 2.0, "y": 3.0}, {"x": 8.7, "y": 10.0}, {"x": 5.3, "y": 18.0}, {"x": 15.3, "y": 13.0}, {"x": 3.0, "y": 7.0}, {"x": 5.7, "y": 8.0}, {"x": 4.3, "y": 8.0}, {"x": 10.4, "y": 14.0}, {"x": 8.8, "y": 11.0}, {"x": 3.3, "y": 2.0}, {"x": 16.5, "y": 50.0}, {"x": 7.8, "y": 12.0}, {"x": 31.2, "y": 43.0}, {"x": 47.5, "y": 59.0}, {"x": 19.8, "y": 27.0}, {"x": 8.7, "y": 9.0}, {"x": 16.8, "y": 22.0}, {"x": 31.9, "y": 39.0}, {"x": 19.2, "y": 29.0}, {"x": 6.0, "y": 8.0}, {"x": 39.4, "y": 50.0}, {"x": 5.2, "y": 5.0}, {"x": 74.5, "y": 91.0}, {"x": 34.0, "y": 46.0}, {"x": 35.5, "y": 69.0}, {"x": 9.7, "y": 15.0}, {"x": 11.7, "y": 12.0}, {"x": 17.1, "y": 24.0}, {"x": 5.8, "y": 16.0}, {"x": 11.9, "y": 26.0}, {"x": 2.8, "y": 1.0}, {"x": 4.9, "y": 5.0}, {"x": 5.5, "y": 5.0}, {"x": 3.1, "y": 2.0}, {"x": 3.4, "y": 6.0}, {"x": 2.1, "y": 4.0}, {"x": 4.7, "y": 2.0}, {"x": 9.1, "y": 14.0}, {"x": 6.6, "y": 12.0}, {"x": 10.2, "y": 7.0}, {"x": 15.4, "y": 13.0}, {"x": 2.9, "y": 6.0}, {"x": 4.2, "y": 2.0}, {"x": 8.4, "y": 11.0}, {"x": 9.1, "y": 6.0}, {"x": 13.0, "y": 9.0}, {"x": 29.6, "y": 42.0}, {"x": 27.9, "y": 39.0}, {"x": 65.8, "y": 78.0}, {"x": 53.1, "y": 69.0}, {"x": 31.1, "y": 39.0}, {"x": 31.6, "y": 75.0}, {"x": 99.5, "y": 129.0}, {"x": 34.6, "y": 35.0}, {"x": 12.6, "y": 23.0}, {"x": 10.5, "y": 22.0}, {"x": 10.4, "y": 8.0}, {"x": 33.2, "y": 49.0}, {"x": 20.0, "y": 36.0}, {"x": 11.9, "y": 21.0}, {"x": 56.8, "y": 82.0}, {"x": 70.0, "y": 63.0}, {"x": 21.4, "y": 30.0}, {"x": 35.0, "y": 47.0}, {"x": 69.6, "y": 93.0}, {"x": 34.4, "y": 72.0}, {"x": 18.0, "y": 35.0}, {"x": 13.8, "y": 24.0}, {"x": 19.7, "y": 20.0}, {"x": 14.5, "y": 16.0}, {"x": 12.0, "y": 18.0}, {"x": 2.0, "y": 3.0}, {"x": 20.1, "y": 20.0}, {"x": 4.2, "y": 2.0}, {"x": 8.8, "y": 10.0}, {"x": 33.0, "y": 33.0}, {"x": 15.7, "y": 20.0}, {"x": 14.5, "y": 12.0}, {"x": 48.1, "y": 52.0}, {"x": 22.1, "y": 22.0}, {"x": 11.8, "y": 20.0}, {"x": 47.0, "y": 57.0}, {"x": 29.0, "y": 34.0}, {"x": 13.9, "y": 11.0}, {"x": 34.8, "y": 53.0}, {"x": 64.4, "y": 107.0}, {"x": 47.9, "y": 93.0}, {"x": 10.5, "y": 22.0}, {"x": 105.6, "y": 146.0}, {"x": 11.9, "y": 36.0}, {"x": 10.8, "y": 18.0}, {"x": 28.4, "y": 33.0}, {"x": 12.2, "y": 28.0}, {"x": 7.2, "y": 5.0}, {"x": 13.4, "y": 23.0}, {"x": 41.6, "y": 73.0}, {"x": 29.7, "y": 47.0}, {"x": 12.9, "y": 19.0}, {"x": 27.3, "y": 38.0}, {"x": 25.0, "y": 32.0}, {"x": 13.4, "y": 10.0}, {"x": 32.7, "y": 36.0}, {"x": 24.3, "y": 30.0}, {"x": 8.9, "y": 9.0}, {"x": 34.1, "y": 47.0}, {"x": 16.9, "y": 12.0}, {"x": 15.7, "y": 12.0}, {"x": 23.4, "y": 16.0}, {"x": 9.2, "y": 8.0}, {"x": 19.0, "y": 25.0}, {"x": 12.7, "y": 15.0}, {"x": 19.0, "y": 16.0}, {"x": 27.2, "y": 52.0}, {"x": 22.1, "y": 45.0}, {"x": 24.2, "y": 41.0}, {"x": 48.0, "y": 76.0}, {"x": 31.4, "y": 42.0}, {"x": 17.4, "y": 16.0}, {"x": 20.5, "y": 36.0}, {"x": 27.8, "y": 26.0}, {"x": 36.1, "y": 57.0}, {"x": 25.8, "y": 41.0}, {"x": 18.8, "y": 17.0}, {"x": 10.4, "y": 11.0}, {"x": 11.3, "y": 10.0}, {"x": 11.7, "y": 11.0}, {"x": 22.1, "y": 22.0}, {"x": 6.1, "y": 11.0}, {"x": 24.1, "y": 24.0}, {"x": 13.2, "y": 13.0}, {"x": 40.4, "y": 36.0}, {"x": 12.2, "y": 13.0}, {"x": 6.2, "y": 10.0}, {"x": 15.0, "y": 19.0}, {"x": 17.2, "y": 21.0}, {"x": 22.7, "y": 28.0}, {"x": 5.3, "y": 7.0}, {"x": 13.4, "y": 30.0}, {"x": 11.8, "y": 16.0}, {"x": 10.8, "y": 26.0}, {"x": 21.4, "y": 40.0}, {"x": 15.6, "y": 25.0}, {"x": 14.3, "y": 26.0}, {"x": 4.0, "y": 9.0}, {"x": 1.6, "y": 1.0}, {"x": 3.4, "y": 2.0}, {"x": 5.9, "y": 8.0}, {"x": 2.7, "y": 5.0}, {"x": 2.8, "y": 6.0}, {"x": 1.7, "y": 2.0}, {"x": 5.9, "y": 5.0}, {"x": 2.7, "y": 8.0}, {"x": 18.0, "y": 21.0}, {"x": 26.3, "y": 23.0}, {"x": 6.5, "y": 11.0}, {"x": 8.4, "y": 12.0}, {"x": 2.4, "y": 1.0}, {"x": 6.2, "y": 3.0}, {"x": 1.7, "y": 1.0}, {"x": 3.9, "y": 4.0}, {"x": 5.0, "y": 4.0}, {"x": 8.2, "y": 9.0}, {"x": 2.8, "y": 2.0}, {"x": 19.9, "y": 16.0}, {"x": 20.7, "y": 25.0}, {"x": 38.9, "y": 29.0}, {"x": 5.0, "y": 7.0}, {"x": 7.6, "y": 13.0}, {"x": 18.1, "y": 19.0}, {"x": 8.9, "y": 15.0}, {"x": 9.2, "y": 12.0}, {"x": 13.6, "y": 6.0}, {"x": 3.8, "y": 5.0}, {"x": 4.9, "y": 6.0}, {"x": 6.5, "y": 10.0}, {"x": 3.9, "y": 2.0}, {"x": 2.1, "y": 5.0}, {"x": 4.6, "y": 10.0}, {"x": 5.4, "y": 2.0}, {"x": 12.1, "y": 8.0}, {"x": 3.5, "y": 2.0}, {"x": 4.2, "y": 8.0}, {"x": 5.7, "y": 2.0}, {"x": 12.9, "y": 27.0}, {"x": 3.1, "y": 1.0}, {"x": 1.2, "y": 3.0}, {"x": 26.0, "y": 21.0}, {"x": 6.4, "y": 7.0}, {"x": 8.2, "y": 8.0}, {"x": 2.0, "y": 5.0}, {"x": 1.9, "y": 2.0}, {"x": 2.6, "y": 5.0}, {"x": 5.2, "y": 3.0}, {"x": 5.5, "y": 6.0}, {"x": 3.2, "y": 1.0}, {"x": 2.3, "y": 3.0}, {"x": 9.4, "y": 5.0}, {"x": 4.0, "y": 6.0}, {"x": 1.9, "y": 1.0}, {"x": 1.1, "y": 2.0}, {"x": 2.8, "y": 2.0}, {"x": 3.6, "y": 4.0}, {"x": 1.4, "y": 1.0}, {"x": 35.6, "y": 57.0}, {"x": 29.6, "y": 57.0}, {"x": 13.0, "y": 13.0}, {"x": 13.0, "y": 13.0}, {"x": 15.7, "y": 17.0}, {"x": 12.7, "y": 17.0}, {"x": 5.9, "y": 5.0}, {"x": 18.6, "y": 29.0}, {"x": 18.9, "y": 22.0}, {"x": 7.6, "y": 8.0}, {"x": 20.1, "y": 15.0}, {"x": 13.8, "y": 19.0}, {"x": 5.2, "y": 5.0}, {"x": 9.2, "y": 15.0}, {"x": 7.1, "y": 9.0}, {"x": 15.5, "y": 16.0}, {"x": 4.6, "y": 1.0}, {"x": 11.7, "y": 14.0}, {"x": 6.1, "y": 8.0}, {"x": 8.0, "y": 8.0}, {"x": 17.0, "y": 6.0}, {"x": 11.2, "y": 25.0}, {"x": 4.2, "y": 5.0}, {"x": 7.9, "y": 13.0}, {"x": 7.7, "y": 9.0}, {"x": 3.2, "y": 2.0}, {"x": 4.3, "y": 11.0}, {"x": 2.4, "y": 1.0}, {"x": 7.3, "y": 3.0}, {"x": 2.0, "y": 2.0}, {"x": 4.5, "y": 8.0}, {"x": 56.0, "y": 70.0}, {"x": 17.6, "y": 21.0}, {"x": 12.6, "y": 10.0}, {"x": 33.0, "y": 53.0}, {"x": 27.7, "y": 32.0}, {"x": 8.8, "y": 16.0}, {"x": 45.9, "y": 41.0}, {"x": 21.5, "y": 22.0}, {"x": 6.2, "y": 6.0}, {"x": 5.4, "y": 4.0}, {"x": 11.0, "y": 25.0}, {"x": 15.7, "y": 16.0}, {"x": 9.3, "y": 28.0}, {"x": 5.8, "y": 9.0}, {"x": 4.9, "y": 5.0}, {"x": 5.8, "y": 9.0}, {"x": 2.1, "y": 2.0}, {"x": 4.4, "y": 7.0}, {"x": 5.5, "y": 5.0}, {"x": 29.4, "y": 48.0}, {"x": 30.7, "y": 47.0}, {"x": 15.2, "y": 23.0}, {"x": 7.9, "y": 8.0}, {"x": 10.3, "y": 10.0}, {"x": 5.2, "y": 2.0}, {"x": 31.2, "y": 46.0}, {"x": 41.7, "y": 81.0}, {"x": 20.5, "y": 29.0}, {"x": 24.0, "y": 28.0}, {"x": 23.2, "y": 13.0}, {"x": 24.3, "y": 31.0}, {"x": 40.9, "y": 63.0}, {"x": 42.0, "y": 51.0}, {"x": 10.2, "y": 12.0}, {"x": 63.9, "y": 104.0}, {"x": 68.7, "y": 99.0}, {"x": 36.6, "y": 49.0}, {"x": 24.9, "y": 24.0}, {"x": 27.2, "y": 37.0}, {"x": 10.4, "y": 11.0}, {"x": 30.9, "y": 30.0}, {"x": 9.1, "y": 7.0}, {"x": 13.4, "y": 14.0}, {"x": 5.4, "y": 2.0}, {"x": 15.1, "y": 18.0}, {"x": 18.4, "y": 16.0}, {"x": 26.9, "y": 51.0}, {"x": 21.3, "y": 46.0}, {"x": 25.5, "y": 30.0}, {"x": 23.9, "y": 38.0}, {"x": 35.6, "y": 304.0}, {"x": 33.9, "y": 94.0}, {"x": 21.5, "y": 35.0}, {"x": 35.8, "y": 79.0}, {"x": 21.9, "y": 41.0}, {"x": 14.6, "y": 13.0}, {"x": 15.5, "y": 31.0}, {"x": 33.3, "y": 70.0}, {"x": 31.9, "y": 69.0}, {"x": 9.6, "y": 13.0}, {"x": 11.7, "y": 14.0}, {"x": 6.0, "y": 7.0}, {"x": 4.1, "y": 3.0}, {"x": 9.7, "y": 3.0}, {"x": 5.9, "y": 5.0}, {"x": 17.4, "y": 22.0}, {"x": 11.7, "y": 15.0}, {"x": 11.8, "y": 21.0}, {"x": 6.1, "y": 11.0}, {"x": 3.8, "y": 20.0}, {"x": 5.0, "y": 7.0}, {"x": 5.4, "y": 13.0}, {"x": 3.3, "y": 4.0}, {"x": 2.6, "y": 5.0}, {"x": 3.7, "y": 3.0}, {"x": 3.9, "y": 6.0}, {"x": 1.1, "y": 4.0}, {"x": 7.1, "y": 4.0}, {"x": 6.7, "y": 7.0}, {"x": 2.5, "y": 3.0}, {"x": 7.5, "y": 6.0}, {"x": 2.0, "y": 3.0}, {"x": 2.2, "y": 2.0}, {"x": 2.5, "y": 3.0}, {"x": 9.6, "y": 15.0}, {"x": 10.8, "y": 7.0}, {"x": 8.1, "y": 9.0}, {"x": 40.0, "y": 36.0}, {"x": 8.0, "y": 11.0}, {"x": 24.8, "y": 25.0}, {"x": 34.2, "y": 47.0}, {"x": 13.0, "y": 33.0}, {"x": 2.3, "y": 4.0}, {"x": 4.5, "y": 6.0}, {"x": 7.8, "y": 10.0}, {"x": 2.4, "y": 3.0}, {"x": 5.7, "y": 10.0}, {"x": 17.3, "y": 14.0}, {"x": 41.6, "y": 34.0}, {"x": 1.7, "y": 3.0}, {"x": 4.8, "y": 3.0}, {"x": 2.1, "y": 2.0}, {"x": 35.0, "y": 49.0}, {"x": 12.4, "y": 18.0}, {"x": 27.6, "y": 52.0}, {"x": 60.8, "y": 77.0}, {"x": 73.5, "y": 88.0}, {"x": 14.3, "y": 20.0}, {"x": 21.0, "y": 49.0}, {"x": 26.5, "y": 33.0}, {"x": 28.8, "y": 40.0}, {"x": 42.2, "y": 49.0}, {"x": 72.5, "y": 122.0}, {"x": 51.4, "y": 97.0}, {"x": 35.1, "y": 79.0}, {"x": 79.5, "y": 136.0}, {"x": 24.0, "y": 35.0}, {"x": 16.4, "y": 23.0}, {"x": 16.6, "y": 36.0}, {"x": 17.4, "y": 30.0}, {"x": 20.6, "y": 36.0}, {"x": 46.3, "y": 51.0}, {"x": 9.8, "y": 24.0}, {"x": 29.5, "y": 43.0}, {"x": 8.6, "y": 13.0}, {"x": 16.4, "y": 22.0}, {"x": 5.2, "y": 13.0}, {"x": 34.1, "y": 59.0}, {"x": 4.1, "y": 9.0}, {"x": 25.6, "y": 39.0}, {"x": 5.1, "y": 5.0}, {"x": 7.7, "y": 9.0}, {"x": 58.3, "y": 73.0}, {"x": 28.5, "y": 51.0}, {"x": 16.8, "y": 20.0}, {"x": 53.9, "y": 90.0}, {"x": 1.3, "y": 1.0}, {"x": 3.0, "y": 1.0}, {"x": 3.0, "y": 4.0}, {"x": 0.8, "y": 3.0}, {"x": 2.4, "y": 4.0}, {"x": 3.1, "y": 3.0}, {"x": 2.1, "y": 4.0}, {"x": 2.3, "y": 3.0}, {"x": 0.9, "y": 3.0}, {"x": 6.1, "y": 4.0}, {"x": 5.2, "y": 1.0}, {"x": 1.8, "y": 1.0}, {"x": 6.7, "y": 7.0}, {"x": 1.7, "y": 2.0}, {"x": 3.1, "y": 1.0}, {"x": 4.9, "y": 11.0}, {"x": 2.8, "y": 8.0}, {"x": 12.7, "y": 10.0}, {"x": 11.2, "y": 9.0}, {"x": 17.6, "y": 17.0}, {"x": 20.9, "y": 26.0}, {"x": 17.3, "y": 36.0}, {"x": 32.9, "y": 25.0}, {"x": 32.3, "y": 22.0}, {"x": 16.5, "y": 17.0}, {"x": 13.7, "y": 14.0}, {"x": 18.6, "y": 37.0}, {"x": 51.9, "y": 68.0}, {"x": 37.2, "y": 55.0}, {"x": 37.3, "y": 41.0}, {"x": 14.0, "y": 32.0}, {"x": 12.1, "y": 11.0}, {"x": 31.7, "y": 36.0}, {"x": 26.4, "y": 43.0}, {"x": 18.2, "y": 26.0}, {"x": 17.0, "y": 17.0}, {"x": 31.1, "y": 26.0}, {"x": 9.7, "y": 13.0}, {"x": 17.3, "y": 21.0}, {"x": 20.6, "y": 20.0}, {"x": 13.3, "y": 18.0}, {"x": 48.1, "y": 42.0}, {"x": 22.1, "y": 30.0}, {"x": 11.7, "y": 16.0}, {"x": 22.4, "y": 32.0}, {"x": 203.5, "y": 197.0}, {"x": 27.2, "y": 60.0}, {"x": 62.5, "y": 80.0}, {"x": 74.6, "y": 87.0}, {"x": 22.8, "y": 91.0}, {"x": 52.7, "y": 50.0}, {"x": 20.9, "y": 41.0}, {"x": 147.7, "y": 204.0}, {"x": 27.6, "y": 54.0}, {"x": 28.8, "y": 45.0}, {"x": 23.0, "y": 37.0}, {"x": 49.4, "y": 99.0}, {"x": 21.4, "y": 45.0}, {"x": 27.7, "y": 38.0}, {"x": 13.0, "y": 17.0}, {"x": 31.3, "y": 42.0}, {"x": 15.5, "y": 19.0}, {"x": 32.2, "y": 40.0}, {"x": 18.0, "y": 22.0}, {"x": 29.0, "y": 50.0}, {"x": 14.6, "y": 30.0}, {"x": 24.6, "y": 16.0}, {"x": 48.1, "y": 69.0}, {"x": 37.9, "y": 49.0}, {"x": 27.3, "y": 29.0}, {"x": 20.4, "y": 18.0}, {"x": 23.4, "y": 38.0}, {"x": 9.7, "y": 12.0}, {"x": 8.1, "y": 7.0}, {"x": 10.2, "y": 16.0}, {"x": 18.9, "y": 20.0}, {"x": 22.5, "y": 26.0}, {"x": 13.3, "y": 8.0}, {"x": 13.5, "y": 12.0}, {"x": 31.1, "y": 32.0}, {"x": 23.2, "y": 24.0}, {"x": 24.2, "y": 36.0}, {"x": 33.7, "y": 58.0}, {"x": 45.8, "y": 80.0}, {"x": 50.1, "y": 113.0}, {"x": 39.3, "y": 51.0}, {"x": 52.4, "y": 75.0}, {"x": 46.0, "y": 61.0}, {"x": 52.7, "y": 55.0}, {"x": 31.2, "y": 53.0}, {"x": 38.0, "y": 57.0}, {"x": 16.5, "y": 24.0}, {"x": 20.0, "y": 18.0}, {"x": 12.7, "y": 12.0}, {"x": 35.8, "y": 54.0}, {"x": 11.6, "y": 11.0}, {"x": 25.9, "y": 33.0}, {"x": 30.1, "y": 40.0}, {"x": 12.3, "y": 17.0}, {"x": 10.3, "y": 14.0}, {"x": 11.5, "y": 15.0}, {"x": 15.3, "y": 11.0}, {"x": 11.4, "y": 27.0}, {"x": 27.1, "y": 60.0}, {"x": 33.8, "y": 44.0}, {"x": 36.0, "y": 48.0}, {"x": 34.0, "y": 60.0}, {"x": 44.9, "y": 50.0}, {"x": 24.1, "y": 39.0}, {"x": 32.3, "y": 36.0}, {"x": 61.7, "y": 71.0}, {"x": 9.3, "y": 7.0}, {"x": 3.2, "y": 2.0}, {"x": 4.2, "y": 2.0}, {"x": 3.2, "y": 1.0}, {"x": 7.1, "y": 2.0}, {"x": 3.5, "y": 3.0}, {"x": 3.1, "y": 3.0}, {"x": 2.9, "y": 10.0}, {"x": 2.9, "y": 3.0}, {"x": 5.5, "y": 8.0}, {"x": 27.1, "y": 48.0}, {"x": 38.7, "y": 70.0}, {"x": 85.1, "y": 100.0}, {"x": 9.5, "y": 21.0}, {"x": 11.8, "y": 17.0}, {"x": 15.1, "y": 23.0}, {"x": 54.3, "y": 72.0}, {"x": 38.0, "y": 39.0}, {"x": 70.1, "y": 108.0}, {"x": 13.1, "y": 15.0}, {"x": 40.7, "y": 44.0}, {"x": 26.1, "y": 29.0}, {"x": 3.9, "y": 5.0}, {"x": 4.5, "y": 1.0}, {"x": 3.3, "y": 4.0}, {"x": 21.9, "y": 27.0}, {"x": 20.7, "y": 33.0}, {"x": 4.2, "y": 2.0}, {"x": 3.6, "y": 2.0}, {"x": 55.5, "y": 43.0}, {"x": 10.3, "y": 11.0}, {"x": 32.1, "y": 50.0}, {"x": 7.1, "y": 6.0}, {"x": 51.6, "y": 79.0}, {"x": 11.6, "y": 28.0}, {"x": 12.4, "y": 21.0}, {"x": 16.3, "y": 18.0}, {"x": 48.6, "y": 62.0}, {"x": 60.1, "y": 81.0}, {"x": 50.9, "y": 51.0}, {"x": 15.7, "y": 12.0}, {"x": 38.5, "y": 49.0}, {"x": 2.8, "y": 8.0}, {"x": 7.5, "y": 11.0}, {"x": 11.0, "y": 5.0}, {"x": 6.5, "y": 6.0}, {"x": 15.3, "y": 24.0}, {"x": 0.9, "y": 5.0}, {"x": 0.4, "y": 2.0}, {"x": 15.4, "y": 19.0}], "backgroundColor": "#006AE666", "pointRadius": 3}, {"label": "완벽 예측선", "data": [{"x": 0, "y": 0}, {"x": 621.0, "y": 621.0}], "type": "line", "borderColor": "#00B894", "borderDash": [5, 5], "pointRadius": 0, "fill": false}]}, "options": {"responsive": true, "scales": {"x": {"title": {"display": true, "text": "예측 수량"}, "min": 0}, "y": {"title": {"display": true, "text": "실적 수량"}, "min": 0}}}});
+    </script>
+</body>
+</html>

@@ -1,0 +1,1117 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1280, initial-scale=1" />
+    <title>보충배분-AIA · [화면 A] 매장 조정 (UI 레퍼런스)</title>
+    <!-- Tailwind Play CDN — 개발 전용 스타일 미러. 실 프로젝트는 Tailwind v4 컴파일. -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      html,
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Pretendard",
+          "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+        background: #f4f6f9;
+        color: #1b3a5c;
+      }
+      .tabular-nums {
+        font-variant-numeric: tabular-nums;
+      }
+      .line-through-gray {
+        text-decoration: line-through;
+        opacity: 0.45;
+      }
+      /* 간단한 체크박스 강조 */
+      input[type="checkbox"] {
+        accent-color: #00b4d8;
+      }
+      /* 바차트 막대 애니메이션 */
+      .bar-grow {
+        transition: height 0.25s ease;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen">
+    <!-- ════════════════════════════════════════════════════════════
+         본 파일은 보충배분-AIA [화면 A] 매장 조정 화면의 고정 UI 레퍼런스.
+         React 구현: src/components/replenishment/ShopAdjustmentView.tsx
+                    src/components/replenishment/StyleNavigatorModal.tsx
+                    src/components/replenishment/AddShopModal.tsx
+                    src/components/replenishment/charts/*
+         이 HTML 은 **UI 디자인 확정본** 이므로 React 구현과 상이하게 보이면
+         React 쪽을 여기에 맞춰야 한다.
+         ═════════════════════════════════════════════════════════════ -->
+
+    <div id="app"></div>
+
+    <!-- ════════════════════════════════════════════════════════════
+         MOCK 데이터 (Snowflake 아카이빙 예시)
+         ═════════════════════════════════════════════════════════════ -->
+    <script>
+      // ─── 배분그룹 (shop_grp_archive.json 샘플) ──────────────────
+      const SHOP_GRPS = [
+        {
+          shopGrpNo: "XSHGR202512100000003546",
+          shopGrpNm: "26S 아우터 전체",
+          brandCd: "X",
+          ssnCd: "26S",
+          shopCnt: 32,
+          shops: [
+            { shopCd: "10075", shopNm: "신세계본점", adjRank: 1 },
+            { shopCd: "10090", shopNm: "신세계영등포", adjRank: 2 },
+            { shopCd: "10124", shopNm: "롯데분당점", adjRank: 3 },
+            { shopCd: "10089", shopNm: "신세계강남점", adjRank: 4 },
+            { shopCd: "10201", shopNm: "현대판교점", adjRank: 5 },
+            { shopCd: "10055", shopNm: "현대본점", adjRank: 6 },
+            { shopCd: "10301", shopNm: "롯데잠실점", adjRank: 7 },
+            { shopCd: "10402", shopNm: "신세계센텀시티", adjRank: 8 },
+            { shopCd: "10503", shopNm: "롯데부산본점", adjRank: 9 },
+            { shopCd: "10604", shopNm: "현대더현대서울", adjRank: 10 },
+            { shopCd: "10705", shopNm: "갤러리아명품관", adjRank: 11 },
+            { shopCd: "10806", shopNm: "AK수원점", adjRank: 12 },
+            { shopCd: "10907", shopNm: "롯데동부산점", adjRank: 13 },
+            { shopCd: "11008", shopNm: "스타필드하남", adjRank: 14 },
+            { shopCd: "11109", shopNm: "현대천호점", adjRank: 15 },
+            { shopCd: "11210", shopNm: "롯데울산점", adjRank: 16 },
+            { shopCd: "11311", shopNm: "신세계대전점", adjRank: 17 },
+            { shopCd: "11412", shopNm: "갤러리아광교", adjRank: 18 },
+            { shopCd: "11513", shopNm: "AK분당점", adjRank: 19 },
+            { shopCd: "11614", shopNm: "롯데광복점", adjRank: 20 },
+            { shopCd: "11715", shopNm: "현대울산점", adjRank: 21 },
+            { shopCd: "11816", shopNm: "롯데창원점", adjRank: 22 },
+            { shopCd: "11917", shopNm: "신세계광주점", adjRank: 23 },
+            { shopCd: "12018", shopNm: "현대대구점", adjRank: 24 },
+            { shopCd: "12119", shopNm: "롯데포항점", adjRank: 25 },
+            { shopCd: "12220", shopNm: "AK홍대점", adjRank: 26 },
+            { shopCd: "12321", shopNm: "롯데중동점", adjRank: 27 },
+            { shopCd: "12422", shopNm: "현대신촌점", adjRank: 28 },
+            { shopCd: "12523", shopNm: "신세계의정부", adjRank: 29 },
+            { shopCd: "12624", shopNm: "롯데일산점", adjRank: 30 },
+            { shopCd: "12725", shopNm: "현대김포점", adjRank: 31 },
+            { shopCd: "12826", shopNm: "롯데구리점", adjRank: 32 },
+          ],
+        },
+      ];
+
+      // ─── 매장 추가 모달용 브랜드 매장 풀 ─────────────────────
+      const BRAND_SHOP_POOL = [
+        { shopCd: "13001", shopNm: "롯데평촌점", region: "경기" },
+        { shopCd: "13002", shopNm: "현대중동점", region: "경기" },
+        { shopCd: "13003", shopNm: "신세계천안점", region: "충남" },
+        { shopCd: "13004", shopNm: "롯데전주점", region: "전북" },
+        { shopCd: "13005", shopNm: "현대킨텍스점", region: "경기" },
+        { shopCd: "13006", shopNm: "신세계마산점", region: "경남" },
+        { shopCd: "13007", shopNm: "롯데상인점", region: "대구" },
+        { shopCd: "13008", shopNm: "갤러리아타임월드", region: "대전" },
+        { shopCd: "13009", shopNm: "AK원주점", region: "강원" },
+        { shopCd: "13010", shopNm: "롯데청량리", region: "서울" },
+        { shopCd: "13011", shopNm: "현대미아점", region: "서울" },
+        { shopCd: "13012", shopNm: "신세계김해점", region: "경남" },
+      ];
+
+      // ─── AP 가용재고 ────────────────────────────────────────
+      const WAREHOUSE_STOCK = [
+        { sizCd: "90", qty: 85 },
+        { sizCd: "95", qty: 240 },
+        { sizCd: "100", qty: 310 },
+        { sizCd: "105", qty: 180 },
+        { sizCd: "110", qty: 60 },
+      ];
+
+      // ─── 분류 트리 ──────────────────────────────────────────
+      const CATEGORY_TREE = {
+        상의: {
+          티셔츠: ["반팔 티셔츠", "긴팔 티셔츠"],
+          셔츠: ["캐주얼 셔츠", "드레스 셔츠"],
+          니트: ["스웨터", "가디건"],
+        },
+        하의: {
+          팬츠: ["진", "슬랙스", "조거", "카고"],
+          스커트: ["미니", "미디"],
+        },
+        아우터: {
+          자켓: ["트러커자켓", "블레이저", "바시티자켓"],
+          후드: ["집업 후드", "풀오버 후드"],
+          패딩: ["롱 패딩", "숏 패딩", "베스트"],
+        },
+        신발: {
+          슈즈: ["스니커즈", "러닝화"],
+          슬리퍼: ["슬라이드"],
+        },
+        용품: {
+          모자: ["캡", "버킷햇"],
+          가방: ["백팩", "크로스백"],
+        },
+      };
+
+      // ─── 시즌 옵션 ─────────────────────────────────────────
+      const SEASON_OPTIONS = [
+        "26N",
+        "26F",
+        "26S",
+        "25N",
+        "25F",
+        "25S",
+        "24N",
+        "24F",
+        "24S",
+        "23F",
+      ];
+
+      // ─── 스타일 카탈로그 ────────────────────────────────────
+      const COLORS_BASIC = [
+        { colorCd: "BKS", colorNm: "블랙" },
+        { colorCd: "IVS", colorNm: "아이보리" },
+        { colorCd: "NVS", colorNm: "네이비" },
+      ];
+      const COLORS_WARM = [
+        { colorCd: "BKS", colorNm: "블랙" },
+        { colorCd: "KHS", colorNm: "카키" },
+        { colorCd: "BGS", colorNm: "베이지" },
+      ];
+      const COLORS_FULL = [
+        { colorCd: "BKS", colorNm: "블랙" },
+        { colorCd: "WHS", colorNm: "화이트" },
+        { colorCd: "IVS", colorNm: "아이보리" },
+        { colorCd: "NVS", colorNm: "네이비" },
+        { colorCd: "KHS", colorNm: "카키" },
+      ];
+      const STYLE_CATALOG = [
+        // 아우터
+        { prodCd: "3ADKM0351", prodNm: "클래식 모노그램 그라데이션 자카드 데님 트러커자켓", ssnCd: "25S", category1: "아우터", category2: "자켓", category3: "트러커자켓", colors: COLORS_BASIC },
+        { prodCd: "XJWT7341", prodNm: "경량 바람막이 자켓", ssnCd: "26S", category1: "아우터", category2: "자켓", category3: "블레이저", colors: COLORS_BASIC },
+        { prodCd: "XJOT5230", prodNm: "오버핏 코치 자켓", ssnCd: "26F", category1: "아우터", category2: "자켓", category3: "블레이저", colors: COLORS_WARM },
+        { prodCd: "3AJPM0951", prodNm: "다이아 모노그램 저지 JQD 소매TAPE 바시티자켓(홑겹)", ssnCd: "25S", category1: "아우터", category2: "자켓", category3: "바시티자켓", colors: COLORS_BASIC },
+        { prodCd: "DMDJ61046", prodNm: "모노그램 퀼팅 베스트", ssnCd: "25F", category1: "아우터", category2: "패딩", category3: "베스트", colors: COLORS_BASIC },
+        { prodCd: "XJVT6310", prodNm: "경량 다운 베스트", ssnCd: "25F", category1: "아우터", category2: "패딩", category3: "베스트", colors: COLORS_BASIC },
+        { prodCd: "3AHDB0851", prodNm: "베이직 스티치 엠보 메가로고 후드티", ssnCd: "25S", category1: "아우터", category2: "후드", category3: "풀오버 후드", colors: COLORS_FULL },
+        { prodCd: "3AHDM0351", prodNm: "클래식 모노그램 테이프 후드티", ssnCd: "25S", category1: "아우터", category2: "후드", category3: "풀오버 후드", colors: COLORS_BASIC },
+        { prodCd: "3AHDV0551", prodNm: "바시티 빈티지 스몰 그래픽 후드티", ssnCd: "25S", category1: "아우터", category2: "후드", category3: "풀오버 후드", colors: COLORS_WARM },
+        { prodCd: "XJOT5960", prodNm: "플리스 집업 후드", ssnCd: "25F", category1: "아우터", category2: "후드", category3: "집업 후드", colors: COLORS_WARM },
+        // 상의
+        { prodCd: "3ADRB0151", prodNm: "베이직 그라데이션 쿠퍼스 데님셔츠", ssnCd: "25S", category1: "상의", category2: "셔츠", category3: "캐주얼 셔츠", colors: COLORS_BASIC },
+        { prodCd: "3ADRG0351", prodNm: "메가그램 멀티사이즈 데님셔츠", ssnCd: "25S", category1: "상의", category2: "셔츠", category3: "캐주얼 셔츠", colors: COLORS_BASIC },
+        { prodCd: "3ADRM0451", prodNm: "클래식 모노그램 컬러 그라데이션 빅럭스 데님셔츠", ssnCd: "25S", category1: "상의", category2: "셔츠", category3: "드레스 셔츠", colors: COLORS_WARM },
+        { prodCd: "XMST3120", prodNm: "에센셜 반팔 티셔츠", ssnCd: "26S", category1: "상의", category2: "티셔츠", category3: "반팔 티셔츠", colors: COLORS_FULL },
+        { prodCd: "XMST3250", prodNm: "그래픽 오버핏 반팔 티셔츠", ssnCd: "26S", category1: "상의", category2: "티셔츠", category3: "반팔 티셔츠", colors: COLORS_WARM },
+        { prodCd: "3AKCM0151", prodNm: "다이아 모노그램 전판 버튼 가디건", ssnCd: "25S", category1: "상의", category2: "니트", category3: "가디건", colors: COLORS_BASIC },
+        { prodCd: "3AKCM0251", prodNm: "클래식 모노그램 톤톤 버튼 가디건", ssnCd: "25S", category1: "상의", category2: "니트", category3: "가디건", colors: COLORS_WARM },
+        // 하의
+        { prodCd: "XMPT4210", prodNm: "클래식 조거 팬츠", ssnCd: "26S", category1: "하의", category2: "팬츠", category3: "조거", colors: COLORS_BASIC },
+        { prodCd: "XMPT4320", prodNm: "카고 와이드 팬츠", ssnCd: "26S", category1: "하의", category2: "팬츠", category3: "카고", colors: COLORS_WARM },
+        { prodCd: "XMPT4850", prodNm: "스트레치 슬랙스", ssnCd: "26S", category1: "하의", category2: "팬츠", category3: "슬랙스", colors: COLORS_WARM },
+        { prodCd: "XMPT4780", prodNm: "데님 와이드 진", ssnCd: "26S", category1: "하의", category2: "팬츠", category3: "진", colors: COLORS_BASIC },
+        // 신발 / 용품
+        { prodCd: "3ALPS0153", prodNm: "스키퍼 슬라이드", ssnCd: "25S", category1: "신발", category2: "슬리퍼", category3: "슬라이드", colors: COLORS_BASIC },
+        { prodCd: "XAHT2100", prodNm: "버킷햇 로고", ssnCd: "26S", category1: "용품", category2: "모자", category3: "버킷햇", colors: COLORS_BASIC },
+        { prodCd: "XASG2200", prodNm: "크로스백 미니", ssnCd: "26S", category1: "용품", category2: "가방", category3: "크로스백", colors: COLORS_WARM },
+      ];
+      const SIZES = ["90", "95", "100", "105", "110"];
+
+      // ─── 결정적 해시 시드 (React 구현과 동일) ────────────────
+      function hashSeed(s) {
+        let h = 2166136261;
+        for (let i = 0; i < s.length; i++) {
+          h ^= s.charCodeAt(i);
+          h = Math.imul(h, 16777619);
+        }
+        return Math.abs((h >>> 0) / 0xffffffff);
+      }
+
+      // ─── 조합별 mock 예측·재고 빌더 ─────────────────────────
+      function buildAdjustmentData(shopGrpNo, prodCd, colorCd) {
+        const grp = SHOP_GRPS.find((g) => g.shopGrpNo === shopGrpNo) || SHOP_GRPS[0];
+        const shops = grp.shops.map((s) => {
+          let fcTot = 0;
+          let stTot = 0;
+          for (const sz of SIZES) {
+            fcTot += Math.floor(hashSeed(`${prodCd}-${colorCd}-${s.shopCd}-${sz}-fc`) * 18) + 1;
+            stTot += Math.floor(hashSeed(`${prodCd}-${colorCd}-${s.shopCd}-${sz}-stk`) * 10);
+          }
+          return {
+            shopCd: s.shopCd,
+            shopNm: s.shopNm,
+            adjRank: s.adjRank,
+            forecastTotal: fcTot,
+            currentStockTotal: stTot,
+            removed: false,
+          };
+        });
+        return { shopGrp: grp, shops };
+      }
+    </script>
+
+    <!-- ════════════════════════════════════════════════════════════
+         상태 관리 + 렌더러
+         ═════════════════════════════════════════════════════════════ -->
+    <script>
+      const STATE = {
+        filters: {
+          brandCd: "X",
+          apCd: "offline_normal",
+          ssnCd: "26S",
+          shopGrpNo: SHOP_GRPS[0].shopGrpNo,
+          selections: [], // {prodCd, prodNm, ssnCd, colorCd}
+          executionDate: new Date().toISOString().slice(0, 10),
+        },
+        shopGrp: null,
+        shopsByKey: {}, // key=prodCd__colorCd -> shops[]
+        activeIdx: 0,
+        showRemoved: false,
+        styleNavOpen: false,
+        addShopOpen: false,
+        toast: null,
+        isSimulating: false,
+        // 스타일 네비게이터 내부 상태
+        nav: {
+          seasonFilter: new Set(["26S"]),
+          cat1Filter: new Set(),
+          cat2Filter: new Set(),
+          cat3Filter: new Set(),
+          query: "",
+          basket: [], // [{prodCd, prodNm, ssnCd, colorCd}]
+          seasonsExpanded: false,
+          cat1Open: true,
+          cat2Open: false,
+          cat3Open: false,
+        },
+        // 매장 추가 모달 상태
+        addShopQuery: "",
+        addShopSelected: null,
+      };
+
+      const $ = (sel) => document.querySelector(sel);
+      const keyOf = (sel) => `${sel.prodCd}__${sel.colorCd}`;
+
+      function showToast(msg) {
+        STATE.toast = msg;
+        render();
+        setTimeout(() => {
+          STATE.toast = null;
+          render();
+        }, 2500);
+      }
+
+      // ═══════ 이벤트 핸들러 ═══════
+      function onQuery() {
+        if (STATE.filters.selections.length === 0) {
+          showToast("스타일을 먼저 선택해주세요");
+          return;
+        }
+        const byKey = {};
+        let firstGrp = null;
+        for (const sel of STATE.filters.selections) {
+          const color = sel.colorCd === "ALL" ? "BKS" : sel.colorCd;
+          const built = buildAdjustmentData(STATE.filters.shopGrpNo, sel.prodCd, color);
+          if (!firstGrp) firstGrp = built.shopGrp;
+          byKey[keyOf(sel)] = built.shops;
+        }
+        STATE.shopGrp = firstGrp;
+        STATE.shopsByKey = byKey;
+        STATE.activeIdx = 0;
+        STATE.filters.executionDate = new Date().toISOString().slice(0, 10);
+        showToast(`조회 완료 — ${STATE.filters.selections.length}개 스타일-컬러 탭이 준비되었습니다`);
+      }
+      function onReset() {
+        STATE.filters.selections = [];
+        STATE.shopGrp = null;
+        STATE.shopsByKey = {};
+        STATE.activeIdx = 0;
+        showToast("필터가 초기화되었습니다");
+      }
+      function onSimulate() {
+        STATE.isSimulating = true;
+        render();
+        setTimeout(() => {
+          STATE.isSimulating = false;
+          showToast("[프리뷰] ILP 시뮬레이션 완료 — 실 구현 시 3컬럼 피벗 화면으로 전환됩니다");
+        }, 1200);
+      }
+      function onTabChange(idx) {
+        STATE.activeIdx = idx;
+        render();
+      }
+      function onRemoveShop(shopCd) {
+        const sel = STATE.filters.selections[STATE.activeIdx];
+        if (!sel) return;
+        const k = keyOf(sel);
+        STATE.shopsByKey[k] = STATE.shopsByKey[k].map((s) =>
+          s.shopCd === shopCd ? { ...s, removed: true } : s,
+        );
+        showToast("매장이 제거되었습니다 (현재 탭만)");
+      }
+      function onRestoreShop(shopCd) {
+        const sel = STATE.filters.selections[STATE.activeIdx];
+        if (!sel) return;
+        const k = keyOf(sel);
+        STATE.shopsByKey[k] = STATE.shopsByKey[k].map((s) =>
+          s.shopCd === shopCd ? { ...s, removed: false } : s,
+        );
+        showToast("매장이 복원되었습니다");
+      }
+      function onAddShopSubmit(shopCd) {
+        const sel = STATE.filters.selections[STATE.activeIdx];
+        if (!sel) return;
+        const pool = BRAND_SHOP_POOL.find((p) => p.shopCd === shopCd);
+        if (!pool) return;
+        const k = keyOf(sel);
+        const prev = STATE.shopsByKey[k] || [];
+        const nextRank = (Math.max(0, ...prev.map((s) => s.adjRank)) || 0) + 1;
+        const color = sel.colorCd === "ALL" ? "BKS" : sel.colorCd;
+        let fcTot = 0;
+        let stTot = 0;
+        for (const sz of SIZES) {
+          fcTot += Math.floor(hashSeed(`${sel.prodCd}-${color}-${shopCd}-${sz}-fc`) * 18) + 1;
+          stTot += Math.floor(hashSeed(`${sel.prodCd}-${color}-${shopCd}-${sz}-stk`) * 10);
+        }
+        STATE.shopsByKey[k] = [
+          ...prev,
+          {
+            shopCd,
+            shopNm: pool.shopNm,
+            adjRank: nextRank,
+            forecastTotal: fcTot,
+            currentStockTotal: stTot,
+            removed: false,
+          },
+        ];
+        STATE.addShopOpen = false;
+        STATE.addShopQuery = "";
+        STATE.addShopSelected = null;
+        showToast(`${pool.shopNm} 매장 추가 (adjRank ${nextRank})`);
+      }
+      function onNavSubmit() {
+        STATE.filters.selections = STATE.nav.basket.slice();
+        STATE.styleNavOpen = false;
+        showToast(`${STATE.nav.basket.length}개 스타일 선택됨`);
+      }
+      function onNavToggleStyle(style) {
+        const idx = STATE.nav.basket.findIndex((b) => b.prodCd === style.prodCd);
+        if (idx >= 0) {
+          STATE.nav.basket.splice(idx, 1);
+        } else {
+          STATE.nav.basket.push({
+            prodCd: style.prodCd,
+            prodNm: style.prodNm,
+            ssnCd: style.ssnCd,
+            colorCd: "ALL",
+          });
+        }
+        render();
+      }
+      function onNavRemove(prodCd) {
+        STATE.nav.basket = STATE.nav.basket.filter((b) => b.prodCd !== prodCd);
+        render();
+      }
+      function onNavClearBasket() {
+        STATE.nav.basket = [];
+        render();
+      }
+      function onNavSetColor(prodCd, colorCd) {
+        const b = STATE.nav.basket.find((x) => x.prodCd === prodCd);
+        if (b) b.colorCd = colorCd;
+        render();
+      }
+
+      // ═══════ 파생 계산 ═══════
+      function activeShops() {
+        const sel = STATE.filters.selections[STATE.activeIdx];
+        if (!sel) return [];
+        return STATE.shopsByKey[keyOf(sel)] || [];
+      }
+      function activeSel() {
+        return STATE.filters.selections[STATE.activeIdx] || null;
+      }
+
+      // 스타일 네비게이터 중앙 리스트 필터
+      function filteredStyles() {
+        const { seasonFilter, cat1Filter, cat2Filter, cat3Filter, query } = STATE.nav;
+        const q = query.trim().toLowerCase();
+        return STYLE_CATALOG.filter((s) => (seasonFilter.size === 0 ? true : seasonFilter.has(s.ssnCd)))
+          .filter((s) => (cat1Filter.size === 0 ? true : cat1Filter.has(s.category1)))
+          .filter((s) => (cat2Filter.size === 0 ? true : cat2Filter.has(s.category2)))
+          .filter((s) => (cat3Filter.size === 0 ? true : cat3Filter.has(s.category3)))
+          .filter((s) =>
+            !q ? true : s.prodCd.toLowerCase().includes(q) || s.prodNm.toLowerCase().includes(q),
+          );
+      }
+      function cat2OptionsFromFilter() {
+        const set = new Set();
+        const sources =
+          STATE.nav.cat1Filter.size === 0
+            ? Object.keys(CATEGORY_TREE)
+            : Array.from(STATE.nav.cat1Filter);
+        for (const c1 of sources) {
+          const sub = CATEGORY_TREE[c1];
+          if (sub) for (const c2 of Object.keys(sub)) set.add(c2);
+        }
+        return Array.from(set).sort();
+      }
+      function cat3OptionsFromFilter() {
+        const set = new Set();
+        const c1s =
+          STATE.nav.cat1Filter.size === 0
+            ? Object.keys(CATEGORY_TREE)
+            : Array.from(STATE.nav.cat1Filter);
+        for (const c1 of c1s) {
+          const map = CATEGORY_TREE[c1];
+          if (!map) continue;
+          const c2s =
+            STATE.nav.cat2Filter.size === 0
+              ? Object.keys(map)
+              : Array.from(STATE.nav.cat2Filter);
+          for (const c2 of c2s) {
+            const c3s = map[c2];
+            if (c3s) c3s.forEach((c3) => set.add(c3));
+          }
+        }
+        return Array.from(set).sort();
+      }
+
+      function esc(s) {
+        return String(s).replace(
+          /[&<>"']/g,
+          (m) =>
+            ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[m],
+        );
+      }
+    </script>
+
+    <!-- ════════════════════════════════════════════════════════════
+         렌더러
+         ═════════════════════════════════════════════════════════════ -->
+    <script>
+      // ─── 탑 페이지 타이틀 ────────────────────────────────────
+      function renderTitle() {
+        return `
+        <div class="bg-white px-6 py-3 border-b border-[#D2D8E0] flex items-center gap-2.5 shrink-0">
+          <h1 class="text-base font-bold text-[#1B3A5C]">┃ 보충배분-AIA</h1>
+          <span class="text-[11px] text-[#7C3AED] bg-[#F3EFFE] px-2 py-0.5 rounded-full font-semibold">v11 매장 조정</span>
+          <span class="ml-auto text-[11px] text-[#A0AEC0]">
+            executionDate&nbsp;<b class="text-[#1B3A5C] tabular-nums">${esc(STATE.filters.executionDate)}</b>
+            <span class="mx-1.5">·</span>W1 기준
+          </span>
+        </div>`;
+      }
+
+      // ─── 필터바 ─────────────────────────────────────────────
+      function renderFilterBar() {
+        const sel = STATE.filters.selections;
+        const btnLabel =
+          sel.length === 0
+            ? `<span class="text-[#A0AEC0]">스타일을 선택하세요 …</span>`
+            : `<span><b class="text-[#7C3AED]">${sel.length}</b>개 선택됨
+               <span class="text-[#A0AEC0] ml-2">(${esc(sel[0].prodCd)}${sel.length > 1 ? ` 외 ${sel.length - 1}` : ""})</span>
+              </span>`;
+        return `
+        <div class="bg-white border-b border-[#D2D8E0]">
+          <div class="px-6 py-2 flex flex-wrap gap-3 items-end">
+            ${fieldSelect("브랜드", true, "brandCd", [
+              ["X", "X: Discovery"],
+              ["M", "M: MLB"],
+              ["V", "V: Duvetica"],
+              ["ST", "ST: Sergio Tacchini"],
+              ["I", "I: MLB KIDS"],
+            ])}
+            ${fieldSelect("AP", true, "apCd", [
+              ["offline_normal", "오프라인 정상"],
+              ["online", "온라인"],
+              ["department", "백화점"],
+            ])}
+            ${fieldSelect("상품시즌", true, "ssnCd", [
+              ["26S", "26S"],
+              ["25F", "25F"],
+              ["25S", "25S"],
+            ])}
+            ${fieldSelect("배분그룹", true, "shopGrpNo", SHOP_GRPS.map((g) => [g.shopGrpNo, `${g.shopGrpNm} (${g.shopCnt}개)`]))}
+            <div class="flex flex-col gap-0.5">
+              <label class="text-[11px] text-[#8492A6] font-semibold"><span class="text-[#DC3545]">*</span> 스타일</label>
+              <button onclick="STATE.styleNavOpen=true;render()"
+                class="h-8 px-3 text-xs border border-[#D2D8E0] rounded-lg bg-white hover:bg-[#F7F9FC] text-left min-w-[260px]">
+                ${btnLabel}
+              </button>
+            </div>
+            <button onclick="onQuery()" ${STATE.filters.selections.length === 0 ? "disabled" : ""}
+              class="h-8 px-3 text-xs rounded-lg bg-[#00B4D8] hover:bg-[#0096B4] text-white disabled:opacity-40">조회하기</button>
+            <button onclick="onReset()" class="h-8 px-3 text-xs rounded-lg border border-[#D2D8E0] bg-white hover:bg-[#F7F9FC]">초기화</button>
+          </div>
+        </div>`;
+      }
+      function fieldSelect(label, required, key, options) {
+        const current = STATE.filters[key];
+        const opts = options
+          .map(([v, l]) => `<option value="${esc(v)}" ${current === v ? "selected" : ""}>${esc(l)}</option>`)
+          .join("");
+        return `
+        <div class="flex flex-col gap-0.5">
+          <label class="text-[11px] text-[#8492A6] font-semibold">
+            ${required ? `<span class="text-[#DC3545]">*</span>` : ""} ${esc(label)}
+          </label>
+          <select onchange="STATE.filters.${key}=this.value;render()"
+            class="h-8 px-2 text-xs border border-[#D2D8E0] rounded-lg bg-white min-w-[120px]">
+            ${opts}
+          </select>
+        </div>`;
+      }
+
+      // ─── 배분그룹 요약 헤더 + 시뮬레이션 ─────────────────────
+      function renderGroupHeader() {
+        const sel = activeSel();
+        const shops = activeShops();
+        const active = shops.filter((s) => !s.removed);
+        const removed = shops.filter((s) => s.removed);
+        const grp = STATE.shopGrp;
+        return `
+        <div class="bg-white border border-[#D2D8E0] rounded-md p-3 flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <div>
+              <div class="text-[10px] text-[#A0AEC0]">배분그룹</div>
+              <div class="text-[13px] font-bold text-[#1B3A5C]">${grp ? esc(grp.shopGrpNm) : "-"}</div>
+              <div class="text-[10px] text-[#718096] tabular-nums">${grp ? esc(grp.shopGrpNo) : "-"}</div>
+            </div>
+            <div class="h-10 w-px bg-[#D2D8E0]"></div>
+            <div>
+              <div class="text-[10px] text-[#A0AEC0]">대상 매장</div>
+              <div class="text-[13px] font-bold text-[#1B3A5C] tabular-nums">
+                ${active.length}
+                <span class="text-[11px] text-[#718096] font-normal">/ 원본 ${grp?.shopCnt ?? 0}</span>
+              </div>
+              ${removed.length > 0 ? `<div class="text-[10px] text-[#DC3545]">제거 ${removed.length}개</div>` : ""}
+            </div>
+            <div class="h-10 w-px bg-[#D2D8E0]"></div>
+            <div>
+              <div class="text-[10px] text-[#A0AEC0]">활성 스타일·컬러</div>
+              <div class="text-[13px] font-bold text-[#1B3A5C] tabular-nums">${sel ? `${esc(sel.prodCd)} · ${esc(sel.colorCd)}` : "-"}</div>
+              <div class="text-[10px] text-[#718096] truncate max-w-[280px]">${sel ? esc(sel.prodNm) : ""}</div>
+            </div>
+          </div>
+          <button onclick="onSimulate()"
+            ${!grp || active.length === 0 || STATE.filters.selections.length === 0 ? "disabled" : ""}
+            class="h-8 px-4 text-[11px] rounded-lg text-white border-none disabled:opacity-40"
+            style="background: linear-gradient(to right, #7C3AED, #9F7AEA)">
+            배분 시뮬레이션 ▶
+          </button>
+        </div>`;
+      }
+
+      // ─── 스타일-컬러 탭 바 ─────────────────────────────────
+      function renderTabs() {
+        const sels = STATE.filters.selections;
+        if (sels.length === 0) return "";
+        const tabs = sels
+          .map((sel, idx) => {
+            const active = idx === STATE.activeIdx;
+            return `
+            <button onclick="onTabChange(${idx})"
+              class="shrink-0 px-4 py-2.5 border-r border-[#EDEFF2] text-left transition-colors ${
+                active
+                  ? "bg-white border-b-2 border-b-[#7C3AED] -mb-px"
+                  : "bg-[#F8F9FB] hover:bg-[#F0F2F6] border-b border-b-[#EDEFF2]"
+              }">
+              <div class="flex items-center gap-2">
+                <span class="text-[10px] px-1.5 py-0.5 rounded font-semibold ${
+                  active ? "bg-[#F3EFFE] text-[#7C3AED]" : "bg-[#E6F4EA] text-[#2F855A]"
+                }">${esc(sel.ssnCd)}</span>
+                <span class="text-xs font-bold tabular-nums ${active ? "text-[#1B3A5C]" : "text-[#4A5568]"}">${esc(sel.prodCd)}</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded font-semibold ${
+                  sel.colorCd === "ALL" ? "bg-[#FFF3CD] text-[#92400E]" : "bg-[#E0E7EF] text-[#4A5568]"
+                }">${esc(sel.colorCd)}</span>
+              </div>
+              <div class="text-[10px] mt-0.5 truncate max-w-[220px] ${active ? "text-[#718096]" : "text-[#A0AEC0]"}">${esc(sel.prodNm)}</div>
+            </button>`;
+          })
+          .join("");
+        return `
+        <div class="bg-white border border-[#D2D8E0] rounded-md overflow-hidden">
+          <div class="px-3 py-2 border-b border-[#EDEFF2] flex items-center gap-2 bg-[#FAFBFC]">
+            <span class="text-[11px] font-semibold text-[#8492A6]">스타일-컬러 조합</span>
+            <span class="text-[10px] text-[#A0AEC0]">탭을 눌러 각 조합의 예측·재고를 확인하세요</span>
+          </div>
+          <div class="flex overflow-x-auto">${tabs}</div>
+        </div>`;
+      }
+
+      // ─── 차트 3종 ─────────────────────────────────────────
+      function renderCharts() {
+        const shops = activeShops().filter((s) => !s.removed);
+        const total = shops.reduce((a, b) => a + b.forecastTotal, 0);
+        const maxVal = Math.max(1, ...shops.map((s) => s.forecastTotal));
+
+        const bars = shops
+          .sort((a, b) => a.adjRank - b.adjRank)
+          .map((s) => {
+            const h = Math.max(4, (s.forecastTotal / maxVal) * 160);
+            return `
+            <div class="flex flex-col items-center gap-1 group" style="min-width:36px">
+              <div class="text-[9px] tabular-nums text-[#7C3AED] opacity-0 group-hover:opacity-100">${s.forecastTotal}</div>
+              <div class="bar-grow rounded-t" style="width:20px;height:${h}px;background:#7C3AED"></div>
+              <div class="text-[9px] text-[#718096] tabular-nums">${s.adjRank}</div>
+            </div>`;
+          })
+          .join("");
+
+        // 등급 버킷
+        const grp = STATE.shopGrp;
+        const shopCnt = grp?.shopCnt ?? shops.length;
+        const s1 = Math.max(1, Math.ceil(shopCnt * 0.3));
+        const a1 = Math.max(s1 + 1, Math.ceil(shopCnt * 0.8));
+        const buckets = [
+          { key: "S", label: "S 계열", range: [1, s1], accent: "#7C3AED", bg: "from-[#F3EFFE] to-[#EEE6FD]" },
+          { key: "A", label: "A 계열", range: [s1 + 1, a1], accent: "#00B4D8", bg: "from-[#E8F7FB] to-[#E0F3F9]" },
+          { key: "B", label: "B 계열", range: [a1 + 1, shopCnt], accent: "#718096", bg: "from-[#F0F2F6] to-[#E8ECF2]" },
+        ].map((b) => {
+          const inB = shops.filter((s) => s.adjRank >= b.range[0] && s.adjRank <= b.range[1]);
+          const fc = inB.reduce((a, s) => a + s.forecastTotal, 0);
+          const st = inB.reduce((a, s) => a + s.currentStockTotal, 0);
+          return `
+          <div class="rounded-md p-2.5 border border-[#E2E8F0] bg-gradient-to-r ${b.bg}">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="inline-block w-2 h-2 rounded-full" style="background:${b.accent}"></span>
+                <span class="text-[12px] font-bold" style="color:${b.accent}">${b.label}</span>
+                <span class="text-[10px] text-[#718096]">adjRank ${b.range[0]}~${b.range[1]}</span>
+              </div>
+              <span class="text-[11px] font-semibold text-[#1B3A5C]">${inB.length} 매장</span>
+            </div>
+            <div class="mt-1.5 flex items-center justify-between text-[10px] text-[#4A5568]">
+              <span>예측합계 <b class="tabular-nums text-[#1B3A5C]">${fc.toLocaleString()}</b></span>
+              <span>현재고 <b class="tabular-nums text-[#1B3A5C]">${st.toLocaleString()}</b></span>
+            </div>
+          </div>`;
+        }).join("");
+
+        // 게이지
+        const apTotal = WAREHOUSE_STOCK.reduce((a, b) => a + b.qty, 0);
+        const remain = apTotal - total;
+        const isShort = remain < 0;
+        const coverage = total === 0 ? 100 : Math.min(200, (apTotal / total) * 100);
+        const capped = Math.min(100, coverage);
+
+        return `
+        <div class="grid grid-cols-12 gap-4">
+          <!-- 바차트 -->
+          <div class="col-span-12 lg:col-span-6 bg-white border border-[#D2D8E0] rounded-md p-3 h-full flex flex-col">
+            <div class="flex items-center justify-between mb-2">
+              <div>
+                <div class="text-[13px] font-semibold text-[#1B3A5C]">매장별 예측 수량</div>
+                <div class="text-[10px] text-[#A0AEC0]">adjRank 순, 사이즈 전체 합계</div>
+              </div>
+              <div class="text-[11px] text-[#7C3AED] font-medium">합계 ${total.toLocaleString()}</div>
+            </div>
+            <div class="flex items-end gap-1 overflow-x-auto pb-2" style="min-height:180px">${bars || `<div class="text-xs text-[#A0AEC0]">조회 후 표시됩니다</div>`}</div>
+          </div>
+          <!-- 등급 버킷 -->
+          <div class="col-span-12 lg:col-span-3 bg-white border border-[#D2D8E0] rounded-md p-3 h-full flex flex-col">
+            <div class="mb-2">
+              <div class="text-[13px] font-semibold text-[#1B3A5C]">등급별 분포</div>
+              <div class="text-[10px] text-[#A0AEC0]">배분그룹 ${shopCnt}개 매장 기준</div>
+            </div>
+            <div class="flex flex-col gap-2 mt-1">${buckets}</div>
+          </div>
+          <!-- 게이지 -->
+          <div class="col-span-12 lg:col-span-3 bg-white border border-[#D2D8E0] rounded-md p-3 h-full flex flex-col">
+            <div class="mb-2">
+              <div class="text-[13px] font-semibold text-[#1B3A5C]">AP재고 vs 예측수요</div>
+              <div class="text-[10px] text-[#A0AEC0]">물류 여유도</div>
+            </div>
+            <div class="flex items-end justify-between mt-1">
+              <div class="flex flex-col">
+                <span class="text-[10px] text-[#A0AEC0]">AP 가용재고</span>
+                <span class="text-[18px] font-bold tabular-nums text-[#1B3A5C] leading-tight">${apTotal.toLocaleString()}</span>
+                <span class="text-[10px] text-[#718096] mt-0.5">예측수요 ${total.toLocaleString()}</span>
+              </div>
+              <div class="px-2.5 py-1 rounded-md text-[11px] font-bold ${isShort ? "bg-[#FEE2E2] text-[#DC3545]" : "bg-[#E6F7FB] text-[#0B8BB1]"}">
+                ${isShort ? `부족 ${Math.abs(remain).toLocaleString()}` : `여유 ${remain.toLocaleString()}`}
+              </div>
+            </div>
+            <div class="mt-3">
+              <div class="h-3 w-full rounded-full bg-[#F0F2F6] overflow-hidden">
+                <div style="width:${capped}%;height:100%;background:${isShort ? "linear-gradient(to right, #FCA5A5, #DC3545)" : "linear-gradient(to right, #00B4D8, #7C3AED)"}"></div>
+              </div>
+              <div class="flex items-center justify-between mt-1 text-[10px] text-[#718096]">
+                <span>커버리지</span>
+                <span class="tabular-nums font-semibold text-[#1B3A5C]">${coverage.toFixed(1)}%</span>
+              </div>
+            </div>
+            <div class="mt-3 border-t border-[#EDEFF2] pt-2">
+              <div class="text-[10px] text-[#A0AEC0] mb-1">사이즈별 AP재고</div>
+              <div class="flex items-center gap-1 flex-wrap">
+                ${WAREHOUSE_STOCK.map((s) => `
+                  <div class="flex items-baseline gap-1 bg-[#F8F9FB] border border-[#E2E8F0] rounded px-1.5 py-0.5">
+                    <span class="text-[9px] text-[#718096]">${s.sizCd}</span>
+                    <span class="text-[10px] tabular-nums font-semibold text-[#1B3A5C]">${s.qty}</span>
+                  </div>`).join("")}
+              </div>
+            </div>
+          </div>
+        </div>`;
+      }
+
+      // ─── 매장 조정 테이블 ─────────────────────────────────
+      function renderShopsTable() {
+        const shops = activeShops();
+        const removed = shops.filter((s) => s.removed);
+        const displayed = STATE.showRemoved ? shops : shops.filter((s) => !s.removed);
+        const rows =
+          displayed.length === 0
+            ? `<tr><td colspan="6" class="p-8 text-center text-[#A0AEC0]">표시할 매장이 없습니다. 우측 상단 [+ 매장 추가] 버튼으로 추가해주세요.</td></tr>`
+            : displayed
+                .slice()
+                .sort((a, b) => a.adjRank - b.adjRank)
+                .map(
+                  (s) => `
+                <tr class="border-b border-[#EDEFF2] hover:bg-[#F7F9FC] ${s.removed ? "line-through-gray" : ""}">
+                  <td class="p-2 tabular-nums text-[#1B3A5C] font-semibold">${s.adjRank}</td>
+                  <td class="p-2 tabular-nums text-[#718096]">${esc(s.shopCd)}</td>
+                  <td class="p-2 font-medium text-[#1B3A5C]">${esc(s.shopNm)}</td>
+                  <td class="p-2 text-right tabular-nums text-[#92400E] font-semibold">${s.forecastTotal.toLocaleString()}</td>
+                  <td class="p-2 text-right tabular-nums text-[#4A5568]">${s.currentStockTotal.toLocaleString()}</td>
+                  <td class="p-2 text-right">
+                    ${s.removed
+                      ? `<button onclick="onRestoreShop('${esc(s.shopCd)}');render()" class="text-[10px] text-[#0B8BB1] bg-[#E6F7FB] hover:bg-[#D0EFF7] px-2 py-0.5 rounded">복원</button>`
+                      : `<button onclick="onRemoveShop('${esc(s.shopCd)}');render()" class="text-[10px] text-[#DC3545] bg-[#FEE2E2] hover:bg-[#FECACA] px-2 py-0.5 rounded">제거 ✕</button>`
+                    }
+                  </td>
+                </tr>`,
+                )
+                .join("");
+        return `
+        <div class="bg-white border border-[#D2D8E0] rounded-md overflow-hidden">
+          <div class="px-4 py-2 border-b border-[#D2D8E0] flex items-center justify-between bg-[#F8F9FB]">
+            <div class="flex items-center gap-2.5">
+              <span class="text-[13px] font-semibold text-[#1B3A5C]">매장 조정</span>
+              <span class="text-[11px] text-[#A0AEC0]">예측치를 참고해 매장을 추가하거나 제거하세요</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <label class="flex items-center gap-1.5 text-[11px] text-[#4A5568] cursor-pointer select-none">
+                <input type="checkbox" ${STATE.showRemoved ? "checked" : ""}
+                  onchange="STATE.showRemoved=this.checked;render()"/>
+                제거된 매장도 표시 (${removed.length})
+              </label>
+              <button onclick="STATE.addShopOpen=true;render()"
+                ${!STATE.shopGrp ? "disabled" : ""}
+                class="h-7 px-3 text-[11px] border border-[#D2D8E0] rounded-lg bg-white hover:bg-[#F7F9FC] disabled:opacity-40">
+                + 매장 추가
+              </button>
+            </div>
+          </div>
+          <div class="overflow-auto" style="max-height:48vh">
+            <table class="w-full text-xs border-collapse">
+              <thead class="bg-[#F0F2F6] sticky top-0 z-10">
+                <tr>
+                  <th class="text-left p-2 border-b border-[#D2D8E0] font-semibold text-[#8492A6]" style="width:60px">순위</th>
+                  <th class="text-left p-2 border-b border-[#D2D8E0] font-semibold text-[#8492A6]" style="width:100px">매장코드</th>
+                  <th class="text-left p-2 border-b border-[#D2D8E0] font-semibold text-[#8492A6]">매장명</th>
+                  <th class="text-right p-2 border-b border-[#D2D8E0] font-semibold text-[#92400E]" style="width:110px">예측합계</th>
+                  <th class="text-right p-2 border-b border-[#D2D8E0] font-semibold text-[#4A5568]" style="width:110px">현재고합계</th>
+                  <th class="text-right p-2 border-b border-[#D2D8E0] font-semibold text-[#8492A6]" style="width:100px">작업</th>
+                </tr>
+              </thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        </div>`;
+      }
+
+      // ─── 스타일 네비게이터 모달 ────────────────────────────
+      function renderStyleNav() {
+        if (!STATE.styleNavOpen) return "";
+        const nav = STATE.nav;
+        const styles = filteredStyles();
+        const cat2Opts = cat2OptionsFromFilter();
+        const cat3Opts = cat3OptionsFromFilter();
+        const seasonsShown = nav.seasonsExpanded ? SEASON_OPTIONS : SEASON_OPTIONS.slice(0, 7);
+        const basketIds = new Set(nav.basket.map((b) => b.prodCd));
+
+        // 좌측 필터 체크박스 유틸
+        const seasonsHtml = seasonsShown.map((s) => `
+          <label class="flex items-center gap-2 text-[12px] text-[#4A5568] cursor-pointer select-none hover:text-[#1B3A5C]">
+            <input type="checkbox" ${nav.seasonFilter.has(s) ? "checked" : ""}
+              onchange="nav.seasonFilter.${nav.seasonFilter.has(s) ? "delete" : "add"}('${s}');render()"/>
+            ${s}
+          </label>`).join("");
+
+        const cat1Html = Object.keys(CATEGORY_TREE).map((c1) => `
+          <label class="flex items-center gap-2 text-[12px] text-[#4A5568] cursor-pointer select-none hover:text-[#1B3A5C]">
+            <input type="checkbox" ${nav.cat1Filter.has(c1) ? "checked" : ""}
+              onchange="nav.cat1Filter.${nav.cat1Filter.has(c1) ? "delete" : "add"}('${c1}');render()"/>
+            ${esc(c1)}
+          </label>`).join("");
+
+        const cat2Html = cat2Opts.length === 0
+          ? `<div class="text-[10px] text-[#A0AEC0]">대분류를 먼저 선택하세요</div>`
+          : cat2Opts.map((c2) => `
+            <label class="flex items-center gap-2 text-[12px] text-[#4A5568] cursor-pointer select-none hover:text-[#1B3A5C]">
+              <input type="checkbox" ${nav.cat2Filter.has(c2) ? "checked" : ""}
+                onchange="nav.cat2Filter.${nav.cat2Filter.has(c2) ? "delete" : "add"}('${c2}');render()"/>
+              ${esc(c2)}
+            </label>`).join("");
+
+        const cat3Html = cat3Opts.length === 0
+          ? `<div class="text-[10px] text-[#A0AEC0]">중분류까지 좁혀서 선택하세요</div>`
+          : cat3Opts.map((c3) => `
+            <label class="flex items-center gap-2 text-[12px] text-[#4A5568] cursor-pointer select-none hover:text-[#1B3A5C]">
+              <input type="checkbox" ${nav.cat3Filter.has(c3) ? "checked" : ""}
+                onchange="nav.cat3Filter.${nav.cat3Filter.has(c3) ? "delete" : "add"}('${c3}');render()"/>
+              ${esc(c3)}
+            </label>`).join("");
+
+        // 중앙 리스트
+        const tableRows = styles.length === 0
+          ? `<tr><td colspan="4" class="p-8 text-center text-[#A0AEC0]">검색 결과가 없습니다</td></tr>`
+          : styles.map((s) => {
+              const checked = basketIds.has(s.prodCd);
+              return `
+              <tr onclick='onNavToggleStyle(${JSON.stringify(s).replace(/'/g, "&#39;")})'
+                class="border-b border-[#EDEFF2] cursor-pointer ${checked ? "bg-[rgba(0,180,216,0.05)]" : "hover:bg-[#F7F9FC]"}">
+                <td class="p-2.5"><input type="checkbox" ${checked ? "checked" : ""}/></td>
+                <td class="p-2.5"><span class="text-[10px] text-[#2F855A] bg-[#E6F4EA] px-2 py-0.5 rounded font-semibold">${esc(s.ssnCd)}</span></td>
+                <td class="p-2.5 tabular-nums text-[#1B3A5C] font-medium">${esc(s.prodCd)}</td>
+                <td class="p-2.5 text-[#4A5568]">${esc(s.prodNm)}</td>
+              </tr>`;
+            }).join("");
+
+        // 우측 바스켓
+        const basketHtml = nav.basket.length === 0
+          ? `<div class="p-10 text-center text-xs text-[#A0AEC0]">선택된 스타일이 없습니다.</div>`
+          : `<ul class="divide-y divide-[#EDEFF2]">${nav.basket.map((b) => {
+              const meta = STYLE_CATALOG.find((s) => s.prodCd === b.prodCd);
+              const colorOpts = [`<option value="ALL" ${b.colorCd === "ALL" ? "selected" : ""}>ALL (전체 컬러)</option>`]
+                .concat((meta?.colors || []).map((c) => `<option value="${esc(c.colorCd)}" ${b.colorCd === c.colorCd ? "selected" : ""}>${esc(c.colorCd)} · ${esc(c.colorNm)}</option>`))
+                .join("");
+              return `
+              <li class="p-3 bg-white">
+                <div class="flex items-start justify-between gap-2">
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2">
+                      <span class="text-[10px] text-[#2F855A] bg-[#E6F4EA] px-1.5 py-0.5 rounded font-semibold">${esc(b.ssnCd)}</span>
+                      <span class="text-xs font-bold text-[#1B3A5C] tabular-nums">${esc(b.prodCd)}</span>
+                    </div>
+                    <div class="text-[11px] text-[#4A5568] mt-1">${esc(b.prodNm)}</div>
+                  </div>
+                  <button onclick="onNavRemove('${esc(b.prodCd)}')" class="text-[#A0AEC0] hover:text-[#DC3545] text-sm px-1">✕</button>
+                </div>
+                <div class="mt-2 flex items-center gap-2">
+                  <span class="text-[10px] text-[#8492A6] shrink-0">컬러</span>
+                  <select onchange="onNavSetColor('${esc(b.prodCd)}',this.value)"
+                    class="h-7 text-[11px] flex-1 border border-[#D2D8E0] rounded px-2">
+                    ${colorOpts}
+                  </select>
+                </div>
+              </li>`;
+            }).join("")}</ul>`;
+
+        return `
+        <div class="fixed inset-0 z-50 flex items-center justify-center" style="background:rgba(0,0,0,0.45)">
+          <div class="bg-white rounded-lg shadow-2xl flex flex-col overflow-hidden"
+               style="width:1280px; height:86vh; max-height:880px">
+            <div class="px-5 py-3 border-b border-[#D2D8E0] flex items-center justify-between shrink-0">
+              <h2 class="text-[16px] font-bold text-[#1B3A5C]">스타일 네비게이터</h2>
+              <button onclick="STATE.styleNavOpen=false;render()" class="text-[#8492A6] hover:text-[#1B3A5C] text-xl leading-none px-1">✕</button>
+            </div>
+            <div class="flex-1 flex overflow-hidden">
+              <!-- 좌 필터 -->
+              <aside class="w-[260px] border-r border-[#D2D8E0] bg-[#FAFBFC] overflow-y-auto">
+                <div class="p-3 border-b border-[#EDEFF2]">
+                  <button class="text-[11px] text-[#4A5568] hover:text-[#1B3A5C]">&lt; 필터</button>
+                </div>
+                <div class="p-3">
+                  <div class="flex items-center justify-between mb-3">
+                    <span class="text-[13px] font-bold text-[#1B3A5C]">필터</span>
+                    <button onclick="nav.seasonFilter.clear();nav.cat1Filter.clear();nav.cat2Filter.clear();nav.cat3Filter.clear();render()"
+                      class="text-[11px] text-[#00B4D8] hover:underline">초기화</button>
+                  </div>
+                  ${filterSection("상품 시즌", nav.seasonFilter.size, "seasons", `
+                    <div class="flex flex-col gap-1.5">
+                      ${seasonsHtml}
+                      <button onclick="nav.seasonsExpanded=!nav.seasonsExpanded;render()"
+                        class="text-[11px] text-[#00B4D8] hover:underline text-left mt-1">
+                        ${nav.seasonsExpanded ? "− 접기" : "+ 더보기"}
+                      </button>
+                    </div>`)}
+                  ${filterSection("대분류", nav.cat1Filter.size, "cat1", `<div class="flex flex-col gap-1.5">${cat1Html}</div>`)}
+                  ${filterSection("중분류", nav.cat2Filter.size, "cat2", `<div class="flex flex-col gap-1.5">${cat2Html}</div>`)}
+                  ${filterSection("아이템", nav.cat3Filter.size, "cat3", `<div class="flex flex-col gap-1.5">${cat3Html}</div>`)}
+                </div>
+              </aside>
+              <!-- 중앙 리스트 -->
+              <section class="flex-1 flex flex-col overflow-hidden">
+                <div class="px-4 py-3 border-b border-[#D2D8E0]">
+                  <input value="${esc(nav.query)}"
+                    oninput="nav.query=this.value;render()"
+                    placeholder="🔍  스타일코드를 입력해주세요 (스타일명 검색도 가능)"
+                    class="h-9 w-full px-3 text-xs border border-[#D2D8E0] rounded"/>
+                </div>
+                <div class="flex-1 overflow-auto">
+                  <table class="w-full text-xs border-collapse">
+                    <thead class="bg-[#F8F9FB] sticky top-0 z-10">
+                      <tr>
+                        <th class="text-left p-2.5 border-b border-[#D2D8E0] font-semibold text-[#8492A6]" style="width:44px"></th>
+                        <th class="text-left p-2.5 border-b border-[#D2D8E0] font-semibold text-[#8492A6]" style="width:80px">상품시즌</th>
+                        <th class="text-left p-2.5 border-b border-[#D2D8E0] font-semibold text-[#8492A6]" style="width:130px">스타일코드</th>
+                        <th class="text-left p-2.5 border-b border-[#D2D8E0] font-semibold text-[#8492A6]">스타일명</th>
+                      </tr>
+                    </thead>
+                    <tbody>${tableRows}</tbody>
+                  </table>
+                </div>
+                <div class="px-4 py-2 border-t border-[#D2D8E0] bg-[#FAFBFC] flex items-center gap-4 text-[11px] text-[#718096]">
+                  <span>Rows: <b class="text-[#1B3A5C] tabular-nums">${styles.length}</b></span>
+                  <span>Selected Rows: <b class="text-[#00B4D8] tabular-nums">${nav.basket.length}</b></span>
+                </div>
+              </section>
+              <!-- 우 바스켓 -->
+              <aside class="w-[360px] border-l border-[#D2D8E0] bg-[#FAFBFC] flex flex-col overflow-hidden">
+                <div class="px-4 py-3 border-b border-[#D2D8E0] flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="text-[13px] font-bold text-[#1B3A5C]">선택된 스타일</span>
+                    <span class="text-[11px] text-[#7C3AED] bg-[#F3EFFE] px-2 py-0.5 rounded-full font-semibold tabular-nums">${nav.basket.length}</span>
+                  </div>
+                  <button onclick="onNavClearBasket()" ${nav.basket.length === 0 ? "disabled" : ""}
+                    class="text-[#A0AEC0] hover:text-[#DC3545] disabled:opacity-30 text-sm px-1" title="전체 비우기">🗑</button>
+                </div>
+                <div class="flex-1 overflow-y-auto">${basketHtml}</div>
+                <div class="px-4 py-2 border-t border-[#D2D8E0] bg-white text-[11px] text-[#718096]">
+                  Rows: <b class="text-[#1B3A5C] tabular-nums">${nav.basket.length}</b>
+                </div>
+              </aside>
+            </div>
+            <div class="px-5 py-3 border-t border-[#D2D8E0] flex items-center justify-end gap-2 bg-white">
+              <button onclick="STATE.styleNavOpen=false;render()"
+                class="h-8 px-4 text-xs border border-[#D2D8E0] rounded-lg bg-white hover:bg-[#F7F9FC]">취소</button>
+              <button onclick="onNavSubmit();render()" ${nav.basket.length === 0 ? "disabled" : ""}
+                class="h-8 px-6 text-xs rounded-lg bg-[#00B4D8] hover:bg-[#0096B4] text-white disabled:opacity-40">
+                선택 (${nav.basket.length})
+              </button>
+            </div>
+          </div>
+        </div>`;
+      }
+      function filterSection(title, count, id, inner) {
+        return `
+        <div class="border-b border-[#EDEFF2] py-2.5">
+          <div class="flex items-center justify-between">
+            <span class="text-[12px] font-bold text-[#1B3A5C]">${title}</span>
+            <span class="text-[10px] bg-[#E8F7FB] text-[#0B8BB1] px-1.5 py-0.5 rounded-full font-semibold tabular-nums" style="min-width:18px; text-align:center">${count}</span>
+          </div>
+          <div class="mt-2.5">${inner}</div>
+        </div>`;
+      }
+
+      // ─── 매장 추가 모달 ─────────────────────────────────────
+      function renderAddShop() {
+        if (!STATE.addShopOpen) return "";
+        const q = STATE.addShopQuery.trim().toLowerCase();
+        const excluded = new Set((activeShops() || []).map((s) => s.shopCd));
+        const filtered = BRAND_SHOP_POOL.filter((s) => {
+          if (!q) return true;
+          return (
+            s.shopCd.toLowerCase().includes(q) ||
+            s.shopNm.toLowerCase().includes(q) ||
+            s.region.toLowerCase().includes(q)
+          );
+        });
+        const rows = filtered.length === 0
+          ? `<tr><td colspan="4" class="p-6 text-center text-xs text-[#A0AEC0]">검색 결과가 없습니다</td></tr>`
+          : filtered.map((s) => {
+              const already = excluded.has(s.shopCd);
+              const sel = STATE.addShopSelected === s.shopCd;
+              return `
+              <tr onclick="${already ? "" : `STATE.addShopSelected='${esc(s.shopCd)}';render()`}"
+                class="border-t border-[#EDEFF2] ${already ? "opacity-40" : sel ? "bg-[rgba(0,180,216,0.08)] cursor-pointer" : "hover:bg-[#F7F9FC] cursor-pointer"}">
+                <td class="p-2 tabular-nums text-[#4A5568]">${esc(s.shopCd)}</td>
+                <td class="p-2 text-[#1B3A5C] font-medium">${esc(s.shopNm)}</td>
+                <td class="p-2 text-[#718096]">${esc(s.region)}</td>
+                <td class="p-2 text-right">
+                  ${already ? `<span class="text-[10px] text-[#DC3545] bg-[#FEE2E2] px-1.5 py-0.5 rounded">이미 포함됨</span>`
+                    : sel ? `<span class="text-[10px] text-[#0B8BB1] bg-[#E6F7FB] px-1.5 py-0.5 rounded font-semibold">선택됨</span>` : ""}
+                </td>
+              </tr>`;
+            }).join("");
+        return `
+        <div class="fixed inset-0 z-50 flex items-center justify-center" style="background:rgba(0,0,0,0.4)">
+          <div class="bg-white rounded-lg shadow-2xl flex flex-col overflow-hidden" style="width:520px; max-height:80vh">
+            <div class="px-5 py-3 border-b border-[#D2D8E0] flex items-center justify-between">
+              <div>
+                <div class="text-[14px] font-bold text-[#1B3A5C]">매장 추가</div>
+                <div class="text-[11px] text-[#A0AEC0] mt-0.5">배분그룹 외 매장 중에서 추가 (adjRank 는 가장 후순위)</div>
+              </div>
+              <button onclick="STATE.addShopOpen=false;render()" class="text-[#8492A6] hover:text-[#1B3A5C] text-lg leading-none px-1">✕</button>
+            </div>
+            <div class="px-5 py-3 border-b border-[#D2D8E0]">
+              <input value="${esc(STATE.addShopQuery)}" oninput="STATE.addShopQuery=this.value;render()"
+                placeholder="매장코드 · 매장명 · 지역 검색"
+                class="h-8 w-full px-3 text-xs border border-[#D2D8E0] rounded"/>
+            </div>
+            <div class="flex-1 overflow-y-auto">
+              <table class="w-full text-xs">
+                <thead class="bg-[#F0F2F6] sticky top-0 z-10">
+                  <tr>
+                    <th class="text-left p-2 font-semibold text-[#8492A6]">매장코드</th>
+                    <th class="text-left p-2 font-semibold text-[#8492A6]">매장명</th>
+                    <th class="text-left p-2 font-semibold text-[#8492A6]">지역</th>
+                    <th class="text-right p-2 font-semibold text-[#8492A6]" style="width:90px"></th>
+                  </tr>
+                </thead>
+                <tbody>${rows}</tbody>
+              </table>
+            </div>
+            <div class="px-5 py-3 border-t border-[#D2D8E0] flex items-center justify-end gap-2 bg-[#F8F9FB]">
+              <button onclick="STATE.addShopOpen=false;STATE.addShopSelected=null;render()"
+                class="h-8 px-4 text-xs border border-[#D2D8E0] rounded-lg bg-white">취소</button>
+              <button onclick="if(STATE.addShopSelected){onAddShopSubmit(STATE.addShopSelected);render()}"
+                ${!STATE.addShopSelected ? "disabled" : ""}
+                class="h-8 px-4 text-xs rounded-lg bg-[#00B4D8] hover:bg-[#0096B4] text-white disabled:opacity-40">매장 추가</button>
+            </div>
+          </div>
+        </div>`;
+      }
+
+      // ─── 토스트 + 오버레이 ──────────────────────────────────
+      function renderOverlay() {
+        let html = "";
+        if (STATE.toast) {
+          html += `<div class="fixed bottom-12 left-1/2 -translate-x-1/2 bg-[#1B3A5C] text-white px-6 py-2.5 rounded-lg text-xs font-medium z-50 shadow-lg">${esc(STATE.toast)}</div>`;
+        }
+        if (STATE.isSimulating) {
+          html += `
+          <div class="fixed inset-0 z-50 flex items-center justify-center" style="background:rgba(0,0,0,0.35)">
+            <div class="bg-white rounded-xl p-8 text-center shadow-xl">
+              <div class="mx-auto mb-4" style="width:40px;height:40px;border:3px solid #E2E8F0;border-top-color:#7C3AED;border-radius:50%;animation:spin 0.8s linear infinite"></div>
+              <div class="text-sm font-semibold text-[#1B3A5C] mb-1">배분 시뮬레이션 실행 중</div>
+              <div class="text-xs text-[#A0AEC0]">ILP 최적 배분 계산 중...</div>
+            </div>
+          </div>
+          <style>@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}</style>`;
+        }
+        return html;
+      }
+
+      // ─── 최상위 render ──────────────────────────────────────
+      function render() {
+        $("#app").innerHTML = `
+          <div class="flex flex-col min-h-screen">
+            ${renderTitle()}
+            ${renderFilterBar()}
+            <div class="flex-1 overflow-auto p-4 space-y-4">
+              ${renderGroupHeader()}
+              ${renderTabs()}
+              ${renderCharts()}
+              ${renderShopsTable()}
+              <div class="text-[10px] text-[#A0AEC0] text-center pb-4">
+                현재 ${BRAND_SHOP_POOL.length}개의 추가 가능 매장 풀이 준비되어 있습니다 (목업 데이터)
+              </div>
+            </div>
+            ${renderStyleNav()}
+            ${renderAddShop()}
+            ${renderOverlay()}
+          </div>`;
+      }
+
+      // ─── 초기화 ─────────────────────────────────────────────
+      const nav = STATE.nav; // 체크박스 onchange 핸들러용 약어
+      render();
+    </script>
+  </body>
+</html>

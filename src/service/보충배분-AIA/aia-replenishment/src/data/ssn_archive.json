@@ -1,0 +1,80 @@
+{
+  "items": [
+    {
+      "ssnCd": "27S"
+    },
+    {
+      "ssnCd": "27N"
+    },
+    {
+      "ssnCd": "26S"
+    },
+    {
+      "ssnCd": "26N"
+    },
+    {
+      "ssnCd": "26F"
+    },
+    {
+      "ssnCd": "25S"
+    },
+    {
+      "ssnCd": "25N"
+    },
+    {
+      "ssnCd": "25F"
+    },
+    {
+      "ssnCd": "24S"
+    },
+    {
+      "ssnCd": "24N"
+    },
+    {
+      "ssnCd": "24F"
+    },
+    {
+      "ssnCd": "23S"
+    },
+    {
+      "ssnCd": "23N"
+    },
+    {
+      "ssnCd": "23F"
+    },
+    {
+      "ssnCd": "22S"
+    },
+    {
+      "ssnCd": "22N"
+    },
+    {
+      "ssnCd": "22F"
+    },
+    {
+      "ssnCd": "21S"
+    },
+    {
+      "ssnCd": "21N"
+    },
+    {
+      "ssnCd": "21F"
+    },
+    {
+      "ssnCd": "20S"
+    },
+    {
+      "ssnCd": "20F"
+    },
+    {
+      "ssnCd": "19S"
+    },
+    {
+      "ssnCd": "19F"
+    },
+    {
+      "ssnCd": "18F"
+    }
+  ],
+  "generatedAt": "2026-06-15T04:27:34.249040+00:00"
+}

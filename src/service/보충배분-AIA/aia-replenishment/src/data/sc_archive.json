@@ -1,0 +1,823 @@
+{
+  "items": [
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3ADKM0351",
+      "colorCd": "BKS",
+      "prodNm": "클래식 모노그램 그라데이션 자카드 데님 트러커자켓 블랙",
+      "item": "트러커자켓",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3ADKM0351",
+      "colorCd": "IVS",
+      "prodNm": "클래식 모노그램 그라데이션 자카드 데님 트러커자켓 아이보리",
+      "item": "트러커자켓",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3ADKM0351",
+      "colorCd": "NVS",
+      "prodNm": "클래식 모노그램 그라데이션 자카드 데님 트러커자켓 네이비",
+      "item": "트러커자켓",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XJWT7341",
+      "colorCd": "BKS",
+      "prodNm": "경량 바람막이 자켓 블랙",
+      "item": "블레이저",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XJWT7341",
+      "colorCd": "IVS",
+      "prodNm": "경량 바람막이 자켓 아이보리",
+      "item": "블레이저",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XJWT7341",
+      "colorCd": "NVS",
+      "prodNm": "경량 바람막이 자켓 네이비",
+      "item": "블레이저",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26F",
+      "prodCd": "XJOT5230",
+      "colorCd": "BKS",
+      "prodNm": "오버핏 코치 자켓 블랙",
+      "item": "블레이저",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26F",
+      "prodCd": "XJOT5230",
+      "colorCd": "KHS",
+      "prodNm": "오버핏 코치 자켓 카키",
+      "item": "블레이저",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26F",
+      "prodCd": "XJOT5230",
+      "colorCd": "BGS",
+      "prodNm": "오버핏 코치 자켓 베이지",
+      "item": "블레이저",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3AJPM0951",
+      "colorCd": "BKS",
+      "prodNm": "다이아 모노그램 저지 JQD 소매TAPE 바시티자켓(홑겹) 블랙",
+      "item": "바시티자켓",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3AJPM0951",
+      "colorCd": "IVS",
+      "prodNm": "다이아 모노그램 저지 JQD 소매TAPE 바시티자켓(홑겹) 아이보리",
+      "item": "바시티자켓",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3AJPM0951",
+      "colorCd": "NVS",
+      "prodNm": "다이아 모노그램 저지 JQD 소매TAPE 바시티자켓(홑겹) 네이비",
+      "item": "바시티자켓",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25F",
+      "prodCd": "DMDJ61046",
+      "colorCd": "BKS",
+      "prodNm": "모노그램 퀼팅 베스트 블랙",
+      "item": "베스트",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25F",
+      "prodCd": "DMDJ61046",
+      "colorCd": "IVS",
+      "prodNm": "모노그램 퀼팅 베스트 아이보리",
+      "item": "베스트",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25F",
+      "prodCd": "DMDJ61046",
+      "colorCd": "NVS",
+      "prodNm": "모노그램 퀼팅 베스트 네이비",
+      "item": "베스트",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25F",
+      "prodCd": "XJVT6310",
+      "colorCd": "BKS",
+      "prodNm": "경량 다운 베스트 블랙",
+      "item": "베스트",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25F",
+      "prodCd": "XJVT6310",
+      "colorCd": "IVS",
+      "prodNm": "경량 다운 베스트 아이보리",
+      "item": "베스트",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25F",
+      "prodCd": "XJVT6310",
+      "colorCd": "NVS",
+      "prodNm": "경량 다운 베스트 네이비",
+      "item": "베스트",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3AHDB0851",
+      "colorCd": "BKS",
+      "prodNm": "베이직 스티치 엠보 메가로고 후드티 블랙",
+      "item": "풀오버후드",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3AHDB0851",
+      "colorCd": "WHS",
+      "prodNm": "베이직 스티치 엠보 메가로고 후드티 화이트",
+      "item": "풀오버후드",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3AHDB0851",
+      "colorCd": "IVS",
+      "prodNm": "베이직 스티치 엠보 메가로고 후드티 아이보리",
+      "item": "풀오버후드",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3AHDB0851",
+      "colorCd": "NVS",
+      "prodNm": "베이직 스티치 엠보 메가로고 후드티 네이비",
+      "item": "풀오버후드",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3AHDB0851",
+      "colorCd": "KHS",
+      "prodNm": "베이직 스티치 엠보 메가로고 후드티 카키",
+      "item": "풀오버후드",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3AHDM0351",
+      "colorCd": "BKS",
+      "prodNm": "클래식 모노그램 테이프 후드티 블랙",
+      "item": "풀오버후드",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3AHDM0351",
+      "colorCd": "IVS",
+      "prodNm": "클래식 모노그램 테이프 후드티 아이보리",
+      "item": "풀오버후드",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3AHDM0351",
+      "colorCd": "NVS",
+      "prodNm": "클래식 모노그램 테이프 후드티 네이비",
+      "item": "풀오버후드",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3AHDV0551",
+      "colorCd": "BKS",
+      "prodNm": "바시티 빈티지 스몰 그래픽 후드티 블랙",
+      "item": "풀오버후드",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3AHDV0551",
+      "colorCd": "KHS",
+      "prodNm": "바시티 빈티지 스몰 그래픽 후드티 카키",
+      "item": "풀오버후드",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3AHDV0551",
+      "colorCd": "BGS",
+      "prodNm": "바시티 빈티지 스몰 그래픽 후드티 베이지",
+      "item": "풀오버후드",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25F",
+      "prodCd": "XJOT5960",
+      "colorCd": "BKS",
+      "prodNm": "플리스 집업 후드 블랙",
+      "item": "집업후드",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25F",
+      "prodCd": "XJOT5960",
+      "colorCd": "KHS",
+      "prodNm": "플리스 집업 후드 카키",
+      "item": "집업후드",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25F",
+      "prodCd": "XJOT5960",
+      "colorCd": "BGS",
+      "prodNm": "플리스 집업 후드 베이지",
+      "item": "집업후드",
+      "prdtKindCd": "OUTR"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3ADRB0151",
+      "colorCd": "BKS",
+      "prodNm": "베이직 그라데이션 쿠퍼스 데님셔츠 블랙",
+      "item": "캐주얼셔츠",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3ADRB0151",
+      "colorCd": "IVS",
+      "prodNm": "베이직 그라데이션 쿠퍼스 데님셔츠 아이보리",
+      "item": "캐주얼셔츠",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3ADRB0151",
+      "colorCd": "NVS",
+      "prodNm": "베이직 그라데이션 쿠퍼스 데님셔츠 네이비",
+      "item": "캐주얼셔츠",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3ADRG0351",
+      "colorCd": "BKS",
+      "prodNm": "메가그램 멀티사이즈 데님셔츠 블랙",
+      "item": "캐주얼셔츠",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3ADRG0351",
+      "colorCd": "IVS",
+      "prodNm": "메가그램 멀티사이즈 데님셔츠 아이보리",
+      "item": "캐주얼셔츠",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3ADRG0351",
+      "colorCd": "NVS",
+      "prodNm": "메가그램 멀티사이즈 데님셔츠 네이비",
+      "item": "캐주얼셔츠",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3ADRM0451",
+      "colorCd": "BKS",
+      "prodNm": "클래식 모노그램 컬러 그라데이션 빅럭스 데님셔츠 블랙",
+      "item": "드레스셔츠",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3ADRM0451",
+      "colorCd": "KHS",
+      "prodNm": "클래식 모노그램 컬러 그라데이션 빅럭스 데님셔츠 카키",
+      "item": "드레스셔츠",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3ADRM0451",
+      "colorCd": "BGS",
+      "prodNm": "클래식 모노그램 컬러 그라데이션 빅럭스 데님셔츠 베이지",
+      "item": "드레스셔츠",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3ADRM0853",
+      "colorCd": "BKS",
+      "prodNm": "클래식 모노그램 그라데이션 자카드 반팔 데님셔츠 블랙",
+      "item": "반팔티셔츠",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3ADRM0853",
+      "colorCd": "IVS",
+      "prodNm": "클래식 모노그램 그라데이션 자카드 반팔 데님셔츠 아이보리",
+      "item": "반팔티셔츠",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3ADRM0853",
+      "colorCd": "NVS",
+      "prodNm": "클래식 모노그램 그라데이션 자카드 반팔 데님셔츠 네이비",
+      "item": "반팔티셔츠",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XMST3120",
+      "colorCd": "BKS",
+      "prodNm": "에센셜 반팔 티셔츠 블랙",
+      "item": "반팔티셔츠",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XMST3120",
+      "colorCd": "WHS",
+      "prodNm": "에센셜 반팔 티셔츠 화이트",
+      "item": "반팔티셔츠",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XMST3120",
+      "colorCd": "IVS",
+      "prodNm": "에센셜 반팔 티셔츠 아이보리",
+      "item": "반팔티셔츠",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XMST3120",
+      "colorCd": "NVS",
+      "prodNm": "에센셜 반팔 티셔츠 네이비",
+      "item": "반팔티셔츠",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XMST3120",
+      "colorCd": "KHS",
+      "prodNm": "에센셜 반팔 티셔츠 카키",
+      "item": "반팔티셔츠",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XMST3250",
+      "colorCd": "WHS",
+      "prodNm": "그래픽 오버핏 반팔 티셔츠 화이트",
+      "item": "반팔티셔츠",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XMST3250",
+      "colorCd": "IVS",
+      "prodNm": "그래픽 오버핏 반팔 티셔츠 아이보리",
+      "item": "반팔티셔츠",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XMST3250",
+      "colorCd": "PKS",
+      "prodNm": "그래픽 오버핏 반팔 티셔츠 핑크",
+      "item": "반팔티셔츠",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XMST3380",
+      "colorCd": "BKS",
+      "prodNm": "쿨링 메쉬 반팔 티셔츠 블랙",
+      "item": "반팔티셔츠",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XMST3380",
+      "colorCd": "KHS",
+      "prodNm": "쿨링 메쉬 반팔 티셔츠 카키",
+      "item": "반팔티셔츠",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XMST3380",
+      "colorCd": "BGS",
+      "prodNm": "쿨링 메쉬 반팔 티셔츠 베이지",
+      "item": "반팔티셔츠",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XMST3510",
+      "colorCd": "WHS",
+      "prodNm": "빅로고 크롭 티셔츠 화이트",
+      "item": "반팔티셔츠",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XMST3510",
+      "colorCd": "IVS",
+      "prodNm": "빅로고 크롭 티셔츠 아이보리",
+      "item": "반팔티셔츠",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XMST3510",
+      "colorCd": "PKS",
+      "prodNm": "빅로고 크롭 티셔츠 핑크",
+      "item": "반팔티셔츠",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3AKCM0151",
+      "colorCd": "BKS",
+      "prodNm": "다이아 모노그램 전판 버튼 가디건 블랙",
+      "item": "가디건",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3AKCM0151",
+      "colorCd": "IVS",
+      "prodNm": "다이아 모노그램 전판 버튼 가디건 아이보리",
+      "item": "가디건",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3AKCM0151",
+      "colorCd": "NVS",
+      "prodNm": "다이아 모노그램 전판 버튼 가디건 네이비",
+      "item": "가디건",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3AKCM0251",
+      "colorCd": "BKS",
+      "prodNm": "클래식 모노그램 톤톤 버튼 가디건 블랙",
+      "item": "가디건",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3AKCM0251",
+      "colorCd": "KHS",
+      "prodNm": "클래식 모노그램 톤톤 버튼 가디건 카키",
+      "item": "가디건",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3AKCM0251",
+      "colorCd": "BGS",
+      "prodNm": "클래식 모노그램 톤톤 버튼 가디건 베이지",
+      "item": "가디건",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3AKCV0151",
+      "colorCd": "BKS",
+      "prodNm": "베이직 바시티 버튼 가디건 블랙",
+      "item": "가디건",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3AKCV0151",
+      "colorCd": "IVS",
+      "prodNm": "베이직 바시티 버튼 가디건 아이보리",
+      "item": "가디건",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3AKCV0151",
+      "colorCd": "NVS",
+      "prodNm": "베이직 바시티 버튼 가디건 네이비",
+      "item": "가디건",
+      "prdtKindCd": "TOPS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XMPT4210",
+      "colorCd": "BKS",
+      "prodNm": "클래식 조거 팬츠 블랙",
+      "item": "조거",
+      "prdtKindCd": "BTTM"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XMPT4210",
+      "colorCd": "IVS",
+      "prodNm": "클래식 조거 팬츠 아이보리",
+      "item": "조거",
+      "prdtKindCd": "BTTM"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XMPT4210",
+      "colorCd": "NVS",
+      "prodNm": "클래식 조거 팬츠 네이비",
+      "item": "조거",
+      "prdtKindCd": "BTTM"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XMPT4320",
+      "colorCd": "BKS",
+      "prodNm": "카고 와이드 팬츠 블랙",
+      "item": "카고",
+      "prdtKindCd": "BTTM"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XMPT4320",
+      "colorCd": "KHS",
+      "prodNm": "카고 와이드 팬츠 카키",
+      "item": "카고",
+      "prdtKindCd": "BTTM"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XMPT4320",
+      "colorCd": "BGS",
+      "prodNm": "카고 와이드 팬츠 베이지",
+      "item": "카고",
+      "prdtKindCd": "BTTM"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XMPT4630",
+      "colorCd": "BKS",
+      "prodNm": "트레이닝 쇼트 팬츠 블랙",
+      "item": "조거",
+      "prdtKindCd": "BTTM"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XMPT4630",
+      "colorCd": "IVS",
+      "prodNm": "트레이닝 쇼트 팬츠 아이보리",
+      "item": "조거",
+      "prdtKindCd": "BTTM"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XMPT4630",
+      "colorCd": "NVS",
+      "prodNm": "트레이닝 쇼트 팬츠 네이비",
+      "item": "조거",
+      "prdtKindCd": "BTTM"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XMPT4850",
+      "colorCd": "BKS",
+      "prodNm": "스트레치 슬랙스 블랙",
+      "item": "슬랙스",
+      "prdtKindCd": "BTTM"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XMPT4850",
+      "colorCd": "KHS",
+      "prodNm": "스트레치 슬랙스 카키",
+      "item": "슬랙스",
+      "prdtKindCd": "BTTM"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XMPT4850",
+      "colorCd": "BGS",
+      "prodNm": "스트레치 슬랙스 베이지",
+      "item": "슬랙스",
+      "prdtKindCd": "BTTM"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XMPT4780",
+      "colorCd": "BKS",
+      "prodNm": "데님 와이드 진 블랙",
+      "item": "진",
+      "prdtKindCd": "BTTM"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XMPT4780",
+      "colorCd": "IVS",
+      "prodNm": "데님 와이드 진 아이보리",
+      "item": "진",
+      "prdtKindCd": "BTTM"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XMPT4780",
+      "colorCd": "NVS",
+      "prodNm": "데님 와이드 진 네이비",
+      "item": "진",
+      "prdtKindCd": "BTTM"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3ALPS0153",
+      "colorCd": "BKS",
+      "prodNm": "스키퍼 슬라이드 블랙",
+      "item": "슬라이드",
+      "prdtKindCd": "SHOE"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3ALPS0153",
+      "colorCd": "IVS",
+      "prodNm": "스키퍼 슬라이드 아이보리",
+      "item": "슬라이드",
+      "prdtKindCd": "SHOE"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "25S",
+      "prodCd": "3ALPS0153",
+      "colorCd": "NVS",
+      "prodNm": "스키퍼 슬라이드 네이비",
+      "item": "슬라이드",
+      "prdtKindCd": "SHOE"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XAHT2100",
+      "colorCd": "BKS",
+      "prodNm": "버킷햇 로고 블랙",
+      "item": "버킷햇",
+      "prdtKindCd": "ACCS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XAHT2100",
+      "colorCd": "IVS",
+      "prodNm": "버킷햇 로고 아이보리",
+      "item": "버킷햇",
+      "prdtKindCd": "ACCS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XAHT2100",
+      "colorCd": "NVS",
+      "prodNm": "버킷햇 로고 네이비",
+      "item": "버킷햇",
+      "prdtKindCd": "ACCS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XASG2200",
+      "colorCd": "BKS",
+      "prodNm": "크로스백 미니 블랙",
+      "item": "크로스백",
+      "prdtKindCd": "ACCS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XASG2200",
+      "colorCd": "KHS",
+      "prodNm": "크로스백 미니 카키",
+      "item": "크로스백",
+      "prdtKindCd": "ACCS"
+    },
+    {
+      "brandCd": "X",
+      "ssnCd": "26S",
+      "prodCd": "XASG2200",
+      "colorCd": "BGS",
+      "prodNm": "크로스백 미니 베이지",
+      "item": "크로스백",
+      "prdtKindCd": "ACCS"
+    }
+  ]
+}

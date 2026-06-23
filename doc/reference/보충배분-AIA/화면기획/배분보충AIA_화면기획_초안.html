@@ -1,0 +1,1409 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F&F S-ERP | 배분보충-AIA 화면 기획 초안</title>
+<style>
+  :root {
+    --primary: #1B3A5C;
+    --primary-light: #2C5F8A;
+    --accent: #00A3E0;
+    --accent-light: #E6F7FF;
+    --success: #28A745;
+    --warning: #F5A623;
+    --danger: #DC3545;
+    --bg: #F5F7FA;
+    --card: #FFFFFF;
+    --border: #E2E8F0;
+    --text: #2D3748;
+    --text-light: #718096;
+    --ai-purple: #7C3AED;
+    --ai-purple-light: #EDE9FE;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); font-size: 13px; }
+
+  /* ===== TOP NAV (SERP 스타일) ===== */
+  .serp-nav {
+    background: var(--primary);
+    color: white;
+    display: flex;
+    align-items: center;
+    height: 42px;
+    padding: 0 16px;
+    gap: 4px;
+    font-size: 12px;
+  }
+  .serp-nav .logo { font-weight: 700; font-size: 14px; margin-right: 12px; letter-spacing: 1px; }
+  .serp-nav a {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    padding: 8px 14px;
+    border-radius: 4px 4px 0 0;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .serp-nav a:hover { color: white; background: rgba(255,255,255,0.1); }
+  .serp-nav a.active { color: white; background: var(--accent); font-weight: 600; }
+  .serp-nav .spacer { flex: 1; }
+  .serp-nav .user-info { font-size: 11px; color: rgba(255,255,255,0.6); display: flex; align-items: center; gap: 8px; }
+
+  /* ===== PAGE HEADER ===== */
+  .page-header {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .page-header h1 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .page-header h1 .badge-ai {
+    background: linear-gradient(135deg, var(--ai-purple), #9F7AEA);
+    color: white;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+
+  /* ===== TABS ===== */
+  .tab-bar {
+    display: flex;
+    background: white;
+    border-bottom: 2px solid var(--border);
+    padding: 0 20px;
+    gap: 0;
+  }
+  .tab {
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text-light);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+  .tab .ai-dot { width: 6px; height: 6px; background: var(--ai-purple); border-radius: 50%; }
+
+  /* ===== FILTER BAR (SERP 스타일) ===== */
+  .filter-bar {
+    background: white;
+    padding: 12px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+    border-bottom: 1px solid var(--border);
+  }
+  .filter-group { display: flex; flex-direction: column; gap: 4px; }
+  .filter-group label { font-size: 11px; color: var(--text-light); font-weight: 600; }
+  .filter-group label .required { color: var(--danger); }
+  .filter-group select, .filter-group input {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 6px 10px;
+    font-size: 12px;
+    min-width: 140px;
+    background: white;
+    color: var(--text);
+  }
+  .filter-group select:focus, .filter-group input:focus {
+    border-color: var(--accent);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(0,163,224,0.15);
+  }
+  .btn {
+    padding: 7px 16px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    font-size: 12px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  .btn-primary { background: var(--accent); color: white; border-color: var(--accent); }
+  .btn-primary:hover { background: #0093CC; }
+  .btn-ai { background: linear-gradient(135deg, var(--ai-purple), #9F7AEA); color: white; border: none; }
+  .btn-ai:hover { opacity: 0.9; }
+  .btn-success { background: var(--success); color: white; border-color: var(--success); }
+  .btn-warning { background: var(--warning); color: white; border-color: var(--warning); }
+  .btn-outline { background: white; color: var(--text); }
+  .btn-outline:hover { background: var(--bg); }
+
+  /* ===== CONTENT AREA ===== */
+  .content { padding: 16px 20px; }
+
+  /* ===== DASHBOARD CARDS ===== */
+  .dashboard-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+  .stat-card {
+    background: white;
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .stat-card .label { font-size: 11px; color: var(--text-light); margin-bottom: 4px; display: flex; align-items: center; gap: 4px; }
+  .stat-card .value { font-size: 22px; font-weight: 700; color: var(--primary); }
+  .stat-card .sub { font-size: 11px; color: var(--text-light); margin-top: 4px; }
+  .stat-card .change { font-size: 11px; margin-top: 2px; }
+  .stat-card .change.up { color: var(--success); }
+  .stat-card .change.down { color: var(--danger); }
+  .stat-card.ai-card { border-left: 3px solid var(--ai-purple); }
+
+  /* ===== PANELS ===== */
+  .panel-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .panel-row.full { grid-template-columns: 1fr; }
+  .panel {
+    background: white;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .panel-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #FAFBFC;
+  }
+  .panel-header h3 { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+  .panel-body { padding: 16px; }
+
+  /* ===== TABLE ===== */
+  .data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .data-table thead th {
+    background: #F7F8FA;
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-light);
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+    font-size: 11px;
+  }
+  .data-table tbody td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #F0F2F5;
+    white-space: nowrap;
+  }
+  .data-table tbody tr:hover { background: #F7F9FC; }
+  .data-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .data-table .ai-val { color: var(--ai-purple); font-weight: 600; }
+  .data-table .diff-pos { color: var(--success); font-size: 11px; }
+  .data-table .diff-neg { color: var(--danger); font-size: 11px; }
+
+  /* ===== STATUS BADGES ===== */
+  .status { padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 500; }
+  .status-ready { background: #E6F7FF; color: #0077B6; }
+  .status-running { background: var(--ai-purple-light); color: var(--ai-purple); }
+  .status-done { background: #E8F5E9; color: #2E7D32; }
+  .status-warn { background: #FFF8E1; color: #E65100; }
+  .status-error { background: #FFEBEE; color: #C62828; }
+
+  /* ===== AI INSIGHT BOX ===== */
+  .ai-insight {
+    background: linear-gradient(135deg, #F5F3FF, #EDE9FE);
+    border: 1px solid #DDD6FE;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .ai-insight .ai-icon {
+    background: var(--ai-purple);
+    color: white;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+  .ai-insight .ai-text { font-size: 12px; line-height: 1.6; color: #4C1D95; }
+  .ai-insight .ai-text strong { color: var(--ai-purple); }
+
+  /* ===== CHART PLACEHOLDER ===== */
+  .chart-area {
+    height: 200px;
+    background: linear-gradient(180deg, #F7F9FC 0%, #EDF2F7 100%);
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .chart-area .chart-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+    height: 160px;
+    padding: 0 20px;
+  }
+  .chart-area .bar {
+    width: 24px;
+    border-radius: 3px 3px 0 0;
+    transition: height 0.3s;
+    position: relative;
+  }
+  .chart-area .bar.actual { background: var(--accent); }
+  .chart-area .bar.forecast { background: var(--ai-purple); opacity: 0.7; }
+  .chart-area .bar-label { position: absolute; bottom: -18px; left: 50%; transform: translateX(-50%); font-size: 9px; color: var(--text-light); white-space: nowrap; }
+
+  /* ===== MAPPING AREA ===== */
+  .mapping-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    background: white;
+    transition: all 0.2s;
+  }
+  .mapping-row:hover { border-color: var(--accent); box-shadow: 0 2px 6px rgba(0,163,224,0.1); }
+  .mapping-row .arrow { color: var(--text-light); font-size: 18px; }
+  .mapping-chip {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 12px;
+    min-width: 180px;
+  }
+  .mapping-chip.ai-suggested { border-color: var(--ai-purple); background: var(--ai-purple-light); }
+  .mapping-confidence { font-size: 11px; color: var(--ai-purple); font-weight: 600; }
+
+  /* ===== FOOTER ===== */
+  .page-footer {
+    background: white;
+    border-top: 1px solid var(--border);
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    bottom: 0;
+  }
+  .page-footer .info { font-size: 11px; color: var(--text-light); }
+
+  /* ===== SECTION DIVIDER ===== */
+  .section-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title .num {
+    background: var(--primary);
+    color: white;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+  }
+
+  /* ===== PIPELINE STEP ===== */
+  .pipeline {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 16px;
+    background: white;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+  }
+  .pipeline-step {
+    flex: 1;
+    text-align: center;
+    padding: 8px 4px;
+    border-radius: 4px;
+    font-size: 11px;
+    position: relative;
+    color: var(--text-light);
+    background: var(--bg);
+  }
+  .pipeline-step.active { background: var(--accent); color: white; font-weight: 600; }
+  .pipeline-step.done { background: #E8F5E9; color: #2E7D32; }
+  .pipeline-step.ai-step { background: var(--ai-purple-light); color: var(--ai-purple); }
+  .pipeline-step.ai-step.active { background: var(--ai-purple); color: white; }
+  .pipeline-step::after {
+    content: '→';
+    position: absolute;
+    right: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #CBD5E0;
+    font-size: 12px;
+    z-index: 1;
+  }
+  .pipeline-step:last-child::after { display: none; }
+
+  /* ===== TOOLTIP ===== */
+  .tooltip-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #E2E8F0;
+    color: var(--text-light);
+    font-size: 9px;
+    cursor: help;
+    font-weight: 700;
+  }
+
+  /* ===== TAB CONTENT ===== */
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ===== PROGRESS BAR ===== */
+  .progress-bar { height: 6px; background: var(--bg); border-radius: 3px; overflow: hidden; }
+  .progress-bar .fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
+
+  /* ===== SIDE PANEL ===== */
+  .side-summary {
+    background: #FAFBFC;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 12px;
+  }
+  .side-summary dt { color: var(--text-light); font-size: 11px; margin-top: 8px; }
+  .side-summary dt:first-child { margin-top: 0; }
+  .side-summary dd { font-weight: 600; margin-top: 2px; }
+
+  /* ===== RESPONSIVE SCROLL ===== */
+  .table-scroll { overflow-x: auto; }
+
+  /* Small screen adjustments */
+  @media (max-width: 1280px) {
+    .dashboard-row { grid-template-columns: repeat(2, 1fr); }
+    .panel-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== SERP TOP NAVIGATION ===== -->
+<nav class="serp-nav">
+  <span class="logo">F&F</span>
+  <a href="#">기준정보 관리</a>
+  <a href="#">계획 관리</a>
+  <a href="#">재고 운영 관리</a>
+  <a href="#" class="active">배분RT 관리</a>
+  <a href="#">반품 관리</a>
+  <a href="#">매장 운영 관리</a>
+  <a href="#">판매 현황</a>
+  <a href="#">영업/고객 관리</a>
+  <a href="#">재고조사</a>
+  <a href="#">관리자</a>
+  <span class="spacer"></span>
+  <span class="user-info">
+    <span>F&F(FNF)</span>
+    <span>🔍</span>
+    <span>⏱ 01:59:52 연장</span>
+  </span>
+</nav>
+
+<!-- ===== PAGE HEADER ===== -->
+<div class="page-header">
+  <h1>
+    ┃ 배분보충-AIA
+    <span class="badge-ai">✦ AI Assisted</span>
+  </h1>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <span style="font-size:11px;color:var(--text-light);">Menu Path: 배분RT 관리 &gt; 배분 관리 &gt; 배분보충-AIA</span>
+  </div>
+</div>
+
+<!-- ===== TAB BAR ===== -->
+<div class="tab-bar">
+  <div class="tab active" onclick="switchTab('forecast')">
+    <span class="ai-dot"></span> AI 수요예측 & 보충제안
+  </div>
+  <div class="tab" onclick="switchTab('mapping')">
+    <span class="ai-dot"></span> 스타일 맵핑
+  </div>
+  <div class="tab" onclick="switchTab('execute')">
+    보충 실행 관리
+  </div>
+  <div class="tab" onclick="switchTab('monitor')">
+    성과 모니터링
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- TAB 1: AI 수요예측 & 보충제안 -->
+<!-- ============================================================ -->
+<div id="tab-forecast" class="tab-content active">
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label><span class="required">*</span>브랜드</label>
+      <select><option>X: Discovery</option><option>M: MLB</option><option>I: MLB KIDS</option><option>V: Duvetica</option></select>
+    </div>
+    <div class="filter-group">
+      <label><span class="required">*</span>AP</label>
+      <select><option>오프라인 정상</option><option>온라인</option><option>백화점</option></select>
+    </div>
+    <div class="filter-group">
+      <label><span class="required">*</span>운영시즌</label>
+      <select><option>26S</option><option>25F</option><option>25S</option></select>
+    </div>
+    <div class="filter-group">
+      <label>중분류</label>
+      <select><option>전체</option><option>아우터</option><option>상의</option><option>하의</option><option>용품</option></select>
+    </div>
+    <div class="filter-group">
+      <label>ITEM</label>
+      <select><option>전체</option></select>
+    </div>
+    <div class="filter-group">
+      <label><span class="required">*</span>예측 기준일</label>
+      <input type="date" value="2026-03-20">
+    </div>
+    <button class="btn btn-primary" style="align-self:flex-end;">🔍 조회하기</button>
+    <button class="btn btn-ai" style="align-self:flex-end;">✦ AI 예측 실행</button>
+  </div>
+
+  <div class="content">
+
+    <!-- PIPELINE -->
+    <div class="pipeline">
+      <div class="pipeline-step done">① 판매데이터 수집</div>
+      <div class="pipeline-step done ai-step">② AI 수요예측 (LightGBM)</div>
+      <div class="pipeline-step active ai-step">③ ILP 보충수량 최적화</div>
+      <div class="pipeline-step">④ MD 검토/수정</div>
+      <div class="pipeline-step">⑤ 보충 확정</div>
+      <div class="pipeline-step">⑥ RT 생성</div>
+    </div>
+
+    <!-- AI INSIGHT -->
+    <div class="ai-insight">
+      <div class="ai-icon">✦</div>
+      <div class="ai-text">
+        <strong>AI 분석 요약 (2026-03-20 09:00 기준)</strong><br>
+        Discovery 오프라인 정상 AP 26S 기준, <strong>1,247개 SC</strong>에 대한 T+1~T+2 주간 수요예측이 완료되었습니다.
+        금주 대비 <strong>아우터 카테고리 +12.3%</strong> 수요 증가가 예상되며, 특히 <strong>DXDJ73041(레저 바람막이)</strong> 스타일의
+        매장 보충이 시급합니다. 물류 가용재고 대비 <strong>87개 SC</strong>에서 부족 예상 → ILP 최적화를 통해 보충 우선순위를 제안드립니다.
+      </div>
+    </div>
+
+    <!-- DASHBOARD CARDS -->
+    <div class="dashboard-row">
+      <div class="stat-card">
+        <div class="label">예측 대상 SC 수</div>
+        <div class="value">1,247</div>
+        <div class="sub">212 스타일 × 평균 5.9 컬러</div>
+      </div>
+      <div class="stat-card ai-card">
+        <div class="label"><span class="ai-dot" style="display:inline-block;width:6px;height:6px;background:var(--ai-purple);border-radius:50;"></span> AI 예측 정확도 (WAPE)</div>
+        <div class="value" style="color:var(--ai-purple);">82.4%</div>
+        <div class="change up">▲ 3.2%p vs 지난주</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">물류 가용재고</div>
+        <div class="value">48,720</div>
+        <div class="sub">전체 재고 62,340 중 78.2%</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">보충 필요 매장</div>
+        <div class="value" style="color:var(--danger);">156</div>
+        <div class="sub">전체 배분 대상 320매장 중</div>
+      </div>
+    </div>
+
+    <!-- PANELS: 예측 차트 + 보충 요약 -->
+    <div class="panel-row">
+      <!-- LEFT: SC-Total 수요예측 차트 -->
+      <div class="panel">
+        <div class="panel-header">
+          <h3>📊 SC-Total 주간 수요예측 추이</h3>
+          <div style="display:flex;gap:8px;">
+            <span style="font-size:11px;display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:var(--accent);border-radius:2px;display:inline-block;"></span> 실제 판매</span>
+            <span style="font-size:11px;display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;background:var(--ai-purple);border-radius:2px;display:inline-block;"></span> AI 예측</span>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="chart-area">
+            <div class="chart-bars">
+              <div class="bar actual" style="height:60px;"><span class="bar-label">W8</span></div>
+              <div class="bar forecast" style="height:55px;"></div>
+              <div class="bar actual" style="height:75px;"><span class="bar-label">W9</span></div>
+              <div class="bar forecast" style="height:72px;"></div>
+              <div class="bar actual" style="height:82px;"><span class="bar-label">W10</span></div>
+              <div class="bar forecast" style="height:80px;"></div>
+              <div class="bar actual" style="height:90px;"><span class="bar-label">W11</span></div>
+              <div class="bar forecast" style="height:92px;"></div>
+              <div class="bar actual" style="height:0px;"><span class="bar-label">W12</span></div>
+              <div class="bar forecast" style="height:98px;"></div>
+              <div class="bar actual" style="height:0px;"><span class="bar-label">W13</span></div>
+              <div class="bar forecast" style="height:105px;"></div>
+              <div class="bar actual" style="height:0;"><span class="bar-label">T+1</span></div>
+              <div class="bar forecast" style="height:110px;background:linear-gradient(180deg,var(--ai-purple),#9F7AEA);opacity:1;"></div>
+              <div class="bar actual" style="height:0;"><span class="bar-label">T+2</span></div>
+              <div class="bar forecast" style="height:115px;background:linear-gradient(180deg,var(--ai-purple),#9F7AEA);opacity:1;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: 보충 우선순위 요약 -->
+      <div class="panel">
+        <div class="panel-header">
+          <h3>🏷️ 보충 우선순위 TOP 10 (SC 기준)</h3>
+          <button class="btn btn-outline" style="font-size:11px;">전체보기</button>
+        </div>
+        <div class="panel-body" style="padding:0;">
+          <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>순위</th>
+                <th>SC (스타일-컬러)</th>
+                <th>ITEM</th>
+                <th class="num">예측수요</th>
+                <th class="num">물류재고</th>
+                <th class="num">매장재고</th>
+                <th class="num ai-val">AI 보충량</th>
+                <th>긴급도</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>1</td>
+                <td>DXDJ73041-BKS</td>
+                <td>바람막이</td>
+                <td class="num">342</td>
+                <td class="num">580</td>
+                <td class="num">89</td>
+                <td class="num ai-val">253</td>
+                <td><span class="status status-error">긴급</span></td>
+              </tr>
+              <tr>
+                <td>2</td>
+                <td>DXDJ73041-IVS</td>
+                <td>바람막이</td>
+                <td class="num">285</td>
+                <td class="num">410</td>
+                <td class="num">72</td>
+                <td class="num ai-val">213</td>
+                <td><span class="status status-error">긴급</span></td>
+              </tr>
+              <tr>
+                <td>3</td>
+                <td>DXTS72031-NVS</td>
+                <td>반팔티</td>
+                <td class="num">198</td>
+                <td class="num">320</td>
+                <td class="num">105</td>
+                <td class="num ai-val">93</td>
+                <td><span class="status status-warn">높음</span></td>
+              </tr>
+              <tr>
+                <td>4</td>
+                <td>DXPN72011-BKS</td>
+                <td>팬츠</td>
+                <td class="num">176</td>
+                <td class="num">290</td>
+                <td class="num">88</td>
+                <td class="num ai-val">88</td>
+                <td><span class="status status-warn">높음</span></td>
+              </tr>
+              <tr>
+                <td>5</td>
+                <td>DXDJ73055-KHS</td>
+                <td>레저자켓</td>
+                <td class="num">154</td>
+                <td class="num">245</td>
+                <td class="num">76</td>
+                <td class="num ai-val">78</td>
+                <td><span class="status status-ready">보통</span></td>
+              </tr>
+              <tr>
+                <td>6</td>
+                <td>DXTS72055-WHS</td>
+                <td>반팔티</td>
+                <td class="num">142</td>
+                <td class="num">200</td>
+                <td class="num">63</td>
+                <td class="num ai-val">79</td>
+                <td><span class="status status-ready">보통</span></td>
+              </tr>
+              <tr>
+                <td>7</td>
+                <td>DXCR72010-BKS</td>
+                <td>캡</td>
+                <td class="num">131</td>
+                <td class="num">185</td>
+                <td class="num">52</td>
+                <td class="num ai-val">79</td>
+                <td><span class="status status-ready">보통</span></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SC-Shop 상세 배분 제안 테이블 -->
+    <div class="section-title"><span class="num">▾</span> SC-Shop 상세 배분 제안 (DXDJ73041-BKS)</div>
+    <div class="panel-row full">
+      <div class="panel">
+        <div class="panel-header">
+          <h3>🏪 매장별 AI 보충 수량 제안 <span class="tooltip-icon">?</span></h3>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-outline" style="font-size:11px;">📥 엑셀 다운로드</button>
+            <button class="btn btn-ai" style="font-size:11px;">✦ ILP 재최적화</button>
+            <button class="btn btn-success" style="font-size:11px;">✓ 선택 확정</button>
+          </div>
+        </div>
+        <div class="panel-body" style="padding:0;">
+          <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th><input type="checkbox" checked></th>
+                <th>매장코드</th>
+                <th>매장명</th>
+                <th>매장유형</th>
+                <th>매장등급</th>
+                <th class="num">현 재고</th>
+                <th class="num">T+1 예측</th>
+                <th class="num">T+2 예측</th>
+                <th class="num">안전재고</th>
+                <th class="num ai-val">AI 제안량</th>
+                <th class="num">MD 수정량</th>
+                <th class="num">패킹단위</th>
+                <th class="num" style="font-weight:700;">최종 보충량</th>
+                <th>상태</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="checkbox" checked></td>
+                <td>10124</td>
+                <td>롯데 분당점</td>
+                <td>백화점특정</td>
+                <td><span class="status status-error" style="background:#FFEBEE;font-size:10px;">S+</span></td>
+                <td class="num">3</td>
+                <td class="num">8</td>
+                <td class="num">7</td>
+                <td class="num">5</td>
+                <td class="num ai-val">12</td>
+                <td class="num"><input type="number" value="12" style="width:50px;border:1px solid #ddd;border-radius:3px;padding:2px 4px;text-align:right;font-size:12px;"></td>
+                <td class="num">1</td>
+                <td class="num" style="font-weight:700;">12</td>
+                <td><span class="status status-done">확정</span></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" checked></td>
+                <td>10089</td>
+                <td>신세계 강남점</td>
+                <td>백화점특정</td>
+                <td><span class="status status-error" style="background:#FFEBEE;font-size:10px;">S+</span></td>
+                <td class="num">2</td>
+                <td class="num">9</td>
+                <td class="num">8</td>
+                <td class="num">5</td>
+                <td class="num ai-val">14</td>
+                <td class="num"><input type="number" value="14" style="width:50px;border:1px solid #ddd;border-radius:3px;padding:2px 4px;text-align:right;font-size:12px;"></td>
+                <td class="num">1</td>
+                <td class="num" style="font-weight:700;">14</td>
+                <td><span class="status status-ready">대기</span></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" checked></td>
+                <td>10201</td>
+                <td>현대 판교점</td>
+                <td>백화점특정</td>
+                <td><span class="status status-warn" style="background:#FFF8E1;font-size:10px;">A</span></td>
+                <td class="num">5</td>
+                <td class="num">6</td>
+                <td class="num">5</td>
+                <td class="num">4</td>
+                <td class="num ai-val">6</td>
+                <td class="num"><input type="number" value="6" style="width:50px;border:1px solid #ddd;border-radius:3px;padding:2px 4px;text-align:right;font-size:12px;"></td>
+                <td class="num">1</td>
+                <td class="num" style="font-weight:700;">6</td>
+                <td><span class="status status-ready">대기</span></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" checked></td>
+                <td>20045</td>
+                <td>가로수길 직영점</td>
+                <td>직영점</td>
+                <td><span class="status status-warn" style="background:#FFF8E1;font-size:10px;">A</span></td>
+                <td class="num">4</td>
+                <td class="num">7</td>
+                <td class="num">6</td>
+                <td class="num">3</td>
+                <td class="num ai-val">8</td>
+                <td class="num"><input type="number" value="10" style="width:50px;border:1px solid #ddd;border-radius:3px;padding:2px 4px;text-align:right;font-size:12px;color:var(--warning);font-weight:600;"></td>
+                <td class="num">2</td>
+                <td class="num" style="font-weight:700;color:var(--warning);">10 <span class="diff-pos">↑2</span></td>
+                <td><span class="status status-warn">MD수정</span></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" checked></td>
+                <td>20078</td>
+                <td>스타필드 하남점</td>
+                <td>쇼핑몰입점</td>
+                <td><span class="status status-ready" style="font-size:10px;">B</span></td>
+                <td class="num">6</td>
+                <td class="num">5</td>
+                <td class="num">4</td>
+                <td class="num">3</td>
+                <td class="num ai-val">4</td>
+                <td class="num"><input type="number" value="4" style="width:50px;border:1px solid #ddd;border-radius:3px;padding:2px 4px;text-align:right;font-size:12px;"></td>
+                <td class="num">2</td>
+                <td class="num" style="font-weight:700;">4</td>
+                <td><span class="status status-ready">대기</span></td>
+              </tr>
+              <tr style="background:#FAFBFC;font-weight:600;">
+                <td></td>
+                <td colspan="4">합계 (전체 32 매장)</td>
+                <td class="num">124</td>
+                <td class="num">210</td>
+                <td class="num">192</td>
+                <td class="num">-</td>
+                <td class="num ai-val">253</td>
+                <td class="num">257</td>
+                <td class="num">-</td>
+                <td class="num" style="font-weight:700;">257</td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- TAB 2: 스타일 맵핑 -->
+<!-- ============================================================ -->
+<div id="tab-mapping" class="tab-content">
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label><span class="required">*</span>브랜드</label>
+      <select><option>X: Discovery</option></select>
+    </div>
+    <div class="filter-group">
+      <label><span class="required">*</span>운영시즌 (신상)</label>
+      <select><option>26S</option></select>
+    </div>
+    <div class="filter-group">
+      <label>참조시즌 (전년)</label>
+      <select><option>25S</option></select>
+    </div>
+    <div class="filter-group">
+      <label>중분류</label>
+      <select><option>전체</option><option>아우터</option></select>
+    </div>
+    <div class="filter-group">
+      <label>맵핑 상태</label>
+      <select><option>전체</option><option>미맵핑</option><option>AI 자동맵핑</option><option>사용자 확정</option></select>
+    </div>
+    <button class="btn btn-primary" style="align-self:flex-end;">🔍 조회하기</button>
+    <button class="btn btn-ai" style="align-self:flex-end;">✦ AI 자동 맵핑 실행</button>
+  </div>
+
+  <div class="content">
+    <div class="ai-insight">
+      <div class="ai-icon">✦</div>
+      <div class="ai-text">
+        <strong>AI 자동 맵핑 결과 (2026-03-19 실행)</strong><br>
+        Discovery 26S 시즌 <strong>212개 스타일</strong> 중 <strong>178개(84%)</strong>에 대해 전년 유사 스타일 자동 맵핑을 완료했습니다.
+        같은 ITEM군 + 상품속성 유사도 기반으로 1:N 맵핑을 수행했으며, <strong>평균 신뢰도 87.3%</strong>입니다.
+        미맵핑 34개 스타일은 신규 카테고리 또는 판매이력 부재로 자동 맵핑이 불가합니다.
+      </div>
+    </div>
+
+    <!-- 맵핑 진행률 -->
+    <div class="dashboard-row">
+      <div class="stat-card">
+        <div class="label">전체 스타일</div>
+        <div class="value">212</div>
+      </div>
+      <div class="stat-card ai-card">
+        <div class="label">AI 자동 맵핑</div>
+        <div class="value" style="color:var(--ai-purple);">178</div>
+        <div class="sub">
+          <div class="progress-bar" style="width:100%;margin-top:4px;">
+            <div class="fill" style="width:84%;background:var(--ai-purple);"></div>
+          </div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="label">사용자 확정</div>
+        <div class="value" style="color:var(--success);">96</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">미맵핑 (수동필요)</div>
+        <div class="value" style="color:var(--warning);">34</div>
+      </div>
+    </div>
+
+    <!-- 맵핑 테이블 -->
+    <div class="panel-row full">
+      <div class="panel">
+        <div class="panel-header">
+          <h3>🔗 스타일 맵핑 관리 <span style="font-size:11px;color:var(--text-light);font-weight:400;">(신상 → 전년 유사 스타일)</span></h3>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-outline" style="font-size:11px;">📥 엑셀 업로드</button>
+            <button class="btn btn-outline" style="font-size:11px;">📤 엑셀 다운로드</button>
+            <button class="btn btn-success" style="font-size:11px;">✓ 선택 확정</button>
+          </div>
+        </div>
+        <div class="panel-body" style="padding:0;">
+          <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th><input type="checkbox"></th>
+                <th>상태</th>
+                <th>26S 스타일코드</th>
+                <th>스타일명</th>
+                <th>ITEM</th>
+                <th>컬러수</th>
+                <th>→</th>
+                <th>25S 맵핑 스타일</th>
+                <th>맵핑 스타일명</th>
+                <th>유사도</th>
+                <th class="num">전년 판매량</th>
+                <th>맵핑 방식</th>
+                <th>액션</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="checkbox"></td>
+                <td><span class="status status-done">확정</span></td>
+                <td>DXDJ73041</td>
+                <td>레저 바람막이 자켓</td>
+                <td>바람막이</td>
+                <td>4</td>
+                <td style="color:var(--text-light);">→</td>
+                <td style="color:var(--ai-purple);font-weight:500;">DXDJ63041</td>
+                <td>레저 바람막이 자켓</td>
+                <td><span class="mapping-confidence">96%</span></td>
+                <td class="num">12,450</td>
+                <td><span class="status status-running">AI 자동</span></td>
+                <td><button class="btn btn-outline" style="font-size:10px;padding:2px 8px;">변경</button></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox"></td>
+                <td><span class="status status-running">AI제안</span></td>
+                <td>DXTS72031</td>
+                <td>에센셜 라운드 반팔티</td>
+                <td>반팔티</td>
+                <td>6</td>
+                <td style="color:var(--text-light);">→</td>
+                <td style="color:var(--ai-purple);font-weight:500;">DXTS62031</td>
+                <td>에센셜 라운드 반팔티</td>
+                <td><span class="mapping-confidence">92%</span></td>
+                <td class="num">18,320</td>
+                <td><span class="status status-running">AI 자동</span></td>
+                <td><button class="btn btn-outline" style="font-size:10px;padding:2px 8px;">변경</button></td>
+              </tr>
+              <tr>
+                <td><input type="checkbox"></td>
+                <td><span class="status status-running">AI제안</span></td>
+                <td>DXDJ73055</td>
+                <td>레저 마운틴 자켓</td>
+                <td>레저자켓</td>
+                <td>3</td>
+                <td style="color:var(--text-light);">→</td>
+                <td style="color:var(--ai-purple);font-weight:500;">DXDJ63062, DXDJ63055</td>
+                <td>레저자켓 (1:2 맵핑)</td>
+                <td><span class="mapping-confidence">78%</span></td>
+                <td class="num">8,920</td>
+                <td><span class="status status-running">AI 자동</span></td>
+                <td><button class="btn btn-outline" style="font-size:10px;padding:2px 8px;">변경</button></td>
+              </tr>
+              <tr style="background:#FFF8E1;">
+                <td><input type="checkbox"></td>
+                <td><span class="status status-warn">미맵핑</span></td>
+                <td>DXNW73001</td>
+                <td>어반 클라우드 샌들</td>
+                <td>샌들</td>
+                <td>5</td>
+                <td style="color:var(--text-light);">→</td>
+                <td style="color:var(--text-light);">-</td>
+                <td style="color:var(--text-light);">전년 해당 아이템 판매이력 없음</td>
+                <td>-</td>
+                <td class="num">-</td>
+                <td><span class="status status-warn">수동필요</span></td>
+                <td><button class="btn btn-primary" style="font-size:10px;padding:2px 8px;">맵핑</button></td>
+              </tr>
+              <tr style="background:#FFF8E1;">
+                <td><input type="checkbox"></td>
+                <td><span class="status status-warn">미맵핑</span></td>
+                <td>DXBG73010</td>
+                <td>메쉬 크로스백</td>
+                <td>크로스백</td>
+                <td>3</td>
+                <td style="color:var(--text-light);">→</td>
+                <td style="color:var(--text-light);">-</td>
+                <td style="color:var(--text-light);">신규 카테고리</td>
+                <td>-</td>
+                <td class="num">-</td>
+                <td><span class="status status-warn">수동필요</span></td>
+                <td><button class="btn btn-primary" style="font-size:10px;padding:2px 8px;">맵핑</button></td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- TAB 3: 보충 실행 관리 -->
+<!-- ============================================================ -->
+<div id="tab-execute" class="tab-content">
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label><span class="required">*</span>브랜드</label>
+      <select><option>X: Discovery</option></select>
+    </div>
+    <div class="filter-group">
+      <label><span class="required">*</span>AP</label>
+      <select><option>오프라인 정상</option></select>
+    </div>
+    <div class="filter-group">
+      <label><span class="required">*</span>배분 보충 기간</label>
+      <input type="date" value="2026-03-17" style="min-width:120px;">
+      <span style="align-self:center;color:var(--text-light);">~</span>
+    </div>
+    <div class="filter-group">
+      <label>&nbsp;</label>
+      <input type="date" value="2026-03-23" style="min-width:120px;">
+    </div>
+    <div class="filter-group">
+      <label>보충유형</label>
+      <select><option>전체</option><option>판매분보충</option><option>완주보충</option><option>MD요청</option><option>매장요청</option></select>
+    </div>
+    <button class="btn btn-primary" style="align-self:flex-end;">🔍 조회하기</button>
+    <button class="btn btn-outline" style="align-self:flex-end;">🔄 선택 초기화</button>
+  </div>
+
+  <div class="content">
+
+    <!-- MD 대응 진행 현황 & 매장 요청 진행 현황 (기존 SERP 배분RT 진행현황 스타일) -->
+    <div class="panel-row">
+      <div class="panel">
+        <div class="panel-header">
+          <h3>📋 MD 대응 진행 현황</h3>
+        </div>
+        <div class="panel-body" style="padding:0;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>배분RT 유형</th>
+                <th>유형 상세</th>
+                <th colspan="2" style="text-align:center;">배분RT수량</th>
+                <th colspan="2" style="text-align:center;">배분RT개수</th>
+              </tr>
+              <tr>
+                <th></th>
+                <th></th>
+                <th class="num">합계</th>
+                <th class="num">RT</th>
+                <th class="num">스타일수</th>
+                <th class="num">매장수</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td rowspan="2" style="font-weight:600;">초도배분</td>
+                <td>초도배분</td>
+                <td class="num">115,640</td>
+                <td class="num">490</td>
+                <td class="num">435</td>
+                <td class="num">320</td>
+              </tr>
+              <tr>
+                <td>오픈배분</td>
+                <td class="num">1,374</td>
+                <td class="num">1,358</td>
+                <td class="num">2</td>
+                <td class="num">2</td>
+              </tr>
+              <tr style="background:var(--ai-purple-light);">
+                <td rowspan="2" style="font-weight:600;color:var(--ai-purple);">✦ 판매분 보충</td>
+                <td>판매분 자동 보충</td>
+                <td class="num" style="font-weight:600;">35</td>
+                <td class="num">11</td>
+                <td class="num">7</td>
+                <td class="num">28</td>
+              </tr>
+              <tr style="background:var(--ai-purple-light);">
+                <td>판매분 수기 보충</td>
+                <td class="num">135</td>
+                <td class="num">72</td>
+                <td class="num">28</td>
+                <td class="num">45</td>
+              </tr>
+              <tr>
+                <td style="font-weight:600;">MD요청 보충</td>
+                <td>MD요청/생물</td>
+                <td class="num">328,140</td>
+                <td class="num">3,907</td>
+                <td class="num">332</td>
+                <td class="num">156</td>
+              </tr>
+              <tr style="font-weight:600;background:#F7F8FA;">
+                <td colspan="2">합계</td>
+                <td class="num">446,600</td>
+                <td class="num">5,974</td>
+                <td class="num">1,065</td>
+                <td class="num">320</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h3>🏪 매장 요청 진행 현황</h3>
+        </div>
+        <div class="panel-body" style="padding:0;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>배분RT유형</th>
+                <th class="num">요청 수량</th>
+                <th class="num">RT</th>
+                <th class="num">보충률</th>
+                <th class="num">배분RT개수</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>판매 보충</td>
+                <td class="num" style="color:var(--accent);font-weight:600;">1,923</td>
+                <td class="num">1,892</td>
+                <td class="num">98.5%</td>
+                <td class="num">19</td>
+              </tr>
+              <tr>
+                <td>금액단매</td>
+                <td class="num">17</td>
+                <td class="num">6</td>
+                <td class="num">35.3%</td>
+                <td class="num">1</td>
+              </tr>
+              <tr>
+                <td>환불RT</td>
+                <td class="num">3</td>
+                <td class="num">3</td>
+                <td class="num">100%</td>
+                <td class="num">0</td>
+              </tr>
+              <tr>
+                <td>소량단매</td>
+                <td class="num" style="color:var(--accent);font-weight:600;">6,867</td>
+                <td class="num">3,677</td>
+                <td class="num">54.1%</td>
+                <td class="num">16</td>
+              </tr>
+              <tr>
+                <td>매장 요청 보충</td>
+                <td class="num" style="color:var(--accent);font-weight:600;">5,501</td>
+                <td class="num">3,677</td>
+                <td class="num">66.7%</td>
+                <td class="num">3</td>
+              </tr>
+              <tr>
+                <td>일반RT</td>
+                <td class="num" style="color:var(--accent);font-weight:600;">508,768</td>
+                <td class="num">508,754</td>
+                <td class="num">0%</td>
+                <td class="num">5,057</td>
+              </tr>
+              <tr style="font-weight:600;background:#F7F8FA;">
+                <td>합계</td>
+                <td class="num">508,855</td>
+                <td class="num">9,397</td>
+                <td class="num">48%</td>
+                <td class="num">5,117</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- 보충 RT 리스트 -->
+    <div class="panel-row full">
+      <div class="panel">
+        <div class="panel-header">
+          <h3>📦 보충 RT 리스트 (확정 대기)</h3>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-outline" style="font-size:11px;">📥 엑셀 다운로드</button>
+            <button class="btn btn-warning" style="font-size:11px;">🔄 RT 일괄 생성</button>
+            <button class="btn btn-success" style="font-size:11px;">✓ 선택 확정</button>
+          </div>
+        </div>
+        <div class="panel-body" style="padding:0;">
+          <div class="table-scroll">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th><input type="checkbox"></th>
+                <th>배분RT ID</th>
+                <th>보충유형</th>
+                <th>매장코드</th>
+                <th>매장명</th>
+                <th>상품시즌</th>
+                <th>스타일코드</th>
+                <th>컬러</th>
+                <th>사이즈</th>
+                <th class="num">배분수량</th>
+                <th>배분상태</th>
+                <th>배분 확정자</th>
+                <th>배분 확정일</th>
+                <th>출고확정일</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><input type="checkbox" checked></td>
+                <td style="color:var(--accent);">MDIST2603200017990</td>
+                <td><span class="status status-running">AI보충</span></td>
+                <td>10124</td>
+                <td>롯데 분당점</td>
+                <td>26S</td>
+                <td>DXDJ73041</td>
+                <td>BKS</td>
+                <td>95, 100, 105</td>
+                <td class="num" style="font-weight:600;">12</td>
+                <td><span class="status status-ready">출고요청</span></td>
+                <td>SYSTEM</td>
+                <td>2026-03-20</td>
+                <td>-</td>
+              </tr>
+              <tr>
+                <td><input type="checkbox" checked></td>
+                <td style="color:var(--accent);">MDIST2603200018001</td>
+                <td><span class="status status-running">AI보충</span></td>
+                <td>10089</td>
+                <td>신세계 강남점</td>
+                <td>26S</td>
+                <td>DXDJ73041</td>
+                <td>BKS</td>
+                <td>90, 95, 100, 105</td>
+                <td class="num" style="font-weight:600;">14</td>
+                <td><span class="status status-ready">출고요청</span></td>
+                <td>SYSTEM</td>
+                <td>2026-03-20</td>
+                <td>-</td>
+              </tr>
+              <tr>
+                <td><input type="checkbox"></td>
+                <td style="color:var(--accent);">MDIST2603200018015</td>
+                <td><span class="status status-warn">MD수정</span></td>
+                <td>20045</td>
+                <td>가로수길 직영점</td>
+                <td>26S</td>
+                <td>DXDJ73041</td>
+                <td>BKS</td>
+                <td>95, 100</td>
+                <td class="num" style="font-weight:600;color:var(--warning);">10</td>
+                <td><span class="status status-warn">MD확인중</span></td>
+                <td>macaroon85</td>
+                <td>2026-03-20</td>
+                <td>-</td>
+              </tr>
+            </tbody>
+          </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- TAB 4: 성과 모니터링 -->
+<!-- ============================================================ -->
+<div id="tab-monitor" class="tab-content">
+  <div class="filter-bar">
+    <div class="filter-group">
+      <label><span class="required">*</span>브랜드</label>
+      <select><option>X: Discovery</option></select>
+    </div>
+    <div class="filter-group">
+      <label><span class="required">*</span>AP</label>
+      <select><option>오프라인 정상</option></select>
+    </div>
+    <div class="filter-group">
+      <label><span class="required">*</span>출고 확정일자</label>
+      <input type="date" value="2026-03-01">
+    </div>
+    <div class="filter-group">
+      <label>&nbsp;</label>
+      <input type="date" value="2026-03-20">
+    </div>
+    <div class="filter-group">
+      <label>배분 유형</label>
+      <select><option>전체</option><option>AI보충</option><option>수동보충</option></select>
+    </div>
+    <button class="btn btn-primary" style="align-self:flex-end;">🔍 조회하기</button>
+  </div>
+
+  <div class="content">
+
+    <div class="ai-insight">
+      <div class="ai-icon">📊</div>
+      <div class="ai-text">
+        <strong>보충 성과 요약 (2026-03 기준)</strong><br>
+        AI 보충 제안을 적용한 매장에서 <strong>평균 판매율 +8.2%p</strong> 향상이 관찰되었습니다.
+        특히 아우터 카테고리에서 <strong>재고 회전율이 1.4배</strong> 개선되었으며,
+        품절률은 <strong>기존 12.4% → 7.8%</strong>로 감소했습니다.
+      </div>
+    </div>
+
+    <div class="dashboard-row">
+      <div class="stat-card ai-card">
+        <div class="label">AI 보충 판매율</div>
+        <div class="value" style="color:var(--ai-purple);">68.4%</div>
+        <div class="change up">▲ 8.2%p vs 수동 보충</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">수동 보충 판매율</div>
+        <div class="value">60.2%</div>
+        <div class="sub">기존 방식 기준</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">품절률 (AI)</div>
+        <div class="value" style="color:var(--success);">7.8%</div>
+        <div class="change up">▼ 4.6%p 개선</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">예측 정확도 추이</div>
+        <div class="value">82.4%</div>
+        <div class="change up">▲ 3.2%p vs 지난달</div>
+      </div>
+    </div>
+
+    <div class="panel-row full">
+      <div class="panel">
+        <div class="panel-header">
+          <h3>📈 보충 성과 상세 (배분 유형별)</h3>
+        </div>
+        <div class="panel-body" style="padding:0;">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th rowspan="2">배분RT</th>
+                <th rowspan="2">배분유형</th>
+                <th colspan="3" style="text-align:center;border-bottom:1px solid var(--border);">스타일</th>
+                <th colspan="3" style="text-align:center;border-bottom:1px solid var(--border);">기간 판매</th>
+              </tr>
+              <tr>
+                <th class="num">스타일코드</th>
+                <th>컬러</th>
+                <th>사이즈</th>
+                <th class="num">출고확정수량</th>
+                <th class="num">배분 2주 전</th>
+                <th class="num">배분 2주 후</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="color:var(--accent);">MDIST260320...</td>
+                <td><span class="status status-running">AI보충</span></td>
+                <td>DXDJ73041</td>
+                <td>BKS</td>
+                <td>95</td>
+                <td class="num">12</td>
+                <td class="num">8</td>
+                <td class="num diff-pos" style="font-weight:600;">11 (+37.5%)</td>
+              </tr>
+              <tr>
+                <td style="color:var(--accent);">MDIST260318...</td>
+                <td><span class="status status-done">수동보충</span></td>
+                <td>DXTS72031</td>
+                <td>NVS</td>
+                <td>100</td>
+                <td class="num">8</td>
+                <td class="num">6</td>
+                <td class="num">7 (+16.7%)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== FOOTER ===== -->
+<div class="page-footer">
+  <div class="info">
+    F&F S-ERP (유통ERP) | 배분보충-AIA v0.1 Draft | Menu: ALOC10004 | 2026-03-20
+  </div>
+  <div style="display:flex;gap:8px;">
+    <button class="btn btn-outline" style="font-size:11px;">💬 피드백</button>
+    <button class="btn btn-outline" style="font-size:11px;">📖 사용 가이드</button>
+  </div>
+</div>
+
+<script>
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + tabId).classList.add('active');
+
+  const tabNames = { forecast: 0, mapping: 1, execute: 2, monitor: 3 };
+  document.querySelectorAll('.tab')[tabNames[tabId]].classList.add('active');
+}
+</script>
+
+</body>
+</html>

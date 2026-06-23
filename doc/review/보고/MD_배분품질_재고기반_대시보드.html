@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>MD 배분 품질 분석 — 판매속도 기반</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',-apple-system,sans-serif;background:#f0f2f5;color:#1a1a2e;line-height:1.5}
+header{background:linear-gradient(135deg,#1a1a2e,#0f3460);color:white;padding:26px 40px}
+header h1{font-size:20px;font-weight:800}
+header .sub{font-size:12px;color:#94a3b8;margin-top:6px;line-height:1.8}
+.badge{display:inline-block;background:#e94560;color:white;font-size:11px;padding:2px 9px;border-radius:10px;margin-left:8px;font-weight:700;vertical-align:middle}
+
+.wrap{max-width:1200px;margin:0 auto;padding:26px 22px}
+
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:22px}
+.kpi{background:white;border-radius:10px;padding:18px 15px;box-shadow:0 1px 4px rgba(0,0,0,.07);border-left:4px solid var(--ac,#0f3460)}
+.kpi .lb{font-size:10.5px;color:#64748b;font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.kpi .vl{font-size:26px;font-weight:900;margin:5px 0 2px}
+.kpi .sb{font-size:11px;color:#94a3b8}
+
+/* 섹션 */
+.sec{margin-bottom:20px}
+.sttl{font-size:14px;font-weight:800;color:#1a1a2e;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid #e2e8f0}
+
+/* 카드 */
+.cb{background:white;border-radius:10px;padding:20px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.cb h3{font-size:13px;font-weight:700;margin-bottom:10px;color:#1a1a2e}
+.cb p.desc{font-size:11.5px;color:#64748b;margin-bottom:12px;line-height:1.6}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.g12{display:grid;grid-template-columns:1.6fr 1fr;gap:14px}
+
+/* 주차 카드 */
+.wk{background:white;border-radius:10px;padding:18px;box-shadow:0 1px 4px rgba(0,0,0,.07)}
+.wk h3{font-size:12px;font-weight:800;color:#64748b;margin-bottom:12px}
+.wm{display:flex;justify-content:space-between;margin-bottom:6px;font-size:12.5px}
+.mk{color:#64748b} .mv{font-weight:700}
+.g{color:#16a34a} .y{color:#d97706} .r{color:#dc2626} .b{color:#2563eb} .p{color:#9333ea}
+.progress{height:7px;background:#f1f5f9;border-radius:4px;overflow:hidden;margin:8px 0 4px}
+.progress-inner{height:100%;border-radius:4px;background:linear-gradient(90deg,#10b981,#4ade80)}
+
+/* 핵심 발견 3분면 */
+.finding-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:22px}
+.finding{border-radius:10px;padding:20px;text-align:center}
+.finding .icon{font-size:28px;margin-bottom:8px}
+.finding .num{font-size:32px;font-weight:900;line-height:1.1}
+.finding .lbl{font-size:12px;font-weight:700;margin-top:4px}
+.finding .desc{font-size:11px;margin-top:6px;line-height:1.6}
+
+/* 테이블 */
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead tr{background:#f8fafc}
+th{padding:7px 10px;text-align:left;color:#64748b;font-weight:700;font-size:10.5px;text-transform:uppercase;border-bottom:1px solid #e2e8f0}
+td{padding:6px 10px;border-bottom:1px solid #f1f5f9;}
+tr:hover td{background:#fafafa}
+.pill{display:inline-block;padding:1px 7px;border-radius:8px;font-weight:700;font-size:11px}
+.pr{background:#fef2f2;color:#dc2626} .py{background:#fffbeb;color:#d97706} .pg{background:#f0fdf4;color:#16a34a}
+
+/* 인사이트 */
+.insight{background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:14px 16px;font-size:12.5px;line-height:1.8;color:#1e40af;margin-top:12px}
+.insight strong{color:#1e3a8a}
+.note{background:#fffbeb;border:1px solid #fcd34d;border-radius:8px;padding:12px 16px;font-size:12px;color:#92400e;margin-bottom:18px;line-height:1.7}
+
+footer{text-align:center;padding:18px;font-size:11.5px;color:#94a3b8}
+</style>
+</head>
+<body>
+<header>
+  <h1>MD 배분 품질 분석 — 판매속도 기반<span class="badge">재고 고려 버전</span></h1>
+  <div class="sub">
+    분석 기간: W1(04/27~05/03) · W2(05/04~05/10) · W3(05/11~05/17) &nbsp;|&nbsp; Discovery 의류 전체<br>
+    수요 신호: 배분 직전 3주 평균 주간 판매량 (BIM_SHOP_DD_STK) &nbsp;|&nbsp; 핵심 질문: MD가 <strong style="color:white">판매 중인 매장</strong>에 재고를 보냈는가?
+  </div>
+</header>
+
+<div class="wrap">
+
+<div class="note">
+  ⚠️ <strong>분석 방법론</strong>: 매장 재고 스냅샷 직접 비교 대신 <strong>판매속도(vel)</strong>를 수요 신호로 사용합니다.
+  판매활성 = 배분 직전 3주간 BIM_SHOP_DD_STK 판매 기록이 있는 매장×스타일 조합.
+  "재고 없어서 못 팜(stockout)" 케이스는 판매활성으로 잡히지 않을 수 있어 보수적 추정입니다.
+</div>
+
+<!-- 3가지 핵심 발견 -->
+<div class="finding-grid">
+  <div class="finding" style="background:#fef2f2">
+    <div class="icon">🔴</div>
+    <div class="num" style="color:#dc2626">873</div>
+    <div class="lbl" style="color:#dc2626">기회손실 의심 페어</div>
+    <div class="desc" style="color:#7f1d1d">판매 중이었지만 MD 배분을 받지 못한<br>매장×스타일. 3주 합계 판매 6,050개</div>
+  </div>
+  <div class="finding" style="background:#fef9c3">
+    <div class="icon">⚠️</div>
+    <div class="num" style="color:#d97706">3,005</div>
+    <div class="lbl" style="color:#d97706">수요 없는 곳에 배분</div>
+    <div class="desc" style="color:#78350f">MD가 배분했지만 직전 3주간 판매 이력이<br>없던 매장×스타일. 전체 배분의 98%</div>
+  </div>
+  <div class="finding" style="background:#f0fdf4">
+    <div class="icon">✅</div>
+    <div class="num" style="color:#16a34a">33</div>
+    <div class="lbl" style="color:#16a34a">수요 확인 후 배분</div>
+    <div class="desc" style="color:#14532d">판매 중인 매장에 재고를 보낸 케이스.<br>전체 배분 대상의 1.1%</div>
+  </div>
+</div>
+
+<!-- KPI 카드 -->
+<div class="kpi-row">
+  <div class="kpi" style="--ac:#0f3460">
+    <div class="lb">MD 배분 페어 (창고제외)</div>
+    <div class="vl" style="font-size:20px">3,038</div>
+    <div class="sb">매장×스타일 유니크 조합</div>
+  </div>
+  <div class="kpi" style="--ac:#e94560">
+    <div class="lb">판매활성 미배분 페어</div>
+    <div class="vl" style="color:#dc2626;font-size:20px">873</div>
+    <div class="sb">팔리는데 안 보낸 케이스</div>
+  </div>
+  <div class="kpi" style="--ac:#10b981">
+    <div class="lb">활성매장 배분 비율</div>
+    <div class="vl" style="color:#16a34a">1.1%</div>
+    <div class="sb">전체 배분 페어 중</div>
+  </div>
+  <div class="kpi" style="--ac:#f59e0b">
+    <div class="lb">배분 효율 (주차 내)</div>
+    <div class="vl" style="font-size:20px">0.6%</div>
+    <div class="sb">배분한 주에 실판매÷배분량</div>
+  </div>
+</div>
+
+<!-- 주차별 -->
+<div class="sec">
+  <div class="sttl">📅 주차별 배분 현황</div>
+  <div class="g3">
+
+    <div class="wk">
+      <h3>📦 W1 주차</h3>
+      <div class="wm"><span class="mk">배분 페어 수</span><span class="mv">578건</span></div>
+      <div class="wm"><span class="mk">판매활성 매장 배분</span><span class="mv r">16건 (3%)</span></div>
+      <div class="wm"><span class="mk">판매이력 없는 곳 배분</span><span class="mv r">562건 (97%)</span></div>
+      <div class="wm"><span class="mk">배분 총량</span><span class="mv">3,501개</span></div>
+      <div class="wm"><span class="mk">배분주 실판매</span><span class="mv">121개</span></div>
+      <div class="wm"><span class="mk">배분→판매 효율</span><span class="mv r">4%</span></div>
+      <div class="progress"><div class="progress-inner" style="width:3%"></div></div>
+      <div style="font-size:10.5px;color:#94a3b8">판매활성 커버리지 3%</div>
+    </div>
+
+    <div class="wk">
+      <h3>📦 W2 주차</h3>
+      <div class="wm"><span class="mk">배분 페어 수</span><span class="mv">778건</span></div>
+      <div class="wm"><span class="mk">판매활성 매장 배분</span><span class="mv r">16건 (2%)</span></div>
+      <div class="wm"><span class="mk">판매이력 없는 곳 배분</span><span class="mv r">762건 (98%)</span></div>
+      <div class="wm"><span class="mk">배분 총량</span><span class="mv">5,140개</span></div>
+      <div class="wm"><span class="mk">배분주 실판매</span><span class="mv">38개</span></div>
+      <div class="wm"><span class="mk">배분→판매 효율</span><span class="mv r">1%</span></div>
+      <div class="progress"><div class="progress-inner" style="width:2%"></div></div>
+      <div style="font-size:10.5px;color:#94a3b8">판매활성 커버리지 2%</div>
+    </div>
+
+    <div class="wk">
+      <h3>📦 W3 주차</h3>
+      <div class="wm"><span class="mk">배분 페어 수</span><span class="mv">1,691건</span></div>
+      <div class="wm"><span class="mk">판매활성 매장 배분</span><span class="mv r">1건 (0%)</span></div>
+      <div class="wm"><span class="mk">판매이력 없는 곳 배분</span><span class="mv r">1690건 (100%)</span></div>
+      <div class="wm"><span class="mk">배분 총량</span><span class="mv">19,979개</span></div>
+      <div class="wm"><span class="mk">배분주 실판매</span><span class="mv">3개</span></div>
+      <div class="wm"><span class="mk">배분→판매 효율</span><span class="mv r">0%</span></div>
+      <div class="progress"><div class="progress-inner" style="width:0%"></div></div>
+      <div style="font-size:10.5px;color:#94a3b8">판매활성 커버리지 0%</div>
+    </div>
+
+  </div>
+</div>
+
+<!-- 핵심 분석: 기회손실 + 수요없는 배분 -->
+<div class="sec">
+  <div class="sttl">🔍 핵심 분석: 어떤 상품이 기회손실을 겪었나?</div>
+  <div class="g12">
+    <div class="cb">
+      <h3>🔴 판매 중이었지만 MD 배분 못 받은 상위 15 페어</h3>
+      <p class="desc">팔고 있었지만 새 재고를 받지 못한 매장×스타일. 이들이 재고 부족으로 판매 기회를 잃었을 가능성.</p>
+      <table>
+        <thead><tr><th>매장</th><th>스타일</th><th>시즌</th><th>주간속도</th><th>3주판매</th></tr></thead>
+        <tbody id="missedTable"></tbody>
+      </table>
+    </div>
+    <div class="cb">
+      <h3>배분 구조 시각화</h3>
+      <p class="desc">전체 배분 페어 중 판매활성 / 비활성 비율.</p>
+      <canvas id="vennChart" height="160"></canvas>
+      <div style="margin-top:14px">
+        <canvas id="seasonMissChart" height="160"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 활성매장 배분 심층 -->
+<div class="sec">
+  <div class="sttl">✅ 판매활성 매장 배분 상세 (n=33)</div>
+  <div class="g2">
+    <div class="cb">
+      <h3>판매속도 vs 배분량 (활성매장 only)</h3>
+      <p class="desc">Pearson r = <strong>0.483</strong>. 판매속도가 높은 곳에 더 많이 배분했는가?</p>
+      <canvas id="scatterChart" height="200"></canvas>
+    </div>
+    <div class="cb">
+      <h3>수요없는 배분 시즌 구성</h3>
+      <p class="desc">판매이력 없는 곳에 배분된 물량(28,168개)의 시즌 분포.</p>
+      <canvas id="seasonNovelChart" height="200"></canvas>
+    </div>
+  </div>
+  <div class="insight">
+    <strong>📌 핵심 해석</strong><br>
+    • MD 배분의 <strong>98%</strong>가 직전 3주 판매 이력이 없는 매장×스타일에 투입됨
+      → 신규 도입 or 재고처리 or stockout 이후 복구 배분<br>
+    • <strong>873개 페어</strong>가 팔리고 있었지만 배분을 받지 못했고, 이들의 3주 합계 판매는 <strong>6,050개</strong>
+      → 이 중 일부는 재고 소진 후 기회손실 가능성<br>
+    • <strong>ILP 개선점</strong>: 판매속도를 직접 입력으로 받아 active 매장 우선 배분 → 기회손실 페어 감소 & 활성커버리지 향상
+  </div>
+</div>
+
+</div>
+<footer>보충배분-AIA 검증팀 &nbsp;|&nbsp; MD 배분 품질 분석 v2 (판매속도+재고 관점) &nbsp;|&nbsp; W1~W3 Discovery 의류</footer>
+
+<script>
+const D = {"venn": {"both": 33, "md_only": 3005, "vel_only": 873}, "top_missed": [{"shop": "10064", "style": "DMTS71063", "season": "063", "total_sales": 246, "avg_vel": 28.11}, {"shop": "10007", "style": "DMRS85053", "season": "053", "total_sales": 168, "avg_vel": 49.44}, {"shop": "11005", "style": "DKTR73053", "season": "053", "total_sales": 121, "avg_vel": 14.22}, {"shop": "30046", "style": "DXTB7G053", "season": "053", "total_sales": 118, "avg_vel": 42.78}, {"shop": "10026", "style": "DMTS71063", "season": "063", "total_sales": 115, "avg_vel": 0.78}, {"shop": "11007", "style": "DKRS51053", "season": "053", "total_sales": 114, "avg_vel": 10.67}, {"shop": "50179", "style": "DMRS63063", "season": "063", "total_sales": 105, "avg_vel": 19.89}, {"shop": "30019", "style": "DXRS8T053", "season": "053", "total_sales": 104, "avg_vel": 34.67}, {"shop": "10096", "style": "DXTB7G053", "season": "053", "total_sales": 99, "avg_vel": 21.89}, {"shop": "30040", "style": "DXTR75043", "season": "043", "total_sales": 78, "avg_vel": 24.67}, {"shop": "30042", "style": "DXRS8T053", "season": "053", "total_sales": 68, "avg_vel": 29.33}, {"shop": "30019", "style": "DXRS8R053", "season": "053", "total_sales": 67, "avg_vel": 44.67}, {"shop": "10079", "style": "DMWJ7S053", "season": "053", "total_sales": 66, "avg_vel": 4.22}, {"shop": "30010", "style": "DWRS64053", "season": "053", "total_sales": 65, "avg_vel": 15.78}, {"shop": "10096", "style": "DXTR7G053", "season": "053", "total_sales": 60, "avg_vel": 11.11}], "vel_only_season": {"063": 447, "053": 288, "061": 81, "051": 31, "043": 21, "056": 5}, "md_only_alloc_season": {"056": 14846, "043": 4947, "053": 3485, "063": 2200, "054": 1848, "051": 816}, "week_summary": {"W1": {"n_md": 578, "n_active": 16, "n_inactive": 562, "total_alloc": 3501, "total_sales_week": 121, "eff": 0.035}, "W2": {"n_md": 778, "n_active": 16, "n_inactive": 762, "total_alloc": 5140, "total_sales_week": 38, "eff": 0.007}, "W3": {"n_md": 1691, "n_active": 1, "n_inactive": 1690, "total_alloc": 19979, "total_sales_week": 3, "eff": 0.0}}, "md_both_alloc": 452, "md_inactive_alloc": 28168, "total_missed_sales": 6050, "corr_both": 0.483, "both_scatter": [{"x": 0.0, "y": 5, "week": "W1", "style": "DKRS76063", "shop": "11025"}, {"x": 1.333333, "y": 6, "week": "W1", "style": "DXRS83053", "shop": "50130"}, {"x": 1.0, "y": 1, "week": "W1", "style": "DWRS74063", "shop": "50101"}, {"x": 0.666667, "y": 1, "week": "W2", "style": "DMRS8I063", "shop": "10053"}, {"x": 0.0, "y": 6, "week": "W3", "style": "DMSP77053", "shop": "50149"}, {"x": 0.0, "y": 2, "week": "W3", "style": "DWDJ76056", "shop": "50206"}, {"x": 0.0, "y": 3, "week": "W2", "style": "DKAZ22063", "shop": "50059"}, {"x": 11.666667, "y": 6, "week": "W1", "style": "DXRS83053", "shop": "30046"}, {"x": 0.0, "y": 2, "week": "W3", "style": "DWDJ76056", "shop": "50058"}, {"x": 0.666667, "y": 1, "week": "W1", "style": "DWRS74063", "shop": "30028"}, {"x": 0.0, "y": 3, "week": "W3", "style": "DMWJR3063", "shop": "50037"}, {"x": 0.0, "y": 1, "week": "W3", "style": "DMWJR3063", "shop": "50114"}, {"x": 1.0, "y": 2, "week": "W1", "style": "DXRS7S063", "shop": "50089"}, {"x": 0.0, "y": 21, "week": "W3", "style": "DWDJ9A056", "shop": "50187"}, {"x": 1.0, "y": 2, "week": "W2", "style": "DWRS97063", "shop": "50126"}, {"x": 0.333333, "y": 1, "week": "W2", "style": "DMRS8I063", "shop": "50207"}, {"x": 0.666667, "y": 2, "week": "W2", "style": "DMRS8I063", "shop": "50140"}, {"x": 0.333333, "y": 2, "week": "W1", "style": "DWOP96053", "shop": "10009"}, {"x": 0.0, "y": 21, "week": "W3", "style": "DWDJ9A056", "shop": "50089"}, {"x": 0.0, "y": 1, "week": "W3", "style": "DMWJR3063", "shop": "10079"}, {"x": 0.0, "y": 2, "week": "W3", "style": "DMWJR3063", "shop": "50052"}, {"x": 0.0, "y": 1, "week": "W3", "style": "DMWJR3063", "shop": "50143"}, {"x": 0.0, "y": 2, "week": "W3", "style": "DMWJR3063", "shop": "10043"}, {"x": 0.0, "y": 3, "week": "W3", "style": "DWWJR4063", "shop": "50181"}, {"x": 0.0, "y": 11, "week": "W3", "style": "DWDJ80056", "shop": "30033"}, {"x": 0.0, "y": 1, "week": "W2", "style": "DMRS8I063", "shop": "10018"}, {"x": 0.0, "y": 2, "week": "W3", "style": "DMWJR3063", "shop": "30046"}, {"x": 4.666667, "y": 2, "week": "W1", "style": "DKRS76063", "shop": "50019"}, {"x": 0.0, "y": 3, "week": "W3", "style": "DWWJR4063", "shop": "10087"}, {"x": 1.333333, "y": 1, "week": "W1", "style": "DMPT7C053", "shop": "10011"}, {"x": 0.0, "y": 2, "week": "W2", "style": "DXRS5G063", "shop": "30052"}, {"x": 2.0, "y": 5, "week": "W1", "style": "DXRS87053", "shop": "50130"}, {"x": 0.0, "y": 1, "week": "W3", "style": "DMWJR3063", "shop": "50207"}, {"x": 0.333333, "y": 3, "week": "W2", "style": "DKAZ22063", "shop": "50103"}, {"x": 1.0, "y": 2, "week": "W2", "style": "DXTB7A063", "shop": "10073"}, {"x": 0.0, "y": 3, "week": "W3", "style": "DWDJ76056", "shop": "30055"}, {"x": 0.0, "y": 3, "week": "W3", "style": "DWWJR4063", "shop": "10093"}, {"x": 0.0, "y": 2, "week": "W1", "style": "DWSB93053", "shop": "50130"}, {"x": 0.666667, "y": 1, "week": "W1", "style": "DWRS74063", "shop": "50186"}, {"x": 2.0, "y": 2, "week": "W3", "style": "DMWJ7Q053", "shop": "10070"}, {"x": 0.0, "y": 2, "week": "W3", "style": "DWWJR4063", "shop": "10091"}, {"x": 0.0, "y": 3, "week": "W3", "style": "DWWJR4063", "shop": "50117"}, {"x": 0.0, "y": 3, "week": "W3", "style": "DWDJ76056", "shop": "30023"}, {"x": 0.0, "y": 3, "week": "W3", "style": "DWWJR4063", "shop": "50205"}, {"x": 0.0, "y": 2, "week": "W3", "style": "DWWJR4063", "shop": "50174"}, {"x": 0.0, "y": 2, "week": "W3", "style": "DWWJR4063", "shop": "50138"}, {"x": 4.0, "y": 5, "week": "W1", "style": "DKTP3D051", "shop": "11013"}, {"x": 1.0, "y": 3, "week": "W1", "style": "DXRS7S063", "shop": "50160"}, {"x": 0.0, "y": 1, "week": "W3", "style": "DMWJR3063", "shop": "10060"}, {"x": 0.0, "y": 1, "week": "W3", "style": "DMWJR3063", "shop": "10070"}, {"x": 1.666667, "y": 12, "week": "W1", "style": "DWRS9P053", "shop": "50130"}, {"x": 0.0, "y": 3, "week": "W3", "style": "DWWJR4063", "shop": "10055"}, {"x": 0.0, "y": 3, "week": "W3", "style": "DWWJR4063", "shop": "10033"}, {"x": 0.0, "y": 8, "week": "W3", "style": "DMSP7I053", "shop": "50149"}, {"x": 2.666667, "y": 38, "week": "W1", "style": "DXRS8R053", "shop": "30046"}, {"x": 0.0, "y": 17, "week": "W3", "style": "DWDJ8P056", "shop": "50187"}, {"x": 0.0, "y": 1, "week": "W3", "style": "DMWJR3063", "shop": "10087"}, {"x": 0.0, "y": 3, "week": "W3", "style": "DWWJR4063", "shop": "50134"}, {"x": 0.666667, "y": 2, "week": "W2", "style": "DXTB7A063", "shop": "50211"}, {"x": 0.0, "y": 10, "week": "W3", "style": "DWSS3B054", "shop": "30037"}, {"x": 0.333333, "y": 1, "week": "W2", "style": "DKOP12063", "shop": "50053"}, {"x": 0.0, "y": 11, "week": "W3", "style": "DWDJ80056", "shop": "50187"}, {"x": 10.666667, "y": 62, "week": "W2", "style": "DWWJ95043", "shop": "30024"}, {"x": 0.0, "y": 1, "week": "W2", "style": "DXTB7A063", "shop": "50183"}, {"x": 0.0, "y": 2, "week": "W2", "style": "DKRS57053", "shop": "30028"}, {"x": 0.333333, "y": 1, "week": "W2", "style": "DWRS8J063", "shop": "50180"}, {"x": 0.0, "y": 6, "week": "W3", "style": "DWWJR4063", "shop": "50096"}, {"x": 0.0, "y": 1, "week": "W2", "style": "DWRS97063", "shop": "30015"}, {"x": 0.0, "y": 21, "week": "W3", "style": "DWDJ9A056", "shop": "50096"}, {"x": 0.333333, "y": 1, "week": "W2", "style": "DXTB7A063", "shop": "50191"}, {"x": 0.0, "y": 16, "week": "W2", "style": "DMSP7C053", "shop": "50190"}, {"x": 0.0, "y": 12, "week": "W1", "style": "DWWJ91053", "shop": "50130"}, {"x": 0.0, "y": 6, "week": "W1", "style": "DMPT33051", "shop": "50130"}, {"x": 0.333333, "y": 8, "week": "W1", "style": "DWWJ7D053", "shop": "50130"}, {"x": 0.666667, "y": 1, "week": "W2", "style": "DXTB7A063", "shop": "10029"}, {"x": 0.0, "y": 1, "week": "W3", "style": "DWWJR4063", "shop": "10026"}, {"x": 5.666667, "y": 17, "week": "W2", "style": "DWWJ94043", "shop": "30024"}, {"x": 0.0, "y": 21, "week": "W3", "style": "DWDJ9A056", "shop": "50206"}]};
+
+// ── 기회손실 테이블 ───────────────────────────────────────────────────────────
+const tbody = document.getElementById('missedTable');
+D.top_missed.forEach(r => {
+  const tr = document.createElement('tr');
+  const velClass = r.avg_vel > 3 ? 'pr' : r.avg_vel > 1 ? 'py' : 'pg';
+  tr.innerHTML = `<td><strong>${r.shop}</strong></td><td>${r.style}</td><td>${r.season}</td>
+    <td><span class="pill ${velClass}">${r.avg_vel.toFixed(1)}/주</span></td>
+    <td><strong>${r.total_sales}</strong></td>`;
+  tbody.appendChild(tr);
+});
+
+// ── 배분 구조 도넛 ────────────────────────────────────────────────────────────
+new Chart(document.getElementById('vennChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['판매활성+배분 ✅','판매이력없음+배분 ⚠️'],
+    datasets: [{
+      data: [D.venn.both, D.venn.md_only],
+      backgroundColor: ['#10b981','#f59e0b'], borderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { position:'bottom', labels:{font:{size:11},padding:8} },
+      tooltip: {
+        callbacks: {
+          label: ctx => {
+            const tot = ctx.dataset.data.reduce((a,b)=>a+b,0);
+            return ` ${ctx.label}: ${ctx.parsed} (${(ctx.parsed/tot*100).toFixed(0)}%)`;
+          }
+        }
+      }
+    }
+  }
+});
+
+// ── 기회손실 시즌 분포 ────────────────────────────────────────────────────────
+const sOrder = Object.keys(D.vel_only_season);
+new Chart(document.getElementById('seasonMissChart'), {
+  type: 'bar',
+  data: {
+    labels: sOrder,
+    datasets: [{ label:'기회손실 페어 수', data: sOrder.map(s=>D.vel_only_season[s]),
+      backgroundColor: '#ef444499', borderRadius: 4 }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend:{position:'top',labels:{font:{size:10}}} },
+    scales: {
+      x: { title:{display:true,text:'시즌코드',font:{size:10}} },
+      y: { title:{display:true,text:'페어 수',font:{size:10}} }
+    }
+  }
+});
+
+// ── 산점도 (활성매장 only) ────────────────────────────────────────────────────
+const wCol = {'W1':'rgba(14,52,96,0.7)','W2':'rgba(233,69,96,0.7)','W3':'rgba(16,185,129,0.7)'};
+new Chart(document.getElementById('scatterChart'), {
+  type: 'scatter',
+  data: {
+    datasets: ['W1','W2','W3'].map(w => ({
+      label: w,
+      data: D.both_scatter.filter(r=>r.week===w).map(r=>({x:r.x, y:r.y, label:`${r.style}@${r.shop}`})),
+      backgroundColor: wCol[w], pointRadius: 6, pointHoverRadius: 8
+    }))
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend:{position:'top',labels:{font:{size:11}}},
+      tooltip:{callbacks:{label:ctx=>`${ctx.raw.label}: vel=${ctx.raw.x.toFixed(1)}, alloc=${ctx.raw.y}`}}
+    },
+    scales: {
+      x:{title:{display:true,text:'판매속도 (주/개)',font:{size:11}}},
+      y:{title:{display:true,text:'MD 배분량 (개)',font:{size:11}}}
+    }
+  }
+});
+
+// ── 수요없는 배분 시즌 ────────────────────────────────────────────────────────
+const sOrder2 = Object.keys(D.md_only_alloc_season);
+new Chart(document.getElementById('seasonNovelChart'), {
+  type: 'bar',
+  data: {
+    labels: sOrder2,
+    datasets: [{ label:'판매이력없 배분량(개)', data: sOrder2.map(s=>D.md_only_alloc_season[s]),
+      backgroundColor: '#f59e0b99', borderRadius: 4 }]
+  },
+  options: {
+    responsive: true,
+    plugins: {legend:{position:'top',labels:{font:{size:10}}}},
+    scales: {
+      x:{title:{display:true,text:'시즌코드',font:{size:10}}},
+      y:{title:{display:true,text:'배분 수량(개)',font:{size:10}}}
+    }
+  }
+});
+</script>
+</body>
+</html>
